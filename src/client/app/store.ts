@@ -6,6 +6,8 @@ export type Connection = 'loading' | 'ready' | 'error';
 
 export interface UiState {
   selectedId: string | null;
+  /** Project whose room is shown; null = the first project (see office/scene.ts `selectProject`). */
+  activeProjectId: string | null;
 }
 
 export interface AppState {
@@ -26,7 +28,7 @@ export interface Store {
 }
 
 export function initialState(): AppState {
-  return { snapshot: null, connection: 'loading', error: null, ui: { selectedId: null } };
+  return { snapshot: null, connection: 'loading', error: null, ui: { selectedId: null, activeProjectId: null } };
 }
 
 export function createStore(initial: AppState = initialState()): Store {

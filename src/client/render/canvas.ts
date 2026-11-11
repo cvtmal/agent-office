@@ -1,8 +1,9 @@
 // The office canvas: fixed 480x270 scene, scaled by whole numbers only.
 import { SCENE_HEIGHT, SCENE_WIDTH } from '../../shared/constants.js';
+import { colour } from './palette.js';
 
-/** Placeholder clear colour; cycle #2's palette.ts replaces it. */
-export const CLEAR_COLOUR = '#1a1022';
+/** Clear colour: the palette's darkest night (also `--bg` in ui/shell.css). */
+export const CLEAR_COLOUR = colour('night0');
 
 /** Largest whole-number scale that fits; never below 1 (the stage scrolls). */
 export function integerScale(availW: number, availH: number): number {

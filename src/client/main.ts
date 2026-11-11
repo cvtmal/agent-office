@@ -4,8 +4,10 @@ import '@fontsource/pixelify-sans/400.css';
 import './ui/shell.css';
 import { loadSnapshot } from './app/api.js';
 import { createStore } from './app/store.js';
+import { mountOffice } from './office/mount.js';
 import { mountCanvas } from './render/canvas.js';
 import { mountStatus } from './ui/status.js';
+import { mountTabs } from './ui/tabs.js';
 
 function byId<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -18,5 +20,7 @@ const store = createStore();
 // Later cycles append one mount call each.
 mountCanvas(byId<HTMLCanvasElement>('office'), byId('stage'));
 mountStatus(byId('overview'), store);
+mountOffice(byId<HTMLCanvasElement>('office'), store);
+mountTabs(byId('overview'), store);
 
 void loadSnapshot(store);

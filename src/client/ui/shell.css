@@ -1,9 +1,9 @@
 /* Page shell: overview on top, stage and inspector below. */
 :root {
-  --bg: #1a1022; /* same as CLEAR_COLOUR in render/canvas.ts */
-  --panel: #2b1a38;
-  --border: #f2e6c9;
-  --text: #f2e6c9;
+  --bg: #1a1022; /* palette night0 = CLEAR_COLOUR (test/palette-css.test.ts) */
+  --panel: #2b1a38; /* palette night1 */
+  --border: #f2e6c9; /* palette lamp2 */
+  --text: #f2e6c9; /* palette lamp2 */
 }
 
 * {
@@ -54,7 +54,45 @@ body {
 
 #overview {
   grid-area: overview;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
   padding: 4px 8px;
+}
+
+/* Project tabs (ui/tabs.ts): shown when there are two or more projects. */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tabs[hidden] {
+  display: none;
+}
+
+.tab {
+  padding: 2px 8px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tab:hover {
+  background: var(--panel);
+}
+
+.tab[aria-selected='true'] {
+  background: var(--border);
+  color: var(--bg);
+}
+
+.tab:focus-visible {
+  outline: 1px solid var(--border);
+  outline-offset: 2px;
 }
 
 #stage {

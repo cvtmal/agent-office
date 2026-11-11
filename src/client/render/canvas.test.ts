@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { integerScale } from './canvas.js';
+import { CLEAR_COLOUR, integerScale } from './canvas.js';
+import { colour } from './palette.js';
 
 describe('integerScale', () => {
   it.each([
@@ -9,5 +10,11 @@ describe('integerScale', () => {
     [300, 200, 1],
   ])('%i x %i -> %i', (w, h, scale) => {
     expect(integerScale(w, h)).toBe(scale);
+  });
+});
+
+describe('CLEAR_COLOUR', () => {
+  it('is the palette night0', () => {
+    expect(CLEAR_COLOUR).toBe(colour('night0'));
   });
 });

@@ -9,7 +9,7 @@ const sample = sampleJson as unknown as Snapshot;
 describe('createStore', () => {
   it('starts loading with no snapshot', () => {
     const state = createStore().getState();
-    expect(state).toEqual({ snapshot: null, connection: 'loading', error: null, ui: { selectedId: null } });
+    expect(state).toEqual({ snapshot: null, connection: 'loading', error: null, ui: { selectedId: null, activeProjectId: null } });
   });
 
   it('notifies subscribers on each change with a new state object', () => {

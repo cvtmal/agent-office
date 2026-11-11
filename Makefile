@@ -4,7 +4,7 @@ PORT ?= $(or $(HARNESS_PORT),4477)
 BIN := node_modules/.bin
 DEPS := node_modules/.package-lock.json
 
-.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx
+.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx sprites
 
 $(DEPS): package-lock.json
 	npm ci
@@ -50,3 +50,7 @@ fixtures: $(DEPS)
 # The reader's characters of this repo against bin/harness/ctx --json (plan Phase 8; not a gate).
 compare-ctx: $(DEPS)
 	$(BIN)/tsx src/server/compare-ctx.ts
+
+# Write a 4x PNG preview sheet per sprite family (and the palette) to var/sprites/.
+sprites: $(DEPS)
+	SPRITE_PNG=1 $(BIN)/vitest run test/sprite-preview.test.ts
