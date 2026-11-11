@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 2
-- **Phase of the project:** #0–#4 landed (2436a73, CI green); #5 and #6 in implement
+- **Phase of the project:** #0–#4, #6 landed (cccf801); #5 in implement session 2
 - **Wave in progress:** W3 (W1, W2 done 2026-11-11)
 
 ## Mechanics
@@ -36,14 +36,13 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #6 inspector-ui | review | c06-review | A (8001) | 2026-11-11 21:30 | implement done (1094 tests, 23 e2e); lands before #5 |
-| #5 office-life | implement (paused) | — | B (8002) | 2026-11-11 21:20 | session 1 done (Phases 1–6, 1120 tests); c05-impl-2 from Step 7.1 after #6 lands + `lane sync office-life` |
+| #5 office-life | implement | c05-impl-2 | B (8002) | 2026-11-11 21:45 | session 1 done (Phases 1–6); session 2 from Step 7.1 on top of #6 |
 
 ## Next actions
 
 For the active CTO, in order (the loop, `CTO.md` §4):
 
-1. **#6 `inspector-ui` (lane A, 8001): `c06-impl` running** (plan `.rpi-tracking/plans/2026-11-11/inspector-ui-plan.md`, 7 phases, M). Then `c06-review`. #6 lands before #5.
+1. **#6 landed** (cccf801); lane A closed.
 2. **#5 `office-life` (lane B, 8002): `c05-impl` running Phases 1–6**, ends with a planned CONTEXT-LIMIT report ("Next: Step 7.1"). Then, once #6 has landed and its CI is green: `bin/harness/lane sync office-life`, spawn `c05-impl-2` from Step 7.1, then `c05-review`. If #6 is late, `c05-impl-2` may start anyway and create #6's shared files as #6's plan specifies (D-028).
 3. **#7 `polish`** after #5 and #6 land: research → plan → implement → review. Its section names the release report.
 4. **G2 (O-3):** default go-ahead 2026-11-12 19:45.

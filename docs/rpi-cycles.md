@@ -1,6 +1,6 @@
 # Agent Office: RPI cycles
 
-_Last updated: 2026-11-11 (CTO-2: #3 done) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
+_Last updated: 2026-11-11 (CTO-2: #6 done) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
 
 We are building Agent Office, a local web app that shows the owner's Claude Code sessions and agents as pixel-art characters in an office, with the look of a point-and-click adventure: who is busy, idle or gone, what each one is doing, and how full its context is. It reads Claude Code transcripts read-only and adds harness detail when a repo has it. The scope document is the scope. This file turns it into `/rpi` cycles and sets the order.
 
@@ -75,7 +75,7 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 | 3 | `live-api` | W2 | DATA-5, DATA-7, DATA-9, RUN-1, RUN-2, UI-4 | 1, 2 | — | G3 | Research | L |✅ Done |
 | 4 | `harness-extras` | W2 | DATA-6 | 1 | — | — | Research | M |✅ Done |
 | 5 | `office-life` | W3 | OFFICE-4, OFFICE-5, OFFICE-6, OFFICE-7 | 3, 4 | — | — | Research | L | Open |
-| 6 | `inspector-ui` | W3 | UI-1, UI-2, UI-3, UI-5 | 3 | — | — | Research | M | Open |
+| 6 | `inspector-ui` | W3 | UI-1, UI-2, UI-3, UI-5 | 3 | — | — | Research | M |✅ Done |
 | 7 | `polish` | W4 | RUN-3, OFFICE-1 (frame time), §7 Sound | 5, 6 | — | — | Research | M | Open |
 
 ### Waves at a glance
