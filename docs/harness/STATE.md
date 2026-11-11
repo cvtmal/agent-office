@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 1
-- **Phase of the project:** set up, nothing built
-- **Wave in progress:** —
+- **Phase of the project:** W0 running
+- **Wave in progress:** W0
 
 ## Mechanics
 
@@ -35,9 +35,11 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| — | — | — | — | — | — |
+| #0 bootstrap | research | c00-research | A (8001) | 2026-11-11 16:45 | — |
 
 ## Next actions
+
+Bootstrap steps 0–4 done (2026-11-11). Now: the loop, CTO.md §4; #0 is in research.
 
 Bootstrap, in order (generation 0 → 1):
 

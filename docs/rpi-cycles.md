@@ -90,7 +90,7 @@ W4  #7 polish
 
 **Critical path:** #0 → #1 → #3 → #5 → #7. Start #1 before #2 in W1.
 
-**Milestones.** After #2: a screenshot of the office with 12 characters from the sample snapshot (art check, G2). After #3: the office shows the owner's real sessions live, and replay works. After #5: the office is alive (animations, meters, bubbles, done wall). After #7: v1.
+**Milestones.** After #2: a screenshot of the office with the 14 characters of the sample snapshot (art check, G2). After #3: the office shows the owner's real sessions live, and replay works. After #5: the office is alive (animations, meters, bubbles, done wall). After #7: v1.
 
 **What can move.** #4 can start as soon as #1 lands, without waiting for #2. #6 can research and plan while #5 runs, and can start before #4 lands. #2 does not depend on #1 and can slip without moving the critical path until #3 starts.
 
@@ -112,13 +112,13 @@ Settled now so that parallel cycles do not each decide them differently. A cycle
 
 ### S1. Stack
 
-- TypeScript (strict) everywhere, ES modules, one npm package (no workspaces). Node ≥ 20 at runtime; the owner's machine has Node 26.
+- TypeScript (strict) everywhere, ES modules, one npm package (no workspaces). Node ≥ 22.13 at runtime (ESLint 10 needs it; CI uses Node 22); the owner's machine has Node 26.
 - **Server:** Node built-ins only (`http`, `fs`, `fs.watch`, `child_process` for `ps`). No web framework. Run in development with `tsx`, built with `tsc` (or `esbuild` if `tsc` output is awkward; #0 decides and records).
 - **Client:** Vite, Canvas 2D, plain TypeScript and DOM for the HTML parts. No game engine, no React or other UI framework, no state library: a small store of our own (#0 provides it).
 - **One port.** The Node server serves the API and the client. In development it mounts Vite in middleware mode; in production it serves the built client from `dist/client`.
 - **Fonts:** a pixel font drawn as code for the canvas; an open-licence pixel font from an npm package (for example `@fontsource/*`) bundled by Vite for the HTML. Nothing is loaded from the network at runtime.
 - **Tests:** Vitest (unit and contract tests, `make test`); Playwright for browser checks (`make e2e`, not a landing gate, run by the cycles that draw). ESLint with typescript-eslint plus `tsc --noEmit` (`make lint`).
-- **Makefile targets** (created by #0, filled by later cycles): `install`, `dev`, `build`, `start`, `lint`, `test`, `e2e`, `replay` (`make replay DIR=fixtures/replay/harness`). `bin/agent-office` is the CLI entry (RUN-1).
+- **Makefile targets** (created by #0, filled by later cycles): `install`, `dev`, `build`, `start`, `stop`, `lint`, `test`, `e2e`, `replay` (`make replay DIR=fixtures/replay/harness`). `bin/agent-office` is the CLI entry (RUN-1).
 - **Not used:** databases, Docker, PixiJS or any engine, React/Vue/Svelte, CSS frameworks, CDNs, analytics, Claude Code hooks (scope §6).
 
 ### S2. Architecture
