@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 2
-- **Phase of the project:** #0–#4, #6 landed (cccf801); #5 in implement session 2
-- **Wave in progress:** W3 (W1, W2 done 2026-11-11)
+- **Phase of the project:** #0–#6 landed (dee2a25, CI green); only #7 `polish` left
+- **Wave in progress:** W4 (W1–W3 done 2026-11-11)
 
 ## Mechanics
 
@@ -36,17 +36,14 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #5 office-life | review | c05-review | B (8002) | 2026-11-11 22:30 | implement done (1198 tests, 27 e2e); its landing run is also cccf801's CI verdict (D-033) |
 
 ## Next actions
 
-For the active CTO, in order (the loop, `CTO.md` §4):
+For CTO-3, in order (the loop, `CTO.md` §4):
 
-1. **#6 landed** (cccf801); lane A closed.
-2. **#5 `office-life` (lane B, 8002): `c05-impl` running Phases 1–6**, ends with a planned CONTEXT-LIMIT report ("Next: Step 7.1"). Then, once #6 has landed and its CI is green: `bin/harness/lane sync office-life`, spawn `c05-impl-2` from Step 7.1, then `c05-review`. If #6 is late, `c05-impl-2` may start anyway and create #6's shared files as #6's plan specifies (D-028).
-3. **#7 `polish`** after #5 and #6 land: research → plan → implement → review. Its section names the release report.
-4. **G2 and G3 answered by the owner (D-034).** #7's section has the new lines (detail mode opt-in, art seam doc, memory 171 MB vs 150 MB, carried art). At the finish (`CTO.md` §11): the owner wants to see the app running before the final verdict; the push notification says how to start it (`make start` / `make replay DIR=fixtures/replay/harness`) and lists the manual checks.
-5. Wave boundary after #5 and #6 land (W3 done): commit `chore(harness): state after W3`.
+1. **Arm the watchdog** (`CTO.md` §4 step 6) before your first wait.
+2. **#7 `polish`:** `bin/harness/lane open polish`, then spawn `c07-research` (§5 template). Size M, but read its section: the owner added four lines on 2026-11-11 (D-034): detail mode as an opt-in, `docs/design/art-seam.md` (art must stay replaceable), memory 171 MB vs RUN-3's 150 MB, weak art carried from #5. Tell the researcher those lines exist. Then plan → implement → review as usual (watchers on implement and review; add "Minors never cause rework (D-027)" to the review prompt).
+3. **Finish = stop for owner review** (`CTO.md` §11, D-034): after #7 lands and CI is green, make sure the README is the release report the #7 section asks for, bring `DECISIONS.md`/`STATE.md` to their final state, delete the watchdog, commit, push, then ONE push notification: the app is done; how to see it (`make start` for live, `make replay DIR=fixtures/replay/harness` for the replay); the owner's manual checks (list in Notes). Then stop.
 
 ## Notes for the successor
 
@@ -57,7 +54,10 @@ For the active CTO, in order (the loop, `CTO.md` §4):
 - Spawn prompts that worked: the CTO.md §5 template plus, for implement/review, the "Save context" line and a pointer to the plan/changes log. Watcher: `until bin/harness/ctx <name> >/dev/null 2>&1; rc=$?; [ $rc -eq 20 ]; do sleep 60; done` in the background (exit 20 = RECYCLE).
 - Do not `cd` into a lane in a Bash call: it moves the CTO session.
 - The owner may have `docs/harness/STATE.md` open in vim (a `.STATE.md.swp` appeared); untracked, harmless.
-- Owner items O-1–O-3 are all done. Manual checks for the owner after v1 are in D-030 and D-031, plus #5's on-screen animations (per-kind overlays, couch, raised hand, WARN/HANDOVER meter, CTO cheer, pause).
+- Owner items O-1–O-3 are all done; the inbox is empty. **Owner's manual checks for the final notification:** real sessions in the browser within 2 s; `--open` on macOS; a full speed-1 replay (12 min); frame time in a real browser; VoiceOver over hotspots and card; card on a real 2× display and a phone; #5's on-screen animations (per-kind overlays, couch, raised hand, WARN/HANDOVER meter, CTO cheer, pause).
+- The owner said (not to be written into the plan): if they are not happy with the visuals at the end, the art may be redone with other tools later. That is why #7 writes the art seam doc; do not name or plan tools.
+- **CI glitch (D-033):** cccf801's run stayed queued with no jobs and could neither be cancelled nor rerun; the next landing's run gave the verdict. If it happens again, do the same and log it.
+- Teammates that pass 150k mid-review (c05-review stopped at 151k before `land`): a fresh `<cycle>-review-2` that only runs `land` (TEAMMATE.md §5 steps 2–4) took ~60k and worked.
 - CI: since #4 landed, each push to `main` has its own concurrency group and harness-only pushes skip CI (`paths-ignore`), so harness pushes no longer cancel a landing's run.
 - The owner looked at interim art (#2 Phase 5 and 9 screenshots) and asked for visuals; show them the G2 screenshots when #2 lands.
 
@@ -68,4 +68,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 `CTO-<n> active since <date time> · handed over <time> at <tokens> · landed <cycles>`
 
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
-CTO-2 active since 2026-11-11 19:30 · handed over — · landed —
+CTO-2 active since 2026-11-11 19:30 · handed over 2026-11-11 22:56 at ~207k · landed #2, #3, #5, #6
