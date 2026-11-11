@@ -93,6 +93,10 @@ describe('clean', () => {
     expect(clean('one\r\ntwo\tthree\u000bfour\ffive')).toBe('one two three four five');
     expect(clean('a \u0000\n b')).toBe('a b');
   });
+
+  it('cuts to an explicit maximum', () => {
+    expect(clean('a'.repeat(100), 80)).toHaveLength(80);
+  });
 });
 
 describe('basename', () => {

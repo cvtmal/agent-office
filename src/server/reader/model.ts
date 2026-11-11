@@ -1,13 +1,15 @@
 /**
  * The snapshot model: `Discovered` → `Snapshot` (scope DATA-1, research §Selected Approach, D1–D8;
- * planning decision P7). Pure: no file or process access; `rootOf` is injected.
+ * planning decision P7). Pure: no file or process access; `rootOf` and `harnessOf` are injected
+ * (read-only IO lives in `discovery/` and `harness/`).
  */
 import { basename } from 'node:path';
 import { SNAPSHOT_VERSION, type CharacterKind } from '../../shared/constants.js';
-import type { Activity, Character, Project, Snapshot } from '../../shared/types.js';
+import type { Activity, Character, HarnessExtras, Project, Snapshot } from '../../shared/types.js';
 import { roleFor, verdictFor, type Thresholds } from '../../shared/verdict.js';
 import { displayPath, whereIn } from '../discovery/repo-root.js';
 import type { Discovered, RawSession, RegistryEntry, TeammateProc } from '../discovery/types.js';
+import { laneOf } from '../harness/parse.js';
 import { activitiesOf, lastActivities } from './activity.js';
 import { mergeHealth, transcriptHealth, type TranscriptHealth } from './health.js';
 import { agentDisplayName, sessionName } from './names.js';
@@ -23,6 +25,11 @@ export interface ModelOptions {
   thresholds: Thresholds;
   /** Repository root of a cwd (worktrees → parent repo); injected so the reader does no IO. */
   rootOf: (cwd: string) => string;
+  /**
+   * Harness extras of a project root, or null (DATA-6); injected so the reader does no IO
+   * (`harness/read.ts` `readHarness`). Default: `() => null`. Called once per root per build.
+   */
+  harnessOf?: (root: string) => HarnessExtras | null;
 }
 
 /** A kept character with what the project step needs. */
@@ -105,12 +112,17 @@ interface CharacterInput {
 }
 
 /** The fields every character derives the same way (step 6.1.4). */
-function finish(input: CharacterInput, opts: ModelOptions): Built {
+function finish(
+  input: CharacterInput,
+  opts: ModelOptions,
+  harnessFor: (root: string) => HarnessExtras | null,
+): Built {
   const fileKind: FileKind = input.kind;
   const main = mainRecords(input.parsed.records, fileKind);
   const role = roleFor(input.kind, input.name);
   const tokens = input.usage?.tokens ?? 0;
   const projectId = opts.rootOf(input.cwd);
+  const where = whereIn(projectId, input.cwd);
   const activities = activitiesOf(input.parsed.records, fileKind, input.id);
   const character: Character = {
     id: input.id,
@@ -125,11 +137,11 @@ function finish(input: CharacterInput, opts: ModelOptions): Built {
     tokens,
     verdict: verdictFor(tokens, role, opts.thresholds),
     cwd: input.cwd,
-    where: whereIn(projectId, input.cwd),
+    where,
     gitBranch: newestOf(main, (rec) => rec.gitBranch),
     agentType: input.agentType,
     teamName: newestOf(main, (rec) => rec.teamName),
-    lane: null,
+    lane: laneOf(where, harnessFor(projectId)),
     lastActivityAt: activities.at(-1)?.at ?? null,
     lastUsageAt: input.usage?.at ?? null,
   };
@@ -144,6 +156,12 @@ function byId<T extends { id: string }>(a: T, b: T): number {
 export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: Snapshot; liveBy: Map<string, LiveBy> } {
   const parsed = new Map<RawSession, ParsedTranscript>(input.sessions.map((s) => [s, parseTranscript(s.text)]));
   const liveBy = liveness(input.sessions, parsed, input.registry, input.teammates);
+  const harnessOf = opts.harnessOf ?? ((): HarnessExtras | null => null);
+  const harnessCache = new Map<string, HarnessExtras | null>();
+  const harnessFor = (root: string): HarnessExtras | null => {
+    if (!harnessCache.has(root)) harnessCache.set(root, harnessOf(root));
+    return harnessCache.get(root) ?? null;
+  };
 
   const built: Built[] = [];
   const sessionCwd = new Map<string, string>();
@@ -176,6 +194,7 @@ export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: S
           parsed: p,
         },
         opts,
+        harnessFor,
       ),
     );
   }
@@ -207,6 +226,7 @@ export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: S
           parsed: p,
         },
         opts,
+        harnessFor,
       ),
     );
   }
@@ -221,7 +241,7 @@ export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: S
     id: root,
     name: basename(root) || root,
     displayPath: displayPath(root, opts.home),
-    harness: null,
+    harness: harnessFor(root),
     health: mergeHealth(list),
   }));
 

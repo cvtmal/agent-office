@@ -17,11 +17,11 @@ const ENV_ASSIGNMENT = /^[A-Za-z_][A-Za-z0-9_]*=/;
 
 /**
  * Turns whitespace (incl. `\n`, `\t`) into one space so words do not merge, deletes other control
- * characters, collapses spaces, trims and cuts to 40 characters.
+ * characters, collapses spaces, trims and cuts to `max` characters (default 40, the target limit).
  */
-export function clean(s: string): string {
+export function clean(s: string, max = MAX_TARGET): string {
   const flat = s.replace(/\s/g, ' ').replace(/\p{Cc}/gu, '').replace(/ +/g, ' ').trim();
-  return Array.from(flat).slice(0, MAX_TARGET).join('');
+  return Array.from(flat).slice(0, max).join('');
 }
 
 /** The last non-empty segment after `/` or `\`. */

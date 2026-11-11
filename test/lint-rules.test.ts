@@ -49,6 +49,8 @@ const cases: Record<string, Case[]> = {
     ["import fs from 'node:fs';\nfs.openSync('a');", SYNTAX, false],
     ["import fs from 'node:fs';\nfs.openSync('a', 'r');", SYNTAX, false],
     ["import fs from 'node:fs';\nconst { readFileSync } = fs;", SYNTAX, false],
+    ["import fs from 'node:fs';\nconst { promises: { writeFile } } = fs;", SYNTAX, true],
+    ["import fs from 'node:fs';\nconst { promises: { readFile } } = fs;", SYNTAX, false],
   ],
   'src/server/var.ts': [
     ["import { writeFileSync } from 'node:fs';\nwriteFileSync('a', 'b');", IMPORT, false],

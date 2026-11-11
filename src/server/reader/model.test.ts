@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ACTIVITIES_PER_CHARACTER, SNAPSHOT_VERSION, THRESHOLDS } from '../../shared/constants.js';
+import type { HarnessExtras } from '../../shared/types.js';
 import { validateSnapshot } from '../../shared/validate.js';
 import type { AgentMeta, Discovered, RawAgent, RawSession, RegistryEntry } from '../discovery/types.js';
 import { buildModel, buildSnapshot, type ModelOptions } from './model.js';
@@ -208,5 +209,49 @@ describe('buildModel', () => {
       opts,
     );
     expect(snap.projects[0]?.health).toEqual({ lines: 1, failed: 0, drift: false, version: '9.9.1' });
+  });
+});
+
+describe('buildModel harness extras (DATA-6)', () => {
+  const HARNESS: HarnessExtras = {
+    lanes: [
+      { slug: 'alpha', letter: 'A', port: 8001, worktree: '.claude/worktrees/alpha' },
+      { slug: 'beta', letter: 'B', port: 8002, worktree: '.claude/worktrees/beta' },
+    ],
+    ctoGeneration: 2,
+    phase: 'W1',
+    wave: 'W1',
+    outcomes: [{ nn: 0, slug: 'bootstrap' }],
+    lastCommit: null,
+  };
+  const alpha = `${ROOT}/.claude/worktrees/alpha`;
+  const gamma = `${ROOT}/.claude/worktrees/gamma`;
+  const sessions = [
+    session('s-alpha', [done(1, alpha, 1000)]),
+    session('s-main', [done(2, ROOT, 1000)]),
+    session('s-gamma', [done(3, gamma, 1000)]),
+  ];
+  const agents = [agent('s-alpha', 'a1', [done(4, alpha, 500)])];
+
+  it('gives lane sessions and their agents the lane, others null, and the project its harness', () => {
+    const harnessOf = vi.fn((root: string) => (root === ROOT ? HARNESS : null));
+    const snap = buildSnapshot(input({ sessions, agents }), { ...opts, harnessOf });
+    const laneById = Object.fromEntries(snap.characters.map((c) => [c.id, c.lane]));
+    expect(laneById).toEqual({
+      's-alpha': { slug: 'alpha', letter: 'A', port: 8001 },
+      's-alpha/a1': { slug: 'alpha', letter: 'A', port: 8001 },
+      's-main': null,
+      's-gamma': null,
+    });
+    expect(snap.projects.map((p) => p.harness)).toEqual([HARNESS]);
+    expect(harnessOf).toHaveBeenCalledTimes(1);
+    expect(validateSnapshot(snap)).toEqual([]);
+  });
+
+  it('shows sessions only for a non-harness repo', () => {
+    const snap = buildSnapshot(input({ sessions, agents }), { ...opts, harnessOf: () => null });
+    expect(snap.projects.map((p) => p.harness)).toEqual([null]);
+    expect(snap.characters.map((c) => c.lane)).toEqual([null, null, null, null]);
+    expect(validateSnapshot(snap)).toEqual([]);
   });
 });

@@ -31,6 +31,20 @@ describe('scanSnapshot', () => {
     expect(snapshot.generatedAt).toBe('2026-01-01T06:00:00.000Z');
   });
 
+  it('passes harnessOf through to every project (DATA-6)', () => {
+    const H = { lanes: [], ctoGeneration: 1, phase: null, wave: 'W1', outcomes: [{ nn: 0, slug: 'a' }], lastCommit: null };
+    const { snapshot } = scanSnapshot({
+      env: { CLAUDE_CONFIG_DIR: CONFIG },
+      home: '/home/dev',
+      now: new Date('2026-01-01T06:00:00.000Z'),
+      maxAgeHours: Infinity,
+      table: new Map(parsePsOutput(PS).map((row) => [row.pid, row])),
+      rootOf: (c) => repoRoot(c, (p) => FAKE_GIT.has(p)),
+      harnessOf: () => H,
+    });
+    expect(snapshot.projects.map((p) => p.harness)).toEqual([H, H]);
+  });
+
   it('marks the teammate session as live by teammate and registered sessions as live by registry', () => {
     const { liveBy } = scan();
     expect(liveBy.get(syntheticUuid('teammate'))).toBe('teammate');

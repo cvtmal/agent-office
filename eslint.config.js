@@ -64,9 +64,12 @@ const openBanSyntax = {
   message: WRITE_MESSAGE,
 };
 
-/** Destructuring a write function (`const { writeFileSync } = fs;`). */
+/**
+ * Destructuring a write function, also nested (`const { writeFileSync } = fs;`,
+ * `const { promises: { writeFile } } = fs;`).
+ */
 const destructureBanSyntax = {
-  selector: `VariableDeclarator > ObjectPattern > Property[key.name=/^(${WRITE_FNS.join('|')})$/]`,
+  selector: `VariableDeclarator ObjectPattern > Property[key.name=/^(${WRITE_FNS.join('|')})$/]`,
   message: WRITE_MESSAGE,
 };
 
