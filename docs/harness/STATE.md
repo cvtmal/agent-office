@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #7 polish | implement | c07-impl | A (8001) | 2026-11-11 23:40 | plan has handoffs H1 (after Ph1), H2 (after Ph4); -2 resumes at Ph5 |
+| #7 polish | review | c07-review | A (8001) | 2026-11-12 00:55 | implement done (WIP 0c5acdf, e2e 29/29); RSS 119–181 MB → fix-memory lane after landing (D-039) |
 
 ## Next actions
 
@@ -44,7 +44,8 @@ For CTO-3, in order (the loop, `CTO.md` §4):
 
 1. **Arm the watchdog** (`CTO.md` §4 step 6) before your first wait.
 2. **#7 `polish`:** `bin/harness/lane open polish`, then spawn `c07-research` (§5 template). Size M, but read its section: the owner added four lines on 2026-11-11 (D-034): detail mode as an opt-in, `docs/design/art-seam.md` (art must stay replaceable), memory 171 MB vs RUN-3's 150 MB, weak art carried from #5. Tell the researcher those lines exist. Then plan → implement → review as usual (watchers on implement and review; add "Minors never cause rework (D-027)" to the review prompt).
-3. **Finish = stop for owner review** (`CTO.md` §11, D-034): after #7 lands and CI is green, make sure the README is the release report the #7 section asks for, bring `DECISIONS.md`/`STATE.md` to their final state, delete the watchdog, commit, push, then ONE push notification: the app is done; how to see it (`make start` for live, `make replay DIR=fixtures/replay/harness` for the replay); the owner's manual checks (list in Notes). Then stop.
+3. **`fix-memory` lane (D-039)** after #7 lands and CI is green: `lane open fix-memory`, then `fix-memory-plan` → `-implement` → `-review` (starts at Plan; task: RSS with 20 watched transcripts reliably < 150 MB per `make bench-mem` over several runs; levers in `docs/outcomes/07-polish.md`; README footprint updated; no outcome file).
+4. **Finish = stop for owner review** (`CTO.md` §11, D-034): after #7 lands and CI is green, make sure the README is the release report the #7 section asks for, bring `DECISIONS.md`/`STATE.md` to their final state, delete the watchdog, commit, push, then ONE push notification: the app is done; how to see it (`make start` for live, `make replay DIR=fixtures/replay/harness` for the replay); the owner's manual checks (list in Notes). Then stop.
 
 ## Notes for the successor
 
