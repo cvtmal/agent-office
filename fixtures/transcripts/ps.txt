@@ -1,0 +1,11 @@
+ 4101 Wed Dec 31 23:01:00 2025     /home/dev/.local/bin/claude
+ 4102 Wed Dec 31 23:02:00 2025     /home/dev/.local/bin/claude
+ 4103 Wed Dec 31 23:03:00 2025     /home/dev/.local/bin/claude
+ 4104 Wed Dec 31 23:04:00 2025     /home/dev/.local/bin/claude
+ 4105 Wed Dec 31 23:05:00 2025     /home/dev/.local/bin/claude
+ 4106 Thu Jan  1 00:06:00 2026     /usr/bin/python3 -m http.server
+ 4107 Wed Dec 31 23:07:00 2025     /home/dev/.local/bin/claude
+ 4108 Wed Dec 31 23:08:00 2025     /home/dev/.local/bin/claude
+ 4120 Wed Dec 31 23:30:00 2025     /home/dev/.local/bin/claude --agent-id c01-plan@session-c7cdb115 --agent-name c01-plan --team-name session-c7cdb115
+ 4190 Thu Jan  1 00:30:00 2026     /usr/sbin/cron -f
+ 4191 Thu Jan  1 00:31:00 2026     /bin/zsh -l

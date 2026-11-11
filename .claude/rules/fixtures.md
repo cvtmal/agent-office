@@ -12,3 +12,4 @@ paths:
 - The sample must stay valid under `validateSnapshot` and keep its coverage (every activity kind, every verdict).
 - Generators import only from `src/shared/` and Node built-ins, and write only their own fixture files.
 - `transcripts/` (unit cases) and `replay/` (replay sets) belong to #1; keep each case small and named after what it covers.
+- Transcript and replay fixtures are generated: edit `fixtures/gen/*`, run `make fixtures`; `test/fixtures.test.ts` fails on any hand edit.

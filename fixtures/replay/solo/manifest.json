@@ -1,0 +1,20 @@
+{
+  "name": "solo",
+  "base": "2026-01-01T00:00:00.000Z",
+  "durationMs": 600000,
+  "home": "/home/dev",
+  "repos": [
+    {
+      "root": "/home/dev/code/notes",
+      "dir": null
+    }
+  ],
+  "live": [
+    {
+      "sessionId": "73b669c6-74b6-4b59-71b6-66a072b66833",
+      "fromMs": 0,
+      "toMs": 600000
+    }
+  ],
+  "files": []
+}

@@ -1,0 +1,40 @@
+{
+  "name": "harness",
+  "base": "2026-01-01T00:00:00.000Z",
+  "durationMs": 720000,
+  "home": "/home/dev",
+  "repos": [
+    {
+      "root": "/home/dev/code/harbor",
+      "dir": "repo"
+    }
+  ],
+  "live": [
+    {
+      "sessionId": "e39aae0a-e49a-4f9d-e19a-aae4e29aac77",
+      "fromMs": 0,
+      "toMs": 720000
+    },
+    {
+      "sessionId": "3e3fbd4d-3d3f-4bba-3c3f-ba273b3fb894",
+      "fromMs": 30000,
+      "toMs": 490000
+    },
+    {
+      "sessionId": "287a6540-297a-46d3-2a7a-68662b7a69f9",
+      "fromMs": 40000,
+      "toMs": 720000
+    },
+    {
+      "sessionId": "bdfb2772-befb-4905-bbfb-244cbcfb25df",
+      "fromMs": 50000,
+      "toMs": 720000
+    }
+  ],
+  "files": [
+    {
+      "path": "repo/docs/outcomes/01-session-store.md",
+      "appearsAtMs": 540000
+    }
+  ]
+}

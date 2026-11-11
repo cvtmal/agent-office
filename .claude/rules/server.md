@@ -13,3 +13,4 @@ paths:
 - Listen on `127.0.0.1` only. Ports come from `resolvePort` (`--port`, `PORT`, `HARNESS_PORT`, 4477); in a lane use only the lane's port.
 - Unit tests sit next to the code (`foo.test.ts`) and may write only to the OS temp dir (`mkdtemp`); servers in tests listen on port 0 and are closed in `afterAll`.
 - Relative imports use the `.js` specifier.
+- Record interpretation lives only in `reader/`, which does no IO; `shapeTarget` (`reader/target.ts`) is the only place a tool input becomes text for the API.

@@ -3,14 +3,16 @@ name: CI
 on:
   push:
     branches: [main]
+    paths-ignore: ['docs/harness/**', 'docs/rpi-cycles.md']
   pull_request:
+    paths-ignore: ['docs/harness/**', 'docs/rpi-cycles.md']
 
 permissions:
   contents: read
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:

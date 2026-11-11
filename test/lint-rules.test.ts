@@ -42,11 +42,19 @@ const cases: Record<string, Case[]> = {
     ["import { writeFile } from 'node:fs/promises';\nawait writeFile('a', 'b');", IMPORT, true],
     ["import { readFileSync } from 'node:fs';\nreadFileSync('a');", IMPORT, false],
     ["export * from '../shared/types.js';", IMPORT, false],
+    ["import fs from 'node:fs';\nfs.openSync('a', 'w');", SYNTAX, true],
+    ["import fs from 'node:fs';\nawait fs.promises.open('a', 'a');", SYNTAX, true],
+    ["import { openSync } from 'node:fs';\nopenSync('a', 'w+');", SYNTAX, true],
+    ["import fs from 'node:fs';\nconst { writeFileSync } = fs;", SYNTAX, true],
+    ["import fs from 'node:fs';\nfs.openSync('a');", SYNTAX, false],
+    ["import fs from 'node:fs';\nfs.openSync('a', 'r');", SYNTAX, false],
+    ["import fs from 'node:fs';\nconst { readFileSync } = fs;", SYNTAX, false],
   ],
   'src/server/var.ts': [
     ["import { writeFileSync } from 'node:fs';\nwriteFileSync('a', 'b');", IMPORT, false],
     ["import { writeFileSync } from 'node:fs';\nwriteFileSync('a', 'b');", SYNTAX, false],
     ["export * from '../client/a.js';", IMPORT, true],
+    ["import fs from 'node:fs';\nfs.openSync('a', 'w');", SYNTAX, false],
   ],
 };
 

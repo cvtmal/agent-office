@@ -57,6 +57,19 @@ const writeBanSyntax = {
   message: WRITE_MESSAGE,
 };
 
+/** `open`/`openSync` with a flags argument other than `'r'` can write. */
+const openBanSyntax = {
+  selector:
+    "CallExpression[arguments.length>=2]:matches([callee.name=/^(open|openSync)$/], [callee.property.name=/^(open|openSync)$/]):not([arguments.1.value='r'])",
+  message: WRITE_MESSAGE,
+};
+
+/** Destructuring a write function (`const { writeFileSync } = fs;`). */
+const destructureBanSyntax = {
+  selector: `VariableDeclarator > ObjectPattern > Property[key.name=/^(${WRITE_FNS.join('|')})$/]`,
+  message: WRITE_MESSAGE,
+};
+
 export default defineConfig([
   {
     ignores: [
@@ -98,7 +111,7 @@ export default defineConfig([
     files: ['src/server/**'],
     rules: {
       'no-restricted-imports': ['error', { paths: writeBanPaths, patterns: toClient }],
-      'no-restricted-syntax': ['error', writeBanSyntax],
+      'no-restricted-syntax': ['error', writeBanSyntax, openBanSyntax, destructureBanSyntax],
     },
   },
   {
