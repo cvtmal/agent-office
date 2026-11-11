@@ -1,6 +1,8 @@
 import { appendFileSync, mkdtempSync, renameSync, rmSync, truncateSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { setFlagsFromString } from 'node:v8';
+import { runInNewContext } from 'node:vm';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createTail } from './tail.js';
 
@@ -73,6 +75,32 @@ describe('createTail', () => {
     expect(got?.chunk.records[29_999]?.cwd).toBe('/home/dev/p29999-éé');
   });
 
+  it('hands a large file to `each` piece by piece, flagging only the first piece of a reset (#7 memory)', async () => {
+    const lines = Array.from({ length: 30_000 }, (_, i) => line({ type: 'user', cwd: `/home/dev/p${i}-éé` }));
+    const path = fresh(lines.join(''));
+    const tail = createTail(path);
+    const pieces: { count: number; reset: boolean }[] = [];
+    let last = '';
+    const got = await tail.read((chunk, reset) => {
+      pieces.push({ count: chunk.lineOk.length, reset });
+      last = chunk.records.at(-1)?.cwd ?? last;
+    });
+    expect(pieces.length).toBeGreaterThan(1);
+    expect(pieces.reduce((sum, p) => sum + p.count, 0)).toBe(30_000);
+    expect(pieces.every((p) => !p.reset)).toBe(true);
+    expect(last).toBe('/home/dev/p29999-éé');
+    expect(got?.chunk.records).toEqual([]);
+    expect(await tail.read(() => expect.fail('nothing new'))).toBeNull();
+    truncateSync(path, 0);
+    const resets: boolean[] = [];
+    expect((await tail.read((_, reset) => resets.push(reset)))?.reset).toBe(true);
+    expect(resets).toEqual([true]);
+    writeFileSync(path, lines.join(''));
+    const again: boolean[] = [];
+    await tail.read((_, reset) => again.push(reset));
+    expect(again[0]).toBe(false);
+  });
+
   it('resets on truncation', async () => {
     const path = fresh(line({ type: 'user' }) + line({ type: 'user' }));
     const tail = createTail(path);
@@ -108,5 +136,24 @@ describe('createTail', () => {
     const [a, b] = await Promise.all([tail.read(), tail.read()]);
     expect(a?.chunk.records).toHaveLength(1);
     expect(b).toBeNull();
+  });
+
+  it('keeps no reference to a read result once the caller drops it (#7 memory)', async () => {
+    setFlagsFromString('--expose-gc');
+    const gc = runInNewContext('gc') as () => void;
+    const path = fresh(Array.from({ length: 2000 }, (_, i) => line({ type: 'user', uuid: String(i) })).join(''));
+    const tail = createTail(path);
+    // The result lives only inside this function, so after it returns only the tail could hold it.
+    const ref = await (async () => {
+      const read = await tail.read();
+      expect(read?.chunk.records).toHaveLength(2000);
+      return new WeakRef(read?.chunk.records ?? []);
+    })();
+    for (let i = 0; i < 5 && ref.deref() !== undefined; i++) {
+      await new Promise((resolve) => setTimeout(resolve, 10));
+      gc();
+    }
+    expect(ref.deref()).toBeUndefined();
+    expect(tail.offset).toBeGreaterThan(0);
   });
 });

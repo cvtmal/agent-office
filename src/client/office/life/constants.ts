@@ -41,22 +41,3 @@ export const FOLDER_MS = 1_000;
 export const LAYOUT_EVERY_MS = 100;
 /** Scene y above which the back wall is (ZONES.backWall, rows 0-4); not walkable (R1). */
 export const BACK_WALL_Y = 80;
-
-/** Character pose frame names the sprite families provide (Phase 5, `POSE_FRAMES`). */
-export const WALK_FRAME_NAMES = ['walk0', 'walk1', 'walk2', 'walk3'] as const;
-export const HEAD_FRAME = 'head';
-export const CHEER_FRAME_NAMES = ['cheer0', 'cheer1'] as const;
-
-/** Overlay sprite ids of the `life` sprite family (Phase 5, Step 5.3). */
-export const LIFE_SPRITES = {
-  papers: 'life-papers',
-  hands: ['life-hands0', 'life-hands1'],
-  terminal: 'life-terminal',
-  globe: 'life-globe',
-  folder: 'life-folder',
-  sticky: 'life-sticky',
-  hand: 'life-hand',
-  mug: 'life-mug',
-  steam: ['life-steam0', 'life-steam1'],
-  sweat: ['life-sweat0', 'life-sweat1'],
-} as const;

@@ -1,5 +1,5 @@
 // The controls in #overview (UI-3, R6, R7): zoom steps Fit / 1x-4x and the
-// toggles pause, sound (a switch only, no audio until #7) and hide ended. Each is
+// toggles pause, sound (app/sound.ts plays it, #7) and hide ended. Each is
 // a <button aria-pressed> with `data-control`; app/prefs.ts saves the state. The
 // buttons are built once and only their state is updated, so focus stays put.
 import type { AppState, Store, UiState } from '../app/store.js';

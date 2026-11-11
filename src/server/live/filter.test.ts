@@ -6,6 +6,7 @@ import { filterFor } from './filter.js';
 
 const HARBOR = '/home/demo/code/harbor';
 const NOTES = '/home/demo/code/notes-app';
+const STUDIO = '/home/demo/code/studio';
 const sample = loadSampleSnapshot();
 
 function ids(s: Snapshot): { projects: string[]; characters: number; activities: number } {
@@ -21,8 +22,8 @@ describe('filterFor', () => {
     expect(filterFor({ projects: [], exclude: [] })(sample)).toBe(sample);
   });
 
-  it('the sample has the two projects these tests rely on', () => {
-    expect(ids(sample).projects).toEqual([HARBOR, NOTES]);
+  it('the sample has the three projects these tests rely on', () => {
+    expect(ids(sample).projects).toEqual([HARBOR, NOTES, STUDIO]);
   });
 
   it('projects keeps one project with its characters and activities', () => {
@@ -44,15 +45,15 @@ describe('filterFor', () => {
 
   it('exclude drops a project by id', () => {
     const out = filterFor({ projects: [], exclude: ['**/notes-*'] })(sample);
-    expect(out.projects.map((p) => p.id)).toEqual([HARBOR]);
-    expect(out.characters.every((c) => c.projectId === HARBOR)).toBe(true);
+    expect(out.projects.map((p) => p.id)).toEqual([HARBOR, STUDIO]);
+    expect(out.characters.every((c) => c.projectId !== NOTES)).toBe(true);
     expectValid(out);
   });
 
   it('exclude drops characters by cwd, with their children and activities', () => {
     const glob = `${HARBOR}/.claude/worktrees/**`;
     const out = filterFor({ projects: [], exclude: [glob] })(sample);
-    expect(out.projects.map((p) => p.id)).toEqual([HARBOR, NOTES]);
+    expect(out.projects.map((p) => p.id)).toEqual([HARBOR, NOTES, STUDIO]);
     expect(out.characters.some((c) => c.cwd?.includes('/.claude/worktrees/'))).toBe(false);
     expect(out.characters.filter((c) => c.projectId === HARBOR).length).toBeGreaterThan(0);
     const kept = new Set(out.characters.map((c) => c.id));
@@ -85,8 +86,8 @@ describe('filterFor', () => {
       characters: sample.characters.map((c) => (c.projectId === NOTES ? { ...c, cwd: `${NOTES}/sub` } : c)),
     };
     const out = filterFor({ projects: [], exclude: [`${NOTES}/sub`] })(snapshot);
-    expect(out.projects.map((p) => p.id)).toEqual([HARBOR]);
-    expect(out.characters.every((c) => c.projectId === HARBOR)).toBe(true);
+    expect(out.projects.map((p) => p.id)).toEqual([HARBOR, STUDIO]);
+    expect(out.characters.every((c) => c.projectId !== NOTES)).toBe(true);
     expectValid(out);
   });
 

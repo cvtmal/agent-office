@@ -96,3 +96,24 @@ export function shapeTarget(tool: string, input: Record<string, unknown>): strin
       return BROWSER_TOOL_PREFIXES.some((prefix) => tool.startsWith(prefix)) ? browserTarget(input) : '';
   }
 }
+
+/** Most characters of an activity's `detail` (`Activity.detail`), the trailing `…` included. */
+export const DETAIL_MAX = 2000;
+
+/**
+ * Detail mode only (research R1): the raw `input` of a call as JSON, cut to DETAIL_MAX characters with
+ * a trailing `…`; `''` when the input is undefined or cannot be serialised. The input is the call's own
+ * arguments, never a prompt of the user, model text or a tool result. `tool` is not read today; it keeps
+ * the signature beside `shapeTarget` should a tool ever need its own shaping.
+ */
+export function detailText(tool: string, input: unknown): string {
+  let json: string | undefined;
+  try {
+    json = JSON.stringify(input) as string | undefined;
+  } catch {
+    return '';
+  }
+  if (json === undefined) return '';
+  const chars = Array.from(json);
+  return chars.length <= DETAIL_MAX ? json : chars.slice(0, DETAIL_MAX - 1).join('') + '…';
+}

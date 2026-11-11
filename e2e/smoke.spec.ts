@@ -10,7 +10,7 @@ test('shell loads the sample and scales the canvas', async ({ page }, testInfo) 
 
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-connection', 'ready');
-  await expect(page.locator('#overview')).toContainText('14 characters');
+  await expect(page.locator('#overview')).toContainText('26 characters');
 
   const office = page.locator('#office');
   await expect(office).toHaveAttribute('width', '480');

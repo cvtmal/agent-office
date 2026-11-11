@@ -1,5 +1,6 @@
-// Builds fixtures/snapshots/sample.json: 14 synthetic characters in two projects
+// Builds fixtures/snapshots/sample.json: 26 synthetic characters in three projects
 // that together cover every status, activity kind and verdict (docs/rpi-cycles.md § 0).
+// The third project, studio, holds 12 characters for the frame-time test (#7, D-038).
 // Deterministic: no clock, no randomness. Run with `make fixtures`.
 
 import { writeFileSync } from 'node:fs';
@@ -41,6 +42,7 @@ export function syntheticUuid(seed: string): string {
 
 const HARBOR = '/home/demo/code/harbor';
 const NOTES = '/home/demo/code/notes-app';
+const STUDIO = '/home/demo/code/studio';
 
 const LANES: Lane[] = (
   [
@@ -81,6 +83,13 @@ function projects(): Project[] {
       displayPath: '~/code/notes-app',
       harness: null,
       health: { lines: 500, failed: 40, drift: true, version: '2.8.4' },
+    },
+    {
+      id: STUDIO,
+      name: 'studio',
+      displayPath: '~/code/studio',
+      harness: null,
+      health: { lines: 1200, failed: 0, drift: false, version: '2.9.0' },
     },
   ];
 }
@@ -253,6 +262,121 @@ const SPECS: Spec[] = [
     status: 'ended',
     tokens: 25_000,
     lastSeen: 250,
+  },
+  // studio (#7, D-038): 12 characters for the frame-time test. Seats go by kind, not
+  // status: 6 sessions take the open desks, 6 agents the intern and stand spots.
+  // 6 busy, 4 idle < 2 min (kitchen), 2 idle >= 2 min (couch). Additions only.
+  {
+    name: 'studio-api',
+    project: STUDIO,
+    kind: 'session',
+    status: 'busy',
+    tokens: 45_000,
+    activities: [
+      [6, 'Agent', 'studio-styles'],
+      [2, 'Write', 'handler.ts'],
+    ],
+  },
+  {
+    name: 'studio-tests',
+    project: STUDIO,
+    kind: 'session',
+    status: 'busy',
+    tokens: 80_000,
+    activities: [
+      [5, 'Agent', 'studio-bundle'],
+      [1, 'Bash', 'npm'],
+    ],
+  },
+  {
+    name: 'studio-docs',
+    project: STUDIO,
+    kind: 'session',
+    status: 'busy',
+    tokens: 30_000,
+    activities: [
+      [7, 'WebSearch', 'web audio'],
+      [3, 'Read', 'guide.md'],
+    ],
+  },
+  {
+    name: 'studio-assets',
+    project: STUDIO,
+    kind: 'session',
+    status: 'busy',
+    tokens: 110_000,
+    activities: [
+      [4, 'Bash', 'make'],
+      [2, 'WebFetch', 'example.com'],
+    ],
+  },
+  { name: 'studio-lint', project: STUDIO, kind: 'session', status: 'idle', tokens: 20_000, lastSeen: 0.5 },
+  { name: 'studio-theme', project: STUDIO, kind: 'session', status: 'idle', tokens: 90_000, lastSeen: 2.5 },
+  {
+    name: 'studio-styles',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-api',
+    agentType: 'general-purpose',
+    status: 'busy',
+    tokens: 15_000,
+    activities: [
+      [3, 'Grep', 'theme.css'],
+      [1, 'Write', 'theme.css'],
+    ],
+  },
+  {
+    name: 'studio-bundle',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-tests',
+    agentType: 'Explore',
+    status: 'busy',
+    tokens: 22_000,
+    activities: [
+      [4, 'Glob', 'src'],
+      [2, 'Read', 'vite.config.ts'],
+    ],
+  },
+  {
+    name: 'studio-audio',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-docs',
+    agentType: 'Explore',
+    status: 'idle',
+    tokens: 12_000,
+    lastSeen: 0.75,
+  },
+  {
+    name: 'studio-icons',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-assets',
+    agentType: 'general-purpose',
+    status: 'idle',
+    tokens: 18_000,
+    lastSeen: 1,
+  },
+  {
+    name: 'studio-forms',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-lint',
+    agentType: 'general-purpose',
+    status: 'idle',
+    tokens: 9_000,
+    lastSeen: 1.5,
+  },
+  {
+    name: 'studio-a11y',
+    project: STUDIO,
+    kind: 'agent',
+    parent: 'studio-theme',
+    agentType: 'Explore',
+    status: 'idle',
+    tokens: 25_000,
+    lastSeen: 3.25,
   },
 ];
 

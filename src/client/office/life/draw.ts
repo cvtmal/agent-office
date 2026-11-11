@@ -71,6 +71,64 @@ export function placeBubble(w: number, headX: number, tagTop: number): BubblePla
   return { x, y, tailX };
 }
 
+/** A bubble as `placeBubble` placed it, for `placeBubbles`. */
+export interface BubbleBox {
+  id: string;
+  w: number;
+  place: BubblePlace;
+}
+
+/** A character's name tag in scene px, for `placeBubbles`. */
+export interface TagBox {
+  id: string;
+  rect: Rect;
+}
+
+/** Px a crowded bubble moves up per step: one bubble with its tail, plus 1 px. */
+export const BUBBLE_STEP = BUBBLE_H + TAIL_H + 1;
+/** Steps a crowded bubble may move up before it stays where it is. */
+export const BUBBLE_MAX_STEPS = 2;
+/** Px per sideways step of a bubble that found no free height (`placeBubbles`). */
+export const BUBBLE_SLIDE = 4;
+
+function overlaps(a: Rect, b: Rect): boolean {
+  return a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h && b.y < a.y + a.h;
+}
+
+/**
+ * Bubbles that do not cover each other or a neighbour's tag (#5 weak art): in stable
+ * `id` order, a bubble (box and tail) that overlaps an earlier-placed bubble or another
+ * character's tag moves up by `BUBBLE_STEP`, at most `BUBBLE_MAX_STEPS` times, never
+ * above the scene's top. If no height is free (near the top of the scene) it slides
+ * sideways by `BUBBLE_SLIDE` steps at those heights, its tail still under it. Its own tag
+ * is ignored; `tailX` stays. With no free place it ends where moving up left it.
+ */
+export function placeBubbles(bubbles: readonly BubbleBox[], tags: readonly TagBox[]): Map<string, BubblePlace> {
+  const out = new Map<string, BubblePlace>();
+  const placed: Rect[] = [];
+  const sorted = [...bubbles].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  for (const b of sorted) {
+    const blockers = [...placed, ...tags.filter((t) => t.id !== b.id).map((t) => t.rect)];
+    const box = (x: number, y: number): Rect => ({ x, y, w: b.w, h: BUBBLE_H + TAIL_H });
+    const free = (x: number, y: number): boolean => !blockers.some((r) => overlaps(box(x, y), r));
+    const ys = [b.place.y];
+    for (let step = 0; step < BUBBLE_MAX_STEPS && (ys[ys.length - 1] ?? 0) > 0; step++) {
+      ys.push(Math.max((ys[ys.length - 1] ?? 0) - BUBBLE_STEP, 0));
+    }
+    const lo = Math.max(0, b.place.tailX - b.w + 4);
+    const hi = Math.min(SCENE_WIDTH - b.w, b.place.tailX - 1);
+    const xs: number[] = [];
+    for (let d = BUBBLE_SLIDE; d < b.w; d += BUBBLE_SLIDE) xs.push(b.place.x + d, b.place.x - d);
+    const sideways = ys.flatMap((y) => xs.filter((x) => x >= lo && x <= hi).map((x) => ({ x, y })));
+    const at =
+      ys.map((y) => ({ x: b.place.x, y })).find((p) => free(p.x, p.y)) ??
+      sideways.find((p) => free(p.x, p.y)) ?? { x: b.place.x, y: ys[ys.length - 1] ?? b.place.y };
+    out.set(b.id, { ...b.place, x: at.x, y: at.y });
+    placed.push(box(at.x, at.y));
+  }
+  return out;
+}
+
 /**
  * The context meter's rect (R7): centred on the frame, 1 px under the tag's bottom, but
  * never over the head (`headY`, the first opaque row in scene px).

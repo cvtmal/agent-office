@@ -78,8 +78,13 @@ export function emptyRetained(): Retained {
   return { records: [], lineOk: [] };
 }
 
-function slimBlock(block: Block): Block {
-  if (block.type !== 'tool_use') return block;
+export interface RetainOptions {
+  /** Detail mode: keep each tool input whole (`activity.ts` turns it into `detail`); default: TARGET_KEYS only. */
+  keepInput?: boolean;
+}
+
+function slimBlock(block: Block, { keepInput = false }: RetainOptions = {}): Block {
+  if (block.type !== 'tool_use' || keepInput) return block;
   const input: Record<string, unknown> = {};
   for (const key of TARGET_KEYS) {
     const value = block.input[key];
@@ -88,9 +93,13 @@ function slimBlock(block: Block): Block {
   return { type: 'tool_use', name: block.name, input };
 }
 
-/** A record with tool inputs reduced to TARGET_KEYS (text, thinking and tool results carry no body already). */
-function slim(rec: Rec): Rec {
-  return rec.content.some((block) => block.type === 'tool_use') ? { ...rec, content: rec.content.map(slimBlock) } : rec;
+/**
+ * A record with tool inputs reduced to TARGET_KEYS, or kept whole with `keepInput` (text, thinking and
+ * tool results carry no body already).
+ */
+function slim(rec: Rec, opts: RetainOptions): Rec {
+  if (opts.keepInput === true || !rec.content.some((block) => block.type === 'tool_use')) return rec;
+  return { ...rec, content: rec.content.map((block) => slimBlock(block, opts)) };
 }
 
 /** Records holding the last `n` timestamped `tool_use` blocks of assistant records (`activity.ts:12-36`). */
@@ -107,9 +116,12 @@ function lastToolRecords(records: Rec[], n: number, keep: Set<Rec>): void {
   }
 }
 
-/** `prev` plus the next parsed chunk of the same file, reduced again to what the reader can pick. */
-export function retain(prev: Retained, chunk: ParsedTranscript, kind: FileKind): Retained {
-  const fresh = chunk.records.map(slim);
+/**
+ * `prev` plus the next parsed chunk of the same file, reduced again to what the reader can pick.
+ * `opts.keepInput` (detail mode) keeps tool inputs whole; the records kept are the same either way.
+ */
+export function retain(prev: Retained, chunk: ParsedTranscript, kind: FileKind, opts: RetainOptions = {}): Retained {
+  const fresh = chunk.records.map((rec) => slim(rec, opts));
   const all = prev.records.length === 0 ? fresh : prev.records.concat(fresh);
   const keep = new Set<Rec>();
   const main = mainRecords(all, kind);

@@ -205,6 +205,22 @@ describe('retain: bounded memory', () => {
     expect(inputs.every((input) => !('content' in input))).toBe(true);
   });
 
+  it('keeps whole tool inputs with keepInput (detail mode), the same records either way', () => {
+    const lines = Array.from({ length: 15 }, (_, i) =>
+      toolCall(i, 'Edit', { file_path: `${CWD}/src/f${i}.ts`, old_string: `a${i}`, new_string: `b${i}`, replace_all: false }),
+    );
+    let kept = emptyRetained();
+    let slimmed = emptyRetained();
+    for (const line of lines) {
+      kept = retain(kept, parseTranscript(line + '\n'), 'session', { keepInput: true });
+      slimmed = retain(slimmed, parseTranscript(line + '\n'), 'session');
+    }
+    const inputs = kept.records.flatMap((rec) => rec.content.flatMap((b) => (b.type === 'tool_use' ? [b.input] : [])));
+    expect(inputs).toHaveLength(10);
+    expect(inputs.at(-1)).toEqual({ file_path: `${CWD}/src/f14.ts`, old_string: 'a14', new_string: 'b14', replace_all: false });
+    expect(kept.records.map((rec) => rec.timestamp)).toEqual(slimmed.records.map((rec) => rec.timestamp));
+  });
+
   it('keeps ≤ 40 records for a 2 000-line file, with the same snapshot', () => {
     const lines: string[] = [];
     for (let i = 0; lines.length < 2000; i++) {

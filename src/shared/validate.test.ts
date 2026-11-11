@@ -131,6 +131,12 @@ describe('validateSnapshot', () => {
     ]);
   });
 
+  it('checks the optional activity detail', () => {
+    expect(errorsAfter((p) => Object.assign(p.activity, { detail: '{"command":"ls"}' }))).toEqual([]);
+    expect(errorsAfter((p) => Object.assign(p.activity, { detail: 42 }))).toEqual(['activities[0].detail: expected string']);
+    expect(errorsAfter((p) => Object.assign(p.activity, { detail: null }))).toEqual(['activities[0].detail: expected string']);
+  });
+
   it('checks enum membership', () => {
     expect(errorsAfter((p) => Object.assign(p.agent, { status: 'sleeping' }))).toEqual([
       'characters[1].status: expected one of busy|idle|waiting|stopped|ended',

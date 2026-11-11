@@ -5,6 +5,7 @@ import type { Character, Project, Snapshot } from '../../shared/types.js';
 import { CAP_HEIGHT, measure, textRaster } from '../render/font.js';
 import { rgba } from '../render/palette.js';
 import { blank, blit, type Raster } from '../render/raster.js';
+import { ART_COLOURS } from './art-ids.js';
 import { PROPS, SPOTS, WHITEBOARD_TEXT, characterFrame, isSeated, spot as spotByName, type Prop } from './layout.js';
 import { doneWallArea } from './life/celebrate.js';
 import { TIDY_AFTER_MS } from './life/constants.js';
@@ -137,9 +138,6 @@ export function buildScene(
 
 // ---- Wall content (Phase 16, OFFICE-7 static content) ----
 
-/** Ink and paper of the wall texts: dark marker on the whiteboard / certificate cream. */
-export const WALL_INK = 'night1';
-export const WALL_PAPER = 'lamp2';
 /** Done-wall slots (layout `done-1` ... `done-12`). */
 export const DONE_SLOTS = 12;
 /** Px between the wave text and the CTO text on the whiteboard. */
@@ -257,8 +255,8 @@ export function wallKey(content: WallContent | null): string {
 /** `t` as a raster: its paper box with the ink text in it. */
 export function wallTextRaster(t: WallText): Raster {
   const out = blank(t.box.w, t.box.h);
-  const paper = rgba(WALL_PAPER);
+  const paper = rgba(ART_COLOURS.wallPaper);
   for (let i = 0; i < out.w * out.h; i++) out.data.set(paper, i * 4);
-  blit(out, textRaster(t.text, WALL_INK), t.x - t.box.x, t.y - t.box.y);
+  blit(out, textRaster(t.text, ART_COLOURS.wallInk), t.x - t.box.x, t.y - t.box.y);
   return out;
 }

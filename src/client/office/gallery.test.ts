@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import sample from '../../../fixtures/snapshots/sample.json';
 import type { Snapshot } from '../../shared/types.js';
-import { GALLERY_IDS, GALLERY_LOOKS, galleryEntries } from './gallery.js';
+import { GALLERY_COLS, GALLERY_IDS, GALLERY_LOOKS, GALLERY_ROWS, galleryEntries } from './gallery.js';
 import { SCENE_H, SCENE_W } from './layout.js';
 import { lookFor, lookKey } from './look.js';
 
@@ -9,17 +9,20 @@ const snapshot = sample as unknown as Snapshot;
 
 describe('galleryEntries', () => {
   const entries = galleryEntries(snapshot.characters);
+  // Rows after the synthetic looks hold the first characters; the rest are left out.
+  const shown = snapshot.characters.slice(0, (GALLERY_ROWS.length - Math.ceil(GALLERY_LOOKS / GALLERY_COLS)) * GALLERY_COLS);
 
-  it('has the 30 gallery looks and the 14 sample characters', () => {
+  it('has the 30 gallery looks and the first 15 sample characters', () => {
     expect(GALLERY_IDS).toHaveLength(GALLERY_LOOKS);
     expect(GALLERY_IDS[0]).toBe('look-00');
     expect(GALLERY_IDS[29]).toBe('look-29');
-    expect(entries).toHaveLength(GALLERY_LOOKS + snapshot.characters.length);
+    expect(shown).toHaveLength(15);
+    expect(entries).toHaveLength(GALLERY_LOOKS + shown.length);
     expect(new Set(entries.map((e) => e.id)).size).toBe(entries.length);
   });
 
   it('gives sample agents the intern look, as the room does', () => {
-    for (const c of snapshot.characters) {
+    for (const c of shown) {
       const e = entries.find((x) => x.id === c.id);
       expect(e?.intern, c.id).toBe(c.kind === 'agent');
       expect(e?.look && lookKey(e.look)).toBe(lookKey(lookFor(c.id, c.kind === 'agent')));

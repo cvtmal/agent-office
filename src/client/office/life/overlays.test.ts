@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { ACTIVITY_KINDS, type ActivityKind } from '../../../shared/constants.js';
 import { SPOTS, spot } from '../layout.js';
 import type { Actor, Pose } from './actors.js';
-import { FOLDER_MS, LIFE_SPRITES } from './constants.js';
+import { LIFE_IDS } from '../art-ids.js';
+import { FOLDER_MS } from './constants.js';
 import { deskAnchor, overlaysFor } from './overlays.js';
 
 const actorAt = (name: string, pose: Pose, kind: ActivityKind | null, extra: Partial<Actor> = {}): Actor => {
@@ -25,13 +26,13 @@ const sprites = (a: Actor, t = 0, reduced = false, intern = noIntern): string[] 
   overlaysFor(a, t, reduced, intern).map((o) => o.sprite);
 
 const EXPECTED: Record<ActivityKind, string> = {
-  read: LIFE_SPRITES.papers,
-  write: LIFE_SPRITES.hands[0],
-  shell: LIFE_SPRITES.terminal,
-  web: LIFE_SPRITES.globe,
-  delegate: LIFE_SPRITES.folder,
-  plan: LIFE_SPRITES.sticky,
-  other: LIFE_SPRITES.hands[0],
+  read: LIFE_IDS.papers,
+  write: LIFE_IDS.hands[0],
+  shell: LIFE_IDS.terminal,
+  web: LIFE_IDS.globe,
+  delegate: LIFE_IDS.folder,
+  plan: LIFE_IDS.sticky,
+  other: LIFE_IDS.hands[0],
 };
 
 describe('deskAnchor', () => {
@@ -61,8 +62,8 @@ describe('overlaysFor', () => {
   });
 
   it('draws the raised hand, the coffee mug with steam, nothing on the couch or head down', () => {
-    expect(sprites(actorAt('C-lead', 'raiseHand', null))).toEqual([LIFE_SPRITES.hand]);
-    expect(sprites(actorAt('kitchen-1', 'coffee', null))).toEqual([LIFE_SPRITES.mug, LIFE_SPRITES.steam[0]]);
+    expect(sprites(actorAt('C-lead', 'raiseHand', null))).toEqual([LIFE_IDS.hand]);
+    expect(sprites(actorAt('kitchen-1', 'coffee', null))).toEqual([LIFE_IDS.mug, LIFE_IDS.steam[0]]);
     expect(sprites(actorAt('couch-1', 'couch', null))).toEqual([]);
     expect(sprites(actorAt('D-lead', 'headDown', null))).toEqual([]);
     // No desk: no busy overlay.
@@ -83,8 +84,8 @@ describe('overlaysFor', () => {
       reduced.add(sprites(typing, t, true)[0] ?? '');
       reduced.add(sprites(actorAt('kitchen-2', 'coffee', null), t, true)[1] ?? '');
     }
-    expect([...seen].sort()).toEqual([...LIFE_SPRITES.hands]);
-    expect([...reduced].sort()).toEqual([LIFE_SPRITES.hands[0], LIFE_SPRITES.steam[0]]);
+    expect([...seen].sort()).toEqual([...LIFE_IDS.hands]);
+    expect([...reduced].sort()).toEqual([LIFE_IDS.hands[0], LIFE_IDS.steam[0]]);
   });
 
   it('moves the folder to the intern spot, looping; parks it there with reduced motion', () => {

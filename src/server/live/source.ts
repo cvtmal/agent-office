@@ -41,6 +41,8 @@ export interface LiveSourceConfig {
   maxAgeHours?: number;
   /** Applied to every snapshot (config `projects`/`exclude`). */
   filter?: (snapshot: Snapshot) => Snapshot;
+  /** Detail mode (`--detail` or config `detailMode`): activities carry the raw tool input. Default: off. */
+  detailMode?: boolean;
 }
 
 export interface LiveSourceOptions {
@@ -149,6 +151,7 @@ export async function createLiveSource({
     rootOf: rootOfCwd,
     harnessOf: (root) => cache.harnessOf(root),
     ...(config.filter ? { filter: config.filter } : {}),
+    ...(config.detailMode === true ? { detailMode: true } : {}),
     liveness,
     onEvents: (events) => {
       for (const listener of listeners) {

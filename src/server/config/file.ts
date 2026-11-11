@@ -14,8 +14,8 @@ export interface Config {
   projects: string[];
   /** Globs matched against project ids and character working directories (`~` expanded). */
   exclude: string[];
-  /** Stays off until the privacy check (G3) is answered. */
-  detailMode: false;
+  /** Detail mode: the raw tool input of each activity is sent to the local browser (default off). */
+  detailMode: boolean;
 }
 
 export const DEFAULT_CONFIG: Readonly<Config> = Object.freeze({
@@ -130,8 +130,8 @@ export function loadConfig({
         else bad('an array of non-empty strings');
         break;
       case 'detailMode':
-        if (value === true) problems.push('detailMode: detailMode is off until the privacy check (G3) is answered');
-        else if (value !== false) bad('a boolean');
+        if (typeof value === 'boolean') config.detailMode = value;
+        else bad('true or false');
         break;
       default:
         problems.push(`${key}: unknown key, ignored`);

@@ -194,6 +194,7 @@ class Checker {
     this.string(x, 'tool', path);
     this.oneOf(x, 'kind', path, ACTIVITY_KINDS);
     this.string(x, 'target', path);
+    if (x['detail'] !== undefined) this.string(x, 'detail', path);
     return true;
   }
 

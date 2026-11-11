@@ -1,4 +1,4 @@
-// Command line entry: `bin/agent-office [--port N] [--dev] [--open] [--sample | --replay DIR [--speed N]]`.
+// Command line entry: `bin/agent-office [--port N] [--dev] [--open] [--detail] [--sample | --replay DIR [--speed N]]`.
 // The default source is the live config dir (research R9); `--sample` serves the sample; `--replay`
 // plays a replay set through the live source (R8, DATA-9).
 // The config file (R10) is always loaded; its problems are printed and the defaults fill in.
@@ -26,12 +26,16 @@ const USAGE = `Usage: agent-office [options]
   --dev            serve the client through Vite with hot reload
   --open           open the office in the browser
   --sample         serve the sample snapshot instead of the live config dir
+  --detail         detail mode: show each tool call's raw input in the inspector (default: config detailMode)
   --help           show this help
 
   --config <file>  config file (default: $XDG_CONFIG_HOME/agent-office/config.json, else ~/.config/...)
   --replay <dir>   play a replay set (e.g. fixtures/replay/harness) instead of the live config dir
   --speed <n>      replay speed, a number greater than 0 (needs --replay; default 1)
 `;
+
+/** Printed once at start when detail mode is on (`--detail` or config `detailMode`). */
+const DETAIL_WARNING = 'agent-office: detail mode is on: raw tool input is sent to the local browser.\n';
 
 function fail(message: string, code: number): never {
   process.stderr.write(message + '\n');
@@ -47,6 +51,7 @@ async function main(): Promise<void> {
         dev: { type: 'boolean', default: false },
         open: { type: 'boolean', default: false },
         sample: { type: 'boolean', default: false },
+        detail: { type: 'boolean', default: false },
         help: { type: 'boolean', default: false },
         config: { type: 'string' },
         replay: { type: 'string' },
@@ -78,6 +83,8 @@ async function main(): Promise<void> {
 
   const { config, problems } = loadConfig({ flag: values.config, env: process.env, home: homedir() });
   for (const problem of problems) process.stderr.write(`agent-office: config: ${problem}\n`);
+  const detailMode = values.detail || config.detailMode;
+  if (detailMode) process.stderr.write(DETAIL_WARNING);
 
   let replay: Replay | null = null;
   if (values.replay !== undefined) {
@@ -94,7 +101,7 @@ async function main(): Promise<void> {
       ? {
           env: process.env,
           home: replay.manifest.home,
-          config: { maxAgeHours: Infinity },
+          config: { maxAgeHours: Infinity, detailMode },
           cfgDir: replay.cfgDir,
           now: replay.now,
           liveness: replay.liveness,
@@ -110,6 +117,7 @@ async function main(): Promise<void> {
             ...(config.claudeConfigDir !== null ? { claudeConfigDir: config.claudeConfigDir } : {}),
             maxAgeHours: config.maxAgeHours,
             filter: filterFor(config),
+            detailMode,
           },
         };
   let source: LiveSource;

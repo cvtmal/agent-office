@@ -13,7 +13,7 @@ describe('statusText', () => {
 
   it('counts characters', () => {
     expect(statusText({ ...initialState(), snapshot: sample, connection: 'ready' })).toBe(
-      'Agent Office · 14 characters',
+      'Agent Office · 26 characters',
     );
   });
 
@@ -23,7 +23,7 @@ describe('statusText', () => {
 
   it('keeps the count while reconnecting with a snapshot', () => {
     expect(statusText({ ...initialState(), snapshot: sample, connection: 'reconnecting' })).toBe(
-      'Agent Office · 14 characters · reconnecting',
+      'Agent Office · 26 characters · reconnecting',
     );
   });
 
@@ -58,11 +58,11 @@ describe('mountStatus', () => {
 
     store.applySnapshot(sample);
     expect(children).toHaveLength(1);
-    expect(children[0]?.textContent).toBe('Agent Office · 14 characters');
+    expect(children[0]?.textContent).toBe('Agent Office · 26 characters');
     expect(app.dataset['connection']).toBe('ready');
 
     store.setConnection('reconnecting');
-    expect(children[0]?.textContent).toBe('Agent Office · 14 characters · reconnecting');
+    expect(children[0]?.textContent).toBe('Agent Office · 26 characters · reconnecting');
     expect(app.dataset['connection']).toBe('reconnecting');
   });
 });

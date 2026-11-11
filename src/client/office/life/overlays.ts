@@ -3,7 +3,8 @@
 // plus the raised hand and the coffee mug. Positions are sprite top-lefts. DOM-free.
 import { PROPS, characterFrame, spot as spotOf, type Prop, type Spot } from '../layout.js';
 import { arrived, type Actor } from './actors.js';
-import { FOLDER_MS, HANDS_FRAME_MS, LIFE_SPRITES, STEAM_FRAME_MS } from './constants.js';
+import { LIFE_IDS } from '../art-ids.js';
+import { FOLDER_MS, HANDS_FRAME_MS, STEAM_FRAME_MS } from './constants.js';
 import type { Point } from './grid.js';
 
 /** One overlay sprite to draw at its top-left. */
@@ -68,12 +69,12 @@ export function overlaysFor(
   const seat = spotOf(actor.target.spot);
   const rect = characterFrame(seat, actor.intern);
 
-  if (pose === 'raiseHand') return [at(LIFE_SPRITES.hand, rect, rect.w - 10, 2)];
+  if (pose === 'raiseHand') return [at(LIFE_IDS.hand, rect, rect.w - 10, 2)];
   if (pose === 'coffee') {
     const mug = { x: rect.x + rect.w - 10, y: rect.y + rect.h / 2 };
     return [
-      at(LIFE_SPRITES.mug, mug),
-      at(frame2(LIFE_SPRITES.steam, timeMs, STEAM_FRAME_MS, reduced), mug, 0, -7),
+      at(LIFE_IDS.mug, mug),
+      at(frame2(LIFE_IDS.steam, timeMs, STEAM_FRAME_MS, reduced), mug, 0, -7),
     ];
   }
   if (pose !== 'sit' || kind === null) return [];
@@ -82,20 +83,20 @@ export function overlaysFor(
   if (anchor === undefined) return [];
   switch (kind) {
     case 'read':
-      return [at(LIFE_SPRITES.papers, anchor.desk)];
+      return [at(LIFE_IDS.papers, anchor.desk)];
     case 'shell':
-      return [at(LIFE_SPRITES.terminal, anchor.monitor, 1, 1)];
+      return [at(LIFE_IDS.terminal, anchor.monitor, 1, 1)];
     case 'web':
-      return [at(LIFE_SPRITES.globe, anchor.monitor, 2, 1)];
+      return [at(LIFE_IDS.globe, anchor.monitor, 2, 1)];
     case 'plan':
-      return [at(LIFE_SPRITES.sticky, anchor.wall)];
+      return [at(LIFE_IDS.sticky, anchor.wall)];
     case 'delegate': {
       const intern = internSpotOf(actor.id);
-      if (intern === undefined) return [at(LIFE_SPRITES.folder, anchor.desk)];
+      if (intern === undefined) return [at(LIFE_IDS.folder, anchor.desk)];
       const end = { x: intern.x - 4, y: intern.y - 16 };
       const t = reduced ? 1 : (timeMs % FOLDER_MS) / FOLDER_MS;
       return [
-        at(LIFE_SPRITES.folder, {
+        at(LIFE_IDS.folder, {
           x: anchor.desk.x + (end.x - anchor.desk.x) * t,
           y: anchor.desk.y + (end.y - anchor.desk.y) * t,
         }),
@@ -103,6 +104,6 @@ export function overlaysFor(
     }
     case 'write':
     case 'other':
-      return [at(frame2(LIFE_SPRITES.hands, timeMs, HANDS_FRAME_MS, reduced), anchor.keys)];
+      return [at(frame2(LIFE_IDS.hands, timeMs, HANDS_FRAME_MS, reduced), anchor.keys)];
   }
 }

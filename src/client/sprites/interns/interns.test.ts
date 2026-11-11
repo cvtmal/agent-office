@@ -172,6 +172,11 @@ describe('composeIntern', () => {
     expect(top(composeIntern(LOOK, 'head'))).toBeGreaterThan(top(rest));
     for (const build of INTERN_BUILDS.keys()) {
       const look = { ...LOOK, build };
+      // Interns stand: the head bows (2 rows) over hanging arms, no forearms on a desk below it.
+      const bowedEnd = (INTERN_BUILDS[build]?.anchors.head.y ?? 0) + INTERN_HEAD_BOX.h + 2;
+      const changed = diff(composeIntern(look, 0), composeIntern(look, 'head'));
+      expect(changed.length, `build ${String(build)}`).toBeGreaterThan(0);
+      expect(changed.every((p) => p.y < bowedEnd), `build ${String(build)}`).toBe(true);
       expect(top(composeIntern(look, 'cheer1'), 6)).toBe(top(composeIntern(look, 'cheer0'), 6) - 1);
     }
   });

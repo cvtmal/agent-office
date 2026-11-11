@@ -53,11 +53,11 @@ test('office draws both rooms at every scale, switched by the project tabs', asy
   await expectFrameTime(office, page);
   await shoot(office, 'office-', n);
 
-  // Two projects → two tabs next to the status line, the first one selected.
+  // Three projects → three tabs next to the status line, the first one selected.
   const overview = page.locator('#overview');
-  await expect(overview).toContainText('14 characters');
+  await expect(overview).toContainText('26 characters');
   const tabs = page.getByRole('tablist', { name: 'Projects' }).getByRole('tab');
-  await expect(tabs).toHaveText(['harbor', 'notes-app']);
+  await expect(tabs).toHaveText(['harbor', 'notes-app', 'studio']);
   await expect(tabs.nth(0)).toHaveAttribute('aria-selected', 'true');
   await overview.screenshot({ path: `var/screens/scene-tabs-${testInfo.project.name}.png` });
 
@@ -65,7 +65,7 @@ test('office draws both rooms at every scale, switched by the project tabs', asy
   await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
   await expect(office).toHaveAttribute('data-room', 'notes-app');
   await expect(office).toHaveAttribute('data-drawn', '3');
-  await expect(overview).toContainText('14 characters');
+  await expect(overview).toContainText('26 characters');
   await shoot(office, 'office-', n);
 
   if (testInfo.project.name === 'desktop') {
@@ -93,8 +93,8 @@ test('the looks gallery draws 44 characters within the frame budget', async ({ p
   const office = page.locator('#office');
   await expect(office).toHaveAttribute('data-room', 'looks');
   await expect(office).toHaveAttribute('data-scale', '2');
-  // 30 gallery looks + the sample's 14 characters.
-  await expect(office).toHaveAttribute('data-drawn', '44');
+  // 30 gallery looks + the first 15 of the sample's 26 characters (one row).
+  await expect(office).toHaveAttribute('data-drawn', '45');
   await expectFrameTime(office, page);
   await office.screenshot({ path: `var/screens/looks-${zoom(testInfo)}.png` });
   expect(problems).toEqual([]);

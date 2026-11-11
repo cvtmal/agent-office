@@ -38,6 +38,14 @@ describe('life family', () => {
     expect(opaque).toBeGreaterThan(8);
   });
 
+  it('typing hands are mostly skin: outline pixels are fewer than a third of the hand', () => {
+    for (const id of ['life-hands0', 'life-hands1']) {
+      const cells = (spriteById(id)?.grid ?? []).join('').replace(/\./g, '');
+      const outline = cells.replace(/[^o]/g, '').length;
+      expect(outline, id).toBeLessThan(cells.length / 3);
+    }
+  });
+
   it('animation pairs differ and keep their size', () => {
     for (const [a, b] of [
       ['life-hands0', 'life-hands1'],

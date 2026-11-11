@@ -74,6 +74,18 @@
         "drift": true,
         "version": "2.8.4"
       }
+    },
+    {
+      "id": "/home/demo/code/studio",
+      "name": "studio",
+      "displayPath": "~/code/studio",
+      "harness": null,
+      "health": {
+        "lines": 1200,
+        "failed": 0,
+        "drift": false,
+        "version": "2.9.0"
+      }
     }
   ],
   "characters": [
@@ -394,6 +406,258 @@
       "lane": null,
       "lastActivityAt": "2026-11-11T04:50:00Z",
       "lastUsageAt": "2026-11-11T04:50:00Z"
+    },
+    {
+      "id": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "sessionId": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-api",
+      "status": "busy",
+      "tokens": 45000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:58:00Z",
+      "lastUsageAt": "2026-11-11T08:58:00Z"
+    },
+    {
+      "id": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "sessionId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-tests",
+      "status": "busy",
+      "tokens": 80000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "sessionId": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-docs",
+      "status": "busy",
+      "tokens": 30000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:57:00Z",
+      "lastUsageAt": "2026-11-11T08:57:00Z"
+    },
+    {
+      "id": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "sessionId": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-assets",
+      "status": "busy",
+      "tokens": 110000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:58:00Z",
+      "lastUsageAt": "2026-11-11T08:58:00Z"
+    },
+    {
+      "id": "2bcb18af-2acb-471c-2dcb-1bd52ccb1a42",
+      "sessionId": "2bcb18af-2acb-471c-2dcb-1bd52ccb1a42",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-lint",
+      "status": "idle",
+      "tokens": 20000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:30Z",
+      "lastUsageAt": "2026-11-11T08:59:30Z"
+    },
+    {
+      "id": "91c7a647-90c7-44b4-93c7-a96d92c7a7da",
+      "sessionId": "91c7a647-90c7-44b4-93c7-a96d92c7a7da",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/studio",
+      "kind": "session",
+      "role": "teammate",
+      "name": "studio-theme",
+      "status": "idle",
+      "tokens": 90000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:57:30Z",
+      "lastUsageAt": "2026-11-11T08:57:30Z"
+    },
+    {
+      "id": "b04881ea-b148-437d-ae48-7ec4af488057/a73041f5d72041dca",
+      "sessionId": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "agentId": "a73041f5d72041dca",
+      "parentId": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-styles",
+      "status": "busy",
+      "tokens": 15000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "general-purpose",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea/aa8021047a7020eb4",
+      "sessionId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "agentId": "aa8021047a7020eb4",
+      "parentId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-bundle",
+      "status": "busy",
+      "tokens": 22000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "Explore",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:58:00Z",
+      "lastUsageAt": "2026-11-11T08:58:00Z"
+    },
+    {
+      "id": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c/ac7e1cfabc6e1ce18",
+      "sessionId": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "agentId": "ac7e1cfabc6e1ce18",
+      "parentId": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-audio",
+      "status": "idle",
+      "tokens": 12000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "Explore",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:15Z",
+      "lastUsageAt": "2026-11-11T08:59:15Z"
+    },
+    {
+      "id": "122dab2b-112d-4998-142d-ae51132dacbe/ab53a284bb43a26b8",
+      "sessionId": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "agentId": "ab53a284bb43a26b8",
+      "parentId": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-icons",
+      "status": "idle",
+      "tokens": 18000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "general-purpose",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "2bcb18af-2acb-471c-2dcb-1bd52ccb1a42/a9320ed269420eeb9",
+      "sessionId": "2bcb18af-2acb-471c-2dcb-1bd52ccb1a42",
+      "agentId": "a9320ed269420eeb9",
+      "parentId": "2bcb18af-2acb-471c-2dcb-1bd52ccb1a42",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-forms",
+      "status": "idle",
+      "tokens": 9000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "general-purpose",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:58:30Z",
+      "lastUsageAt": "2026-11-11T08:58:30Z"
+    },
+    {
+      "id": "91c7a647-90c7-44b4-93c7-a96d92c7a7da/a2aac0fe329ac0e50",
+      "sessionId": "91c7a647-90c7-44b4-93c7-a96d92c7a7da",
+      "agentId": "a2aac0fe329ac0e50",
+      "parentId": "91c7a647-90c7-44b4-93c7-a96d92c7a7da",
+      "projectId": "/home/demo/code/studio",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "studio-a11y",
+      "status": "idle",
+      "tokens": 25000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/studio",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "Explore",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:56:45Z",
+      "lastUsageAt": "2026-11-11T08:56:45Z"
     }
   ],
   "activities": [
@@ -517,11 +781,25 @@
       "target": "src"
     },
     {
+      "characterId": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "at": "2026-11-11T08:53:00Z",
+      "tool": "WebSearch",
+      "kind": "web",
+      "target": "web audio"
+    },
+    {
       "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
       "at": "2026-11-11T08:54:00Z",
       "tool": "Edit",
       "kind": "write",
       "target": "store.ts"
+    },
+    {
+      "characterId": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "at": "2026-11-11T08:54:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "studio-styles"
     },
     {
       "characterId": "55ded1f3-54de-4060-57de-d51956ded386/a3cd35cee3dd35e81",
@@ -538,6 +816,13 @@
       "target": "find-index"
     },
     {
+      "characterId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "at": "2026-11-11T08:55:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "studio-bundle"
+    },
+    {
       "characterId": "8d3655b3-8c36-4420-8f36-58d98e365746",
       "at": "2026-11-11T08:56:00Z",
       "tool": "AskUserQuestion",
@@ -550,6 +835,20 @@
       "tool": "Grep",
       "kind": "read",
       "target": "index.ts"
+    },
+    {
+      "characterId": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "at": "2026-11-11T08:56:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "make"
+    },
+    {
+      "characterId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea/aa8021047a7020eb4",
+      "at": "2026-11-11T08:56:00Z",
+      "tool": "Glob",
+      "kind": "read",
+      "target": "src"
     },
     {
       "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
@@ -566,11 +865,46 @@
       "target": "search.ts"
     },
     {
+      "characterId": "eae77e55-e9e7-4cc2-e8e7-7b2fe7e7799c",
+      "at": "2026-11-11T08:57:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "guide.md"
+    },
+    {
+      "characterId": "b04881ea-b148-437d-ae48-7ec4af488057/a73041f5d72041dca",
+      "at": "2026-11-11T08:57:00Z",
+      "tool": "Grep",
+      "kind": "read",
+      "target": "theme.css"
+    },
+    {
       "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
       "at": "2026-11-11T08:58:00Z",
       "tool": "Bash",
       "kind": "shell",
       "target": "make"
+    },
+    {
+      "characterId": "b04881ea-b148-437d-ae48-7ec4af488057",
+      "at": "2026-11-11T08:58:00Z",
+      "tool": "Write",
+      "kind": "write",
+      "target": "handler.ts"
+    },
+    {
+      "characterId": "122dab2b-112d-4998-142d-ae51132dacbe",
+      "at": "2026-11-11T08:58:00Z",
+      "tool": "WebFetch",
+      "kind": "web",
+      "target": "example.com"
+    },
+    {
+      "characterId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea/aa8021047a7020eb4",
+      "at": "2026-11-11T08:58:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "vite.config.ts"
     },
     {
       "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
@@ -592,6 +926,20 @@
       "tool": "mcp__playwright__browser_navigate",
       "kind": "web",
       "target": "localhost"
+    },
+    {
+      "characterId": "e5d54b57-e4d5-49c4-e7d5-4e7de6d54cea",
+      "at": "2026-11-11T08:59:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "npm"
+    },
+    {
+      "characterId": "b04881ea-b148-437d-ae48-7ec4af488057/a73041f5d72041dca",
+      "at": "2026-11-11T08:59:00Z",
+      "tool": "Write",
+      "kind": "write",
+      "target": "theme.css"
     }
   ]
 }

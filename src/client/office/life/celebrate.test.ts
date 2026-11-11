@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import sampleJson from '../../../../fixtures/snapshots/sample.json';
 import type { Snapshot } from '../../../shared/types.js';
 import { PALETTE } from '../../render/palette.js';
-import { cheererFor, confetti, confettiAt, CONFETTI_COLOURS, doneWallArea, newOutcomes } from './celebrate.js';
+import { ART_COLOURS } from '../art-ids.js';
+import { cheererFor, confetti, confettiAt, doneWallArea, newOutcomes } from './celebrate.js';
 import { CONFETTI_COUNT, CONFETTI_MS } from './constants.js';
 
 const sample = sampleJson as unknown as Snapshot;
@@ -68,7 +69,7 @@ describe('confetti', () => {
       expect(p.x).toBeGreaterThanOrEqual(area.x);
       expect(p.x).toBeLessThanOrEqual(area.x + area.w);
       expect(PALETTE[p.colour]).toBeDefined();
-      expect(CONFETTI_COLOURS).toContain(p.colour);
+      expect(ART_COLOURS.confetti).toContain(p.colour);
     }
   });
 

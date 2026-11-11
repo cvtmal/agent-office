@@ -4,6 +4,7 @@
 import type { Snapshot } from '../../../shared/types.js';
 import { fnv1a } from '../../render/hash.js';
 import { PLANNED_SPRITES, PROPS, spriteSize, type Rect } from '../layout.js';
+import { ART_COLOURS } from '../art-ids.js';
 import { CONFETTI_COUNT, CONFETTI_GRAVITY, CONFETTI_MS } from './constants.js';
 
 /** An outcome that appeared since the previous snapshot. */
@@ -30,9 +31,6 @@ export interface ParticleAt {
   y: number;
   colour: string;
 }
-
-/** Palette names confetti is drawn in. */
-export const CONFETTI_COLOURS = ['magenta1', 'orange1', 'lamp1', 'green1', 'blue1', 'neon1'] as const;
 
 const key = (o: { nn: number; slug: string }): string => `${String(o.nn)}-${o.slug}`;
 
@@ -101,7 +99,7 @@ export function confetti(seed: string, area: Rect, startMs: number): Particle[] 
     vx: (r() - 0.5) * 40,
     vy: -20 - r() * 30,
     spin: 2 + r() * 6,
-    colour: CONFETTI_COLOURS[i % CONFETTI_COLOURS.length] ?? 'lamp1',
+    colour: ART_COLOURS.confetti[i % ART_COLOURS.confetti.length] ?? 'lamp1',
     startMs,
   }));
 }

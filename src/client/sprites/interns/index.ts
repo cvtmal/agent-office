@@ -424,8 +424,8 @@ function internKey(tones: PartTones, blink = false): Record<string, string> {
   return { ...keyFor(tones, { blink }), ...EXTRA_KEY };
 }
 
-/** Interns, head pose: the forearms on rows 13-16, the head box lowered to row 9 (only the crown shows). */
-const INTERN_HEAD_DOWN: HeadDown = { top: 9, arms: 13, fill: 2 };
+/** Interns, head pose: they stand (no desk), so the head bows 2 rows, eyes closed, arms hanging. */
+const INTERN_HEAD_DOWN: HeadDown = { bow: 2 };
 
 /**
  * The 24x36 frame of an intern look (mirrors `composeCharacter`). Layers, back

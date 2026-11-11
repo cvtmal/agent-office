@@ -1,6 +1,6 @@
 // Life spec (#5 plan step 9.1, rpi-cycles §5 done-when, UI-5): with the office alive
 // (actors, overlays, meters, bubbles) the frame time (p95 of update+draw, `data-frame-ms`)
-// stays under 16 ms in both rooms of `--sample`; a replay makes characters walk, and
+// stays under 16 ms in every room of `--sample` (studio: 12 characters, OFFICE-1); a replay makes characters walk, and
 // `office:layout` fires again with boxes that follow them (R10); with reduced motion
 // `data-moving` is never true for two frames in a row (R5). Shots: var/screens/life-*.png.
 import { expect, test, type Locator, type Page, type TestInfo } from '@playwright/test';
@@ -95,6 +95,22 @@ test('the living office stays within the frame budget in both sample rooms', asy
   await expect(office).toHaveAttribute('data-moving', 'false');
   await expectFrameTime(office, page, `notes-app ${testInfo.project.name}`);
   await office.screenshot({ path: `var/screens/life-notes-app-${zoom(testInfo)}.png` });
+  expect(problems).toEqual([]);
+});
+
+// OFFICE-1 (#7, U2): the sample's third room `studio` seats 12 characters
+// (6 busy at desks, 4 in the kitchen, 2 on the couch); the README quotes this value.
+test('frame time with 12 characters', async ({ page }, testInfo) => {
+  const problems = watchConsole(page);
+  await page.goto('/');
+  await expect(page.locator('#app')).toHaveAttribute('data-connection', 'ready');
+  const office = page.locator('#office');
+  await page.getByRole('tab', { name: 'studio' }).click();
+  await expect(office).toHaveAttribute('data-room', 'studio');
+  await expect(office).toHaveAttribute('data-drawn', '12');
+  if ((await office.getAttribute('data-overflow')) !== null) await expect(office).toHaveAttribute('data-overflow', '0');
+  await expectFrameTime(office, page, `studio 12 characters ${testInfo.project.name}`);
+  await office.screenshot({ path: `var/screens/life-studio-${zoom(testInfo)}.png` });
   expect(problems).toEqual([]);
 });
 

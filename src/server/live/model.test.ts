@@ -31,7 +31,12 @@ function copy(): string {
 
 function model(
   cfgDir: string,
-  { now = () => NOW, maxAgeHours = Infinity, teammates = teammateProcs(TABLE) }: { now?: () => number; maxAgeHours?: number; teammates?: TeammateProc[] } = {},
+  {
+    now = () => NOW,
+    maxAgeHours = Infinity,
+    teammates = teammateProcs(TABLE),
+    detailMode,
+  }: { now?: () => number; maxAgeHours?: number; teammates?: TeammateProc[]; detailMode?: boolean } = {},
 ): { live: LiveModel; events: ServerEvent[][] } {
   const events: ServerEvent[][] = [];
   const live = createLiveModel({
@@ -42,6 +47,7 @@ function model(
     thresholds: thresholdsFromEnv({}),
     rootOf,
     harnessOf: () => null,
+    ...(detailMode === undefined ? {} : { detailMode }),
     liveness: { registry: async () => liveRegistry(cfgDir, TABLE), teammates: async () => teammates },
     onEvents: (e) => {
       for (const event of e) expect(validateEvent(event)).toEqual([]);
@@ -117,6 +123,49 @@ describe('createLiveModel', () => {
     expect(character?.type === 'character' && character.data.lastActivityAt).toBe(at);
     expect(batch.every((e) => e.type !== 'snapshot')).toBe(true);
     await live.close();
+  });
+
+  it('detail mode: every activity carries its whole tool input; off: no detail key', async () => {
+    const appended = (id: string): string =>
+      JSON.stringify({
+        type: 'assistant',
+        sessionId: id,
+        cwd: '/home/dev/code/alpha',
+        isSidechain: false,
+        timestamp: '2026-01-01T05:59:00.000Z',
+        uuid: syntheticUuid('appended-detail'),
+        message: {
+          role: 'assistant',
+          content: [{ type: 'tool_use', id: 'toolu_detail', name: 'Edit', input: { file_path: '/home/dev/code/alpha/a.ts', old_string: 'OLD', new_string: 'NEW' } }],
+          stop_reason: 'tool_use',
+        },
+      }) + '\n';
+    const id = syntheticUuid('cto');
+
+    const onDir = copy();
+    const on = model(onDir, { detailMode: true });
+    await on.live.start();
+    appendFileSync(pathOf(onDir, id), appended(id));
+    await on.live.ingest(new Set([pathOf(onDir, id)]));
+    const onActivities = on.live.snapshot().activities;
+    expect(onActivities.length).toBeGreaterThan(0);
+    expect(onActivities.every((a) => typeof a.detail === 'string')).toBe(true);
+    expect(onActivities.find((a) => a.tool === 'Edit' && a.characterId === id)?.detail).toBe(
+      '{"file_path":"/home/dev/code/alpha/a.ts","old_string":"OLD","new_string":"NEW"}',
+    );
+    await on.live.close();
+
+    for (const detailMode of [false, undefined]) {
+      const offDir = copy();
+      const off = model(offDir, detailMode === undefined ? {} : { detailMode });
+      await off.live.start();
+      appendFileSync(pathOf(offDir, id), appended(id));
+      await off.live.ingest(new Set([pathOf(offDir, id)]));
+      const offActivities = off.live.snapshot().activities;
+      expect(offActivities.length).toBe(onActivities.length);
+      expect(offActivities.every((a) => !('detail' in a))).toBe(true);
+      await off.live.close();
+    }
   });
 
   it('sends one snapshot when a transcript is deleted', async () => {

@@ -19,8 +19,8 @@ describe('fixtures/snapshots/sample.json', () => {
     expect(sample).toEqual(buildSample());
   });
 
-  it('has 14 characters', () => {
-    expect(sample.characters).toHaveLength(14);
+  it('has 26 characters', () => {
+    expect(sample.characters).toHaveLength(26);
   });
 
   it('covers every status, activity kind and verdict', () => {

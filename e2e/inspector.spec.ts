@@ -160,6 +160,7 @@ test('the strip shows counts, top verdict and drift per project as in /api/snaps
   expect(seen).toEqual({
     harbor: { counts: '4 busy · 4 idle · 1 ended', verdict: 'HANDOVER', drift: null },
     'notes-app': { counts: '1 busy · 2 idle · 2 ended', verdict: 'WARN', drift: 'format drift 8 %' },
+    studio: { counts: '6 busy · 6 idle · 0 ended', verdict: 'OK', drift: null },
   });
   expect(problems).toEqual([]);
 });

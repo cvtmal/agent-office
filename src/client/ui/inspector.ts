@@ -26,6 +26,8 @@ export interface CardActivity {
   clock: string;
   /** ISO time of the call. */
   at: string;
+  /** Raw tool input (detail mode only, `Activity.detail`); absent otherwise. */
+  detail?: string;
 }
 
 export interface CardModel {
@@ -107,7 +109,11 @@ export function cardModel(snapshot: Snapshot | null, ui: UiState, now: number): 
     .filter((a) => a.characterId === c.id)
     .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))
     .slice(0, CARD_ACTIVITIES)
-    .map((a) => ({ kind: a.kind, tool: a.tool, target: a.target, clock: clock(a.at), at: a.at }));
+    .map((a): CardActivity => {
+      const row: CardActivity = { kind: a.kind, tool: a.tool, target: a.target, clock: clock(a.at), at: a.at };
+      if (a.detail !== undefined) row.detail = a.detail;
+      return row;
+    });
 
   return {
     id: c.id,
@@ -151,6 +157,22 @@ function paint(canvas: HTMLCanvasElement, r: Raster): void {
 
 /** One 8x8 data URL per activity kind, made once (R10). */
 const iconUrls = new Map<ActivityKind, string>();
+/**
+ * Detail mode: `<details class="detail"><summary>input</summary><pre>` holding the raw tool input as
+ * text (`textContent`, never parsed as HTML); null without a detail.
+ */
+export function detailBlock(doc: Pick<Document, 'createElement'>, detail: string | undefined): HTMLDetailsElement | null {
+  if (detail === undefined) return null;
+  const details = doc.createElement('details');
+  details.className = 'detail';
+  const summary = doc.createElement('summary');
+  summary.textContent = 'input';
+  const pre = doc.createElement('pre');
+  pre.textContent = detail;
+  details.append(summary, pre);
+  return details;
+}
+
 function iconUrl(doc: Document, kind: ActivityKind): string {
   let url = iconUrls.get(kind);
   if (url === undefined) {
@@ -255,6 +277,8 @@ export function mountInspector(el: HTMLElement, store: Store, options: Inspector
       time.dateTime = a.at;
       time.title = ageText(at - Date.parse(a.at));
       li.append(icon, make('span', 'tool', a.tool), make('span', 'target', a.target), time);
+      const details = detailBlock(doc, a.detail);
+      if (details !== null) li.append(details);
       list.append(li);
     }
     if (m.activities.length === 0) list.append(make('li', 'hint', 'No activity yet'));

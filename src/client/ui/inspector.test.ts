@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import sampleJson from '../../../fixtures/snapshots/sample.json';
 import type { Activity, Snapshot } from '../../shared/types.js';
 import { initialState, type UiState } from '../app/store.js';
-import { ageText, cardModel, clock, NONE } from './inspector.js';
+import { ageText, cardModel, clock, detailBlock, NONE } from './inspector.js';
 
 const sample = sampleJson as unknown as Snapshot;
 const NOW = Date.parse(sample.generatedAt);
@@ -70,6 +70,18 @@ describe('cardModel', () => {
     expect(card?.activities[0]?.clock).toBe(clock(card?.activities[0]?.at ?? ''));
   });
 
+  it('copies an activity detail (detail mode) and has no detail key without one', () => {
+    const c = byName('c03-implement');
+    const base = { characterId: c.id, tool: 'Bash', kind: 'shell' as const, target: 'git' };
+    const withDetail: Activity = { ...base, at: new Date(NOW - 60_000).toISOString(), detail: '{"command":"git status"}' };
+    const without: Activity = { ...base, at: new Date(NOW - 120_000).toISOString() };
+    const snapshot: Snapshot = { ...sample, activities: [without, withDetail] };
+    const rows = cardModel(snapshot, ui({ selectedId: c.id }), NOW)?.activities ?? [];
+    expect(rows[0]?.detail).toBe('{"command":"git status"}');
+    expect(rows[1]).toBeDefined();
+    expect(Object.keys(rows[1] ?? {})).not.toContain('detail');
+  });
+
   it('is null for an ended character while hide ended is on', () => {
     const ended = byName('quick-fix');
     expect(cardModel(sample, ui({ selectedId: ended.id }), NOW)?.status).toBe('ended');
@@ -101,6 +113,45 @@ describe('ageText', () => {
     [-5_000, '0s ago'],
   ])('%i ms -> %s', (ms, text) => {
     expect(ageText(ms)).toBe(text);
+  });
+});
+
+/** A stand-in for `document.createElement` (the unit tests run without a DOM); it parses no markup. */
+interface FakeNode {
+  tagName: string;
+  className: string;
+  textContent: string | null;
+  children: FakeNode[];
+}
+const fakeDoc = {
+  createElement(tag: string): FakeNode {
+    const node = {
+      tagName: tag.toUpperCase(),
+      className: '',
+      textContent: null as string | null,
+      children: [] as FakeNode[],
+      append(...nodes: FakeNode[]) {
+        node.children.push(...nodes);
+      },
+    };
+    return node;
+  },
+} as unknown as Pick<Document, 'createElement'>;
+
+describe('detailBlock', () => {
+  it('puts the detail into details > pre as text; markup stays text', () => {
+    const detail = '{"command":"echo <b>bold</b>"}';
+    const block = detailBlock(fakeDoc, detail) as unknown as FakeNode | null;
+    expect(block?.tagName).toBe('DETAILS');
+    expect(block?.children.map((n) => n.tagName)).toEqual(['SUMMARY', 'PRE']);
+    expect(block?.children[0]?.textContent).toBe('input');
+    const pre = block?.children[1];
+    expect(pre?.textContent).toBe(detail);
+    expect(pre?.children).toEqual([]);
+  });
+
+  it('is null without a detail', () => {
+    expect(detailBlock(fakeDoc, undefined)).toBeNull();
   });
 });
 

@@ -28,6 +28,7 @@ import { composeCharacter, POSE_FRAMES, type IdleFrame, type PoseFrame } from '.
 import { SKINS } from '../sprites/characters/space.js';
 import { composeIntern } from '../sprites/interns/index.js';
 import { rasterizeSprite, spriteById } from '../sprites/registry.js';
+import { ART_COLOURS, LIFE_IDS } from './art-ids.js';
 import { characterBoxes, LAYOUT_EVENT } from './boxes.js'; // #6
 import { galleryEntries } from './gallery.js';
 import { idleFrame, IDLE_FRAMES } from './idle.js';
@@ -45,11 +46,21 @@ import {
   type TileKind,
 } from './layout.js';
 import { actorFrame, planTargets, stepActors, syncActors, type Actor } from './life/actors.js';
-import { createBubbles, newActivities, type Bubble } from './life/bubbles.js';
+import { createBubbles, newActivities } from './life/bubbles.js';
 import { cheererFor, confetti, confettiAt, doneWallArea, newOutcomes, type Particle } from './life/celebrate.js';
 import { createServerClock } from './life/clock.js';
-import { CHEER_MS, CONFETTI_MS, LAYOUT_EVERY_MS, LIFE_SPRITES, SWEAT_FRAME_MS } from './life/constants.js';
-import { BUBBLE_H, bubbleRaster, meterRect, placeBubble, sweatAt } from './life/draw.js';
+import { CHEER_MS, CONFETTI_MS, LAYOUT_EVERY_MS, SWEAT_FRAME_MS } from './life/constants.js';
+import {
+  BUBBLE_H,
+  bubbleRaster,
+  meterRect,
+  placeBubble,
+  placeBubbles,
+  sweatAt,
+  type BubbleBox,
+  type BubblePlace,
+  type TagBox,
+} from './life/draw.js';
 import { buildGrid } from './life/grid.js';
 import { meterFill, showMeter, sweats } from './life/meter.js';
 import { overlaysFor } from './life/overlays.js';
@@ -73,6 +84,7 @@ import {
   inkTop,
   tagRaster,
   tagText,
+  tagWidth,
   truncateTag,
   TAG_FILL,
   TAG_GAP,
@@ -105,7 +117,7 @@ function lookSprite(look: Look, frame: number | PoseFrame): string {
 
 // #5 office-life
 /** Life sprites drawn in the reference skin (skinA): packed once per skin ramp. */
-const SKIN_TONED: readonly string[] = [...LIFE_SPRITES.hands, LIFE_SPRITES.hand];
+const SKIN_TONED: readonly string[] = [...LIFE_IDS.hands, LIFE_IDS.hand];
 
 /** The skin ramp of a look (compose.ts `tonesFor` wraps the index the same way). */
 function skinOf(look: Look): RampName {
@@ -454,7 +466,7 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
     return out.sort(compareItems);
   };
 
-  /** The overlays of a drawn character (R3), right after it. */
+  /** The overlays of a drawn character (R3), drawn after all items (on its desk and monitor). */
   const drawOverlays = (item: DrawItem, reduced: boolean): void => {
     const a = actors.get(item.id);
     if (a === undefined || item.look === undefined) return;
@@ -480,9 +492,7 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
   };
 
   /** A bubble above its tag (R6), its tail pointing down at the head. */
-  const drawBubble = (b: Bubble, headX: number, tagTop: number): void => {
-    const box = bubbleCanvas(b.kind, b.text);
-    const p = placeBubble(box.width, headX, tagTop);
+  const drawBubble = (box: HTMLCanvasElement, p: BubblePlace): void => {
     ctx.drawImage(box, p.x, p.y);
     const bottom = p.y + BUBBLE_H;
     ctx.fillStyle = colour(TAG_FILL);
@@ -495,7 +505,8 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
 
   /** Above the light: tags, meters and sweat, then bubbles, then confetti (R5-R8). */
   const drawLifeTop = (reduced: boolean): void => {
-    const shown: { b: Bubble; headX: number; tagTop: number }[] = [];
+    const shown: (BubbleBox & { box: HTMLCanvasElement })[] = [];
+    const tags: TagBox[] = [];
     const visible = new Map(bubbles.visible(timeMs).map((b) => [b.characterId, b]));
     for (const item of frameItems) {
       if (item.kind !== 'character' || item.look === undefined) continue;
@@ -504,11 +515,14 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
       const headY = item.y + (heads.get(lookKey(item.look))?.top ?? 0);
       const tag = tagOffsets.get(item.id);
       const tagTop = tag === undefined ? headY - TAG_GAP - TAG_HEIGHT : item.y + tag.dy;
-      if (tag !== undefined) atlas.draw(ctx, tagSprite(tag.text), item.x + tag.dx, tagTop);
+      if (tag !== undefined) {
+        atlas.draw(ctx, tagSprite(tag.text), item.x + tag.dx, tagTop);
+        tags.push({ id: item.id, rect: { x: item.x + tag.dx, y: tagTop, w: tagWidth(tag.text), h: TAG_HEIGHT } });
+      }
       const c = lifeChars.get(item.id);
       if (c !== undefined && showMeter(c)) {
         const r = meterRect(frame, tagTop + TAG_HEIGHT, headY, intern);
-        ctx.fillStyle = colour('night0');
+        ctx.fillStyle = colour(ART_COLOURS.meterTrack);
         ctx.fillRect(r.x, r.y, r.w, r.h);
         const fill = meterFill(c);
         ctx.fillStyle = verdictHex(c.verdict);
@@ -516,13 +530,18 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
       }
       if (c !== undefined && sweats(c)) {
         const at = sweatAt(frame, headY, intern);
-        const n = reduced ? 0 : Math.floor(timeMs / SWEAT_FRAME_MS) % LIFE_SPRITES.sweat.length;
-        tile(ctx, LIFE_SPRITES.sweat[n] ?? LIFE_SPRITES.sweat[0], at.x, at.y);
+        const n = reduced ? 0 : Math.floor(timeMs / SWEAT_FRAME_MS) % LIFE_IDS.sweat.length;
+        tile(ctx, LIFE_IDS.sweat[n] ?? LIFE_IDS.sweat[0], at.x, at.y);
       }
       const b = visible.get(item.id);
-      if (b !== undefined) shown.push({ b, headX: frame.x + frame.w / 2, tagTop });
+      if (b !== undefined) {
+        const box = bubbleCanvas(b.kind, b.text);
+        const w = box.width;
+        shown.push({ id: item.id, w, box, place: placeBubble(w, frame.x + frame.w / 2, tagTop) });
+      }
     }
-    for (const s of shown) drawBubble(s.b, s.headX, s.tagTop);
+    const places = placeBubbles(shown, tags);
+    for (const s of shown) drawBubble(s.box, places.get(s.id) ?? s.place);
     if (!reduced) {
       for (const particles of celebrations) {
         for (const p of confettiAt(particles, timeMs)) {
@@ -643,11 +662,13 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
       if (item.kind === 'character' && item.look !== undefined) {
         const look = frameSprites.get(item.id) ?? lookSprite(item.look, idleFrame(timeMs, item.id, reducedNow())); // #5 pose
         if (atlas.draw(ctx, look, item.x, item.y)) drawn++; // #6
-        if (!gallery) drawOverlays(item, reduced); // #5
       } else if (item.sprite !== undefined) {
         tile(ctx, item.sprite, item.x, item.y, scene.theme);
       }
     }
+    // #5 overlays after every item: the desk, keyboard and monitor sort in front of their
+    // sitter, so drawn right after it the papers, hands, terminal and globe were hidden (#7).
+    if (!gallery) for (const item of frameItems) if (item.kind === 'character') drawOverlays(item, reduced);
     if (!gallery) {
       ctx.globalCompositeOperation = 'multiply';
       ctx.drawImage(light.multiply.canvas, 0, 0);

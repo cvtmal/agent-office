@@ -1,5 +1,5 @@
 // Reconnect spec (plan step 9.4, UI-4 done-when): the server stops → the page shows
-// `reconnecting` within 3 s; it starts again on the same port → `ready` with the sample's 14
+// `reconnecting` within 3 s; it starts again on the same port → `ready` with the sample's 26
 // characters within 20 s, on the same page (no reload: a marker set on `window` survives).
 // The server is `--dev` (dist/ may be stale or missing), so the page's WebSockets (Vite's HMR
 // client only) are answered by a mock that stays open: a real HMR socket would reload the page
@@ -32,7 +32,7 @@ test('the page reconnects to a restarted server without a reload', async ({ page
   await page.goto(cli.url);
   const app = page.locator('#app');
   await expect(app).toHaveAttribute('data-connection', 'ready');
-  await expect(page.locator('#overview .status')).toHaveText('Agent Office · 14 characters');
+  await expect(page.locator('#overview .status')).toHaveText('Agent Office · 26 characters');
   await page.evaluate(() => {
     (globalThis as { __marker?: string }).__marker = 'same-page';
   });
@@ -46,7 +46,7 @@ test('the page reconnects to a restarted server without a reload', async ({ page
   cli = await startCli(args);
   const left = (): number => Math.max(1, READY_AGAIN_MS - (Date.now() - restartedAt));
   await expect(app).toHaveAttribute('data-connection', 'ready', { timeout: left() });
-  await expect(page.locator('#overview .status')).toHaveText('Agent Office · 14 characters', { timeout: left() });
+  await expect(page.locator('#overview .status')).toHaveText('Agent Office · 26 characters', { timeout: left() });
   console.log(`ready again after ${String(Date.now() - restartedAt)} ms`);
   expect(await page.evaluate(() => (globalThis as { __marker?: string }).__marker)).toBe('same-page');
 });

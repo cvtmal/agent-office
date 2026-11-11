@@ -34,14 +34,14 @@ afterAll(async () => {
 });
 
 describe('GET /api/snapshot', () => {
-  it('returns a valid snapshot with 14 characters', async () => {
+  it('returns a valid snapshot with 26 characters', async () => {
     const res = await fetch(`${base}/api/snapshot`);
     expect(res.status).toBe(200);
     expect(res.headers.get('content-type')).toMatch(/^application\/json/);
     expect(res.headers.get('cache-control')).toBe('no-store');
     const body: unknown = await res.json();
     expect(validateSnapshot(body)).toEqual([]);
-    expect((body as Snapshot).characters).toHaveLength(14);
+    expect((body as Snapshot).characters).toHaveLength(26);
   });
 });
 
@@ -74,7 +74,7 @@ describe('GET /api/events', () => {
     expect(first?.type).toBe('snapshot');
     expect(validateEvent(first)).toEqual([]);
     expect(isSnapshot(first?.data)).toBe(true);
-    expect((first?.data as Snapshot).characters).toHaveLength(14);
+    expect((first?.data as Snapshot).characters).toHaveLength(26);
   });
 
   it('streams the deltas of a source; each one validates', async () => {
@@ -139,6 +139,37 @@ describe('GET /api/events over the fake config dir', () => {
       expect(snapshot.characters.length).toBeGreaterThan(0);
       const text = JSON.stringify(parsed.events);
       for (const secret of FAKE_SECRETS) expect(text).not.toContain(secret);
+    } finally {
+      await new Promise<void>((done) => {
+        live.close(() => done());
+        live.closeAllConnections();
+      });
+      await source.close();
+    }
+  });
+
+  it('detail mode: tool activities carry detail, and no fake secret reaches any target', async () => {
+    const source = await createLiveSource({
+      cfgDir: fileURLToPath(new URL('../fixtures/transcripts/config', import.meta.url)),
+      home: '/home/dev',
+      config: { maxAgeHours: Infinity, detailMode: true },
+      readTable: async () => new Map(),
+      rootOf: (cwd) => cwd,
+      harness: { read: () => null, watch: () => ({ close: () => undefined }) },
+    });
+    const live = createServer(createRequestHandler({ getSnapshot: source.getSnapshot, source }));
+    await new Promise<void>((done) => live.listen(0, '127.0.0.1', done));
+    try {
+      const res = await fetch(`http://127.0.0.1:${String((live.address() as AddressInfo).port)}/api/events`);
+      const parsed = await readSseUntil(res, (p) => p.events.length >= 1);
+      expect(parsed.events[0]?.type).toBe('snapshot');
+      const snapshot = parsed.events[0]?.data as Snapshot;
+      expect(validateSnapshot(snapshot)).toEqual([]);
+      expect(snapshot.activities.length).toBeGreaterThan(0);
+      for (const activity of snapshot.activities) {
+        expect(typeof activity.detail).toBe('string');
+        for (const secret of FAKE_SECRETS) expect(activity.target).not.toContain(secret);
+      }
     } finally {
       await new Promise<void>((done) => {
         live.close(() => done());

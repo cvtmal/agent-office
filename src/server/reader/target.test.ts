@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { basename, clean, hostOf, shapeTarget } from './target.js';
+import { basename, clean, DETAIL_MAX, detailText, hostOf, shapeTarget } from './target.js';
 
 describe('shapeTarget (research D9 table)', () => {
   it.each([
@@ -114,5 +114,40 @@ describe('hostOf', () => {
     expect(hostOf('https://example.com')).toBe('example.com');
     expect(hostOf('file:///home/dev/a')).toBe('');
     expect(hostOf('')).toBe('');
+  });
+});
+
+describe('detailText (detail mode)', () => {
+  it('is the input as JSON when it is short', () => {
+    expect(detailText('Bash', { command: 'git status', description: 'Show status' })).toBe(
+      '{"command":"git status","description":"Show status"}',
+    );
+  });
+
+  it('cuts at DETAIL_MAX characters with a trailing ellipsis', () => {
+    const text = detailText('Write', { file_path: 'a.ts', content: 'x'.repeat(5000) });
+    expect(DETAIL_MAX).toBe(2000);
+    expect(Array.from(text)).toHaveLength(DETAIL_MAX);
+    expect(text.endsWith('…')).toBe(true);
+    expect(text.startsWith('{"file_path":"a.ts","content":"xxx')).toBe(true);
+  });
+
+  it('keeps an input of exactly DETAIL_MAX characters whole', () => {
+    const input = { c: 'y'.repeat(DETAIL_MAX - '{"c":""}'.length) };
+    expect(detailText('Edit', input)).toBe(JSON.stringify(input));
+  });
+
+  it('never splits a character made of two code units', () => {
+    const text = detailText('Write', { content: '\u{1F600}'.repeat(3000) });
+    expect(Array.from(text)).toHaveLength(DETAIL_MAX);
+    expect(text).not.toMatch(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])/);
+  });
+
+  it('is empty for undefined or non-serialisable input', () => {
+    expect(detailText('Read', undefined)).toBe('');
+    const circular: Record<string, unknown> = {};
+    circular['self'] = circular;
+    expect(detailText('Read', circular)).toBe('');
+    expect(detailText('Read', { n: 1n })).toBe('');
   });
 });

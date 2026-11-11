@@ -28,8 +28,8 @@ describe('lookFor', () => {
     }
   });
 
-  it('gives the 14 sample characters 14 distinct look keys', () => {
-    expect(new Set(looks.map(({ look }) => lookKey(look))).size).toBe(14);
+  it('gives the 26 sample characters 26 distinct look keys', () => {
+    expect(new Set(looks.map(({ look }) => lookKey(look))).size).toBe(26);
   });
 
   it('gives distinct (build, palette, hair) within each sample room', () => {

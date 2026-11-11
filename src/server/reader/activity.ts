@@ -6,10 +6,15 @@ import { ACTIVITIES_PER_CHARACTER } from '../../shared/constants.js';
 import { toolKind } from '../../shared/tools.js';
 import type { Activity } from '../../shared/types.js';
 import { mainRecords, type FileKind, type Rec } from './records.js';
-import { shapeTarget } from './target.js';
+import { detailText, shapeTarget } from './target.js';
+
+export interface ActivityOptions {
+  /** Detail mode: each activity also carries `detail` (`detailText`); off: no `detail` key at all. */
+  detail?: boolean;
+}
 
 /** The tool calls of one transcript, in file order; records without a timestamp are skipped. */
-export function activitiesOf(records: Rec[], kind: FileKind, characterId: string): Activity[] {
+export function activitiesOf(records: Rec[], kind: FileKind, characterId: string, opts: ActivityOptions = {}): Activity[] {
   const activities: Activity[] = [];
   for (const rec of mainRecords(records, kind)) {
     if (rec.type !== 'assistant' || rec.timestamp === null) {
@@ -17,13 +22,15 @@ export function activitiesOf(records: Rec[], kind: FileKind, characterId: string
     }
     for (const block of rec.content) {
       if (block.type === 'tool_use') {
-        activities.push({
+        const activity: Activity = {
           characterId,
           at: rec.timestamp,
           tool: block.name,
           kind: toolKind(block.name),
           target: shapeTarget(block.name, block.input),
-        });
+        };
+        if (opts.detail === true) activity.detail = detailText(block.name, block.input);
+        activities.push(activity);
       }
     }
   }

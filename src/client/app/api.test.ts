@@ -15,7 +15,7 @@ describe('loadSnapshot', () => {
     const store = createStore();
     await loadSnapshot(store, fakeFetch(() => new Response(sampleText, { status: 200 })));
     expect(store.getState().connection).toBe('ready');
-    expect(store.getState().snapshot?.characters).toHaveLength(14);
+    expect(store.getState().snapshot?.characters).toHaveLength(26);
   });
 
   it('reports a non-200 response', async () => {

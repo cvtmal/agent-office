@@ -31,6 +31,8 @@ export interface LiveModelOptions {
   harnessOf: (root: string) => HarnessExtras | null;
   /** Applied to every built snapshot before diffing (config `projects`/`exclude`). */
   filter?: (snapshot: Snapshot) => Snapshot;
+  /** Detail mode: tool inputs are retained whole and activities carry `detail`. Default: off. */
+  detailMode?: boolean;
   liveness: Liveness;
   /** Receives each non-empty list of events, in order. */
   onEvents: (events: ServerEvent[]) => void;
@@ -82,6 +84,7 @@ const empty = (now: number): Snapshot => ({
 
 export function createLiveModel(opts: LiveModelOptions): LiveModel {
   const projectsDir = join(opts.cfgDir, 'projects');
+  const detail = opts.detailMode === true;
   const files = new Map<string, FileState>();
   /** side file path → transcript path */
   const sides = new Map<string, string>();
@@ -116,9 +119,10 @@ export function createLiveModel(opts: LiveModelOptions): LiveModel {
   }
 
   async function readInto(state: FileState): Promise<void> {
-    const read = await state.tail.read();
-    if (read === null) return;
-    state.retained = retain(read.reset ? emptyRetained() : state.retained, read.chunk, state.kind);
+    // Retained piece by piece, so a whole file's parsed records never sit in memory at once (#7, RUN-3).
+    await state.tail.read((chunk, reset) => {
+      state.retained = retain(reset ? emptyRetained() : state.retained, chunk, state.kind, { keepInput: detail });
+    });
   }
 
   function readSide(state: FileState): void {
@@ -182,6 +186,7 @@ export function createLiveModel(opts: LiveModelOptions): LiveModel {
       thresholds: opts.thresholds,
       rootOf: opts.rootOf,
       harnessOf: opts.harnessOf,
+      detail,
     });
     const next = opts.filter ? opts.filter(built.snapshot) : built.snapshot;
     const events = diffSnapshots(previous, next);

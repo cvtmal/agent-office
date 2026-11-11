@@ -328,6 +328,30 @@ body {
   display: block;
 }
 
+/* Detail mode: the raw tool input under its row, folded by default. */
+.activities .detail {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.activities .detail summary {
+  cursor: pointer;
+}
+
+.activities .detail pre {
+  margin: 2px 0 4px;
+  padding: 4px 6px;
+  max-height: 12em;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-family: monospace;
+  font-size: 12px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
 /* Below 1000 px the inspector stacks under the stage (#app grid above): the card
    spreads into two columns, head and fields beside the activity list. */
 @media (max-width: 999.98px) {

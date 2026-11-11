@@ -182,12 +182,12 @@ export interface PoseDoll {
   heads: (blink: boolean, face: boolean) => Layer[];
 }
 
-/** Head pose geometry in frame rows: lowered head box top, forearms' top outline, sleeve rows. */
-export interface HeadDown {
-  top: number;
-  arms: number;
-  fill: number;
-}
+/**
+ * Head pose geometry in frame rows: lowered head box top, forearms' top outline, sleeve
+ * rows (head on the desk); or, for a figure that stands (interns), `bow`: the head drops
+ * that many rows with the eyes closed, the arms keep hanging (no desk to rest on).
+ */
+export type HeadDown = { top: number; arms: number; fill: number } | { bow: number };
 
 /** Agents, head pose: the forearms lie on rows 18-22, just above the desk line (row 23 of a seated frame, layout.ts). */
 const AGENT_HEAD_DOWN: HeadDown = { top: 14, arms: 18, fill: 3 };
@@ -284,7 +284,7 @@ function maskTo(l: Layer, g: Grid): Layer {
  * A pose frame of a look taken apart, `w` x `h` (agents and interns):
  * walk0/2 lift the left/right foot, walk1/3 bob every row down to the belt 1 px;
  * head lowers the head stack (no face extras) to `down.top`, cropped below the
- * forearms, which lie flat over it; cheer0/1 replace the hanging arms by raised
+ * forearms, which lie flat over it (with `down.bow`: only bows the head, arms hanging); cheer0/1 replace the hanging arms by raised
  * ones, hands at head row 1 / 0, the jacket masked to the remaining body.
  */
 export function posed(d: PoseDoll, pose: PoseFrame, w: number, h: number, down: HeadDown): Raster {
@@ -292,9 +292,13 @@ export function posed(d: PoseDoll, pose: PoseFrame, w: number, h: number, down: 
   const { head, waist } = d.build.anchors;
   if (pose === 'head') {
     const stack = compose(w, h, d.heads(true, false));
-    const lowered = cropBelow(compose(w, h, [{ raster: stack, dx: 0, dy: down.top - head.y }]), down.arms + down.fill + 2);
     const layers: Layer[] = [d.shadow, grid(d.build.grid)];
     if (d.overlay !== null) layers.push(d.overlay);
+    if ('bow' in down) {
+      layers.push({ raster: compose(w, h, [{ raster: stack, dx: 0, dy: down.bow }]), dx: 0, dy: 0 });
+      return compose(w, h, layers);
+    }
+    const lowered = cropBelow(compose(w, h, [{ raster: stack, dx: 0, dy: down.top - head.y }]), down.arms + down.fill + 2);
     layers.push({ raster: lowered, dx: 0, dy: 0 }, grid(flatArms(w, h, armGeometry(d.build.grid), down.arms, down.fill, d.jacket)));
     return compose(w, h, layers);
   }

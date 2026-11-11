@@ -152,22 +152,22 @@ describe('exclude', () => {
 });
 
 describe('detailMode', () => {
+  it('true is accepted silently', () => {
+    const out = load({ detailMode: true });
+    expect(out.config.detailMode).toBe(true);
+    expect(out.problems).toEqual([]);
+  });
+
   it('false is accepted silently', () => {
     const out = load({ detailMode: false });
     expect(out.config.detailMode).toBe(false);
     expect(out.problems).toEqual([]);
   });
 
-  it('true stays off with the G3 problem', () => {
-    const out = load({ detailMode: true });
-    expect(out.config.detailMode).toBe(false);
-    expect(out.problems).toEqual(['detailMode: detailMode is off until the privacy check (G3) is answered']);
-  });
-
-  it('a non-boolean falls back and names the key and type', () => {
+  it('a non-boolean falls back to false and names the key and type', () => {
     const out = load({ detailMode: 'yes' });
     expect(out.config.detailMode).toBe(false);
-    expect(out.problems).toEqual(['detailMode: expected a boolean, got "yes"; using the default']);
+    expect(out.problems).toEqual(['detailMode: expected true or false, got "yes"; using the default']);
   });
 });
 

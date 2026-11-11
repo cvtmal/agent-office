@@ -102,6 +102,11 @@ export interface Activity {
   kind: ActivityKind;
   /** Short target: file basename, first word of a command, host, agent or skill name. */
   target: string;
+  /**
+   * Raw tool input as JSON, at most 2,000 characters; present only when detail mode is on. Never a
+   * prompt, model text or tool result.
+   */
+  detail?: string;
 }
 
 /** Harness state of a project. */

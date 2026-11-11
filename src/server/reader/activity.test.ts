@@ -67,6 +67,24 @@ describe('activitiesOf', () => {
     expect(activitiesOf(records, 'session', 'c')).toEqual([]);
     expect(activitiesOf(records, 'agent', 'c')).toHaveLength(1);
   });
+
+  it('detail mode adds the raw input as detail; off leaves no detail key at all', () => {
+    const records = [call(1, 'Edit', { file_path: '/home/dev/project/b.ts', old_string: 'x', new_string: 'y' })];
+    expect(activitiesOf(records, 'session', 'c', { detail: true })).toEqual([
+      {
+        characterId: 'c',
+        at: at(1),
+        tool: 'Edit',
+        kind: 'write',
+        target: 'b.ts',
+        detail: '{"file_path":"/home/dev/project/b.ts","old_string":"x","new_string":"y"}',
+      },
+    ]);
+    for (const off of [activitiesOf(records, 'session', 'c'), activitiesOf(records, 'session', 'c', { detail: false })]) {
+      expect(off).toHaveLength(1);
+      expect(Object.keys(off[0] ?? {})).not.toContain('detail');
+    }
+  });
 });
 
 describe('lastActivities', () => {

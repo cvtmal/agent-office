@@ -46,12 +46,17 @@ const PAPERS: SpriteDef = {
   ],
 };
 
-/** Write: two typing hands seen from above, fingers down; in frame 0 the left hand strikes (1 px lower), in frame 1 the right. */
+/**
+ * Write: two typing hands seen from above, fingers down; in frame 0 the left hand strikes
+ * (1 px lower), in frame 1 the right. Outline only along the fingertips and the outer side;
+ * the inner side and the finger gaps are shaded with the skin's dark tone, lit from the upper left.
+ */
 function hands(leftDown: boolean): string[] {
-  const up = ['.ooo.', 'o332o', 'o221o', 'o.o.o', '.....'];
-  const down = ['.....', '.ooo.', 'o332o', 'o221o', 'o.o.o'];
-  const l = leftDown ? down : up;
-  const r = leftDown ? up : down;
+  const left = ['.332.', 'o3221', 'o2121', '.ooo.'];
+  const right = ['.332.', '1322o', '1212o', '.ooo.'];
+  const at = (rows: string[], down: boolean): string[] => (down ? ['.....', ...rows] : [...rows, '.....']);
+  const l = at(left, leftDown);
+  const r = at(right, !leftDown);
   return l.map((row, y) => `${row}..${r[y] ?? '.....'}`);
 }
 

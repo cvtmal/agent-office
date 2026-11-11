@@ -5,7 +5,7 @@ SPEED ?= 1
 BIN := node_modules/.bin
 DEPS := node_modules/.package-lock.json
 
-.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx sprites bench-live
+.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx sprites bench-live bench-mem
 
 $(DEPS): package-lock.json
 	npm ci
@@ -61,3 +61,8 @@ sprites: $(DEPS)
 # for 30 s; prints CPU % and RSS, fails above 5 %. Not a gate; var/bench/ is removed afterwards.
 bench-live: $(DEPS)
 	BENCH=1 $(BIN)/vitest run --disableConsoleIntercept test/live-cpu.bench.ts
+
+# Footprint bench (RUN-3, #7): the built server on 20 x 10 MB synthetic transcripts in
+# var/bench-mem/; prints start-up and RSS, fails above 2 s or 150 MB. Not a gate.
+bench-mem: build
+	BENCH=1 $(BIN)/vitest run --disableConsoleIntercept test/live-mem.bench.ts

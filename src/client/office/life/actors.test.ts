@@ -215,4 +215,25 @@ describe('actorFrame', () => {
     expect(actorFrame(a, 250, true).frame).toBe('cheer0');
     expect(actorFrame(a, 3000, false).frame).toBe('head');
   });
+
+  it('starts a cheer only on arrival, and an expired cheer stays expired while walking', () => {
+    const a = only(syncActors(new Map(), new Map([['n', at('D-lead')]]), new Set(), false, grid), 'n');
+    a.cheerUntil = 3000; // set at time 0, while walking
+    let t = 0;
+    while (a.path.length > 0) {
+      expect(actorFrame(a, t, false).frame).toMatch(/^walk/);
+      stepActors(new Map([['n', a]]), 100, false);
+      t += 100;
+    }
+    expect(t).toBeGreaterThan(3000);
+    expect(actorFrame(a, t, false).frame).toBe('cheer0');
+    expect(actorFrame(a, t + 2999, false).frame).toMatch(/^cheer/);
+    expect(actorFrame(a, t + 3000, false).frame).toBeNull();
+    const old = only(syncActors(new Map(), new Map([['m', at('D-lead')]]), new Set(), false, grid), 'm');
+    old.cheerUntil = 100; // expired: the clock is at 1000
+    stepActors(new Map([['m', old]]), 500, false);
+    expect(old.cheerUntil).toBeLessThan(1500);
+    while (old.path.length > 0) stepActors(new Map([['m', old]]), 500, false);
+    expect(actorFrame(old, 1000 + old.walkedMs, false).frame).toBeNull();
+  });
 });

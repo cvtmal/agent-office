@@ -57,7 +57,7 @@ describe('cli exit codes', () => {
   it('--help lists every flag', { timeout: 20_000 }, async () => {
     const { code, stdout } = await run(['--help']);
     expect(code).toBe(0);
-    for (const flag of ['--port', '--dev', '--open', '--sample', '--config', '--replay', '--speed', '--help']) {
+    for (const flag of ['--port', '--dev', '--open', '--sample', '--detail', '--config', '--replay', '--speed', '--help']) {
       expect(stdout).toContain(flag);
     }
   });
@@ -82,7 +82,7 @@ describe('cli --sample --port 0', () => {
       });
       const res = await fetch(new URL('/api/snapshot', url));
       expect(res.status).toBe(200);
-      expect(((await res.json()) as Snapshot).characters).toHaveLength(14);
+      expect(((await res.json()) as Snapshot).characters).toHaveLength(26);
     } finally {
       child.kill('SIGTERM');
     }
@@ -147,9 +147,8 @@ describe('cli --config', () => {
       const res = await fetch(new URL('/api/snapshot', url));
       expect(res.status).toBe(200);
       const lines = stderr.split('\n').filter((line) => line.startsWith('agent-office: config: '));
-      expect(lines).toHaveLength(3);
+      expect(lines).toHaveLength(2);
       expect(stderr).toContain('agent-office: config: maxAgeHours: expected a number greater than 0');
-      expect(stderr).toContain('agent-office: config: detailMode: detailMode is off until the privacy check (G3) is answered');
       expect(stderr).toContain('agent-office: config: colour: unknown key');
     } finally {
       child.kill('SIGTERM');
@@ -179,5 +178,56 @@ describe('cli --config', () => {
       child.kill('SIGTERM');
     }
     expect(await exited).toBe(0);
+  });
+});
+
+/** Starts the CLI on port 0 with an empty HOME, waits until it listens, stops it and returns its whole stderr. */
+async function stderrOfStart(args: string[]): Promise<string> {
+  const child = spawn(process.execPath, ['--import', 'tsx', CLI, ...args, '--port', '0'], { cwd: REPO, env: env() });
+  const closed = new Promise<number | null>((resolve) => child.once('close', (code) => resolve(code)));
+  let stderr = '';
+  child.stderr.on('data', (chunk: Buffer) => {
+    stderr += chunk.toString();
+  });
+  try {
+    const url = await new Promise<string>((resolve, reject) => {
+      let out = '';
+      child.stdout.on('data', (chunk: Buffer) => {
+        out += chunk.toString();
+        const match = /Agent Office: (http:\/\/127\.0\.0\.1:\d+\/)/.exec(out);
+        if (match?.[1]) resolve(match[1]);
+      });
+      child.once('exit', () => reject(new Error(`exited before listening:\n${out}\n${stderr}`)));
+    });
+    // One request first: the CLI installs its SIGTERM handler after printing the URL.
+    expect((await fetch(new URL('/api/snapshot', url))).status).toBe(200);
+  } finally {
+    child.kill('SIGTERM');
+  }
+  expect(await closed).toBe(0);
+  return stderr;
+}
+
+describe('cli detail mode', () => {
+  const WARNING = 'agent-office: detail mode is on: raw tool input is sent to the local browser.';
+  const count = (text: string): number => text.split('\n').filter((line) => line === WARNING).length;
+
+  it('--detail prints the warning once', { timeout: 60_000 }, async () => {
+    expect(count(await stderrOfStart(['--detail']))).toBe(1);
+  });
+
+  it('config detailMode true prints the warning once, with no config problem', { timeout: 60_000 }, async () => {
+    const file = join(home, 'detail-config.json');
+    writeFileSync(file, JSON.stringify({ detailMode: true }));
+    const stderr = await stderrOfStart(['--config', file]);
+    expect(count(stderr)).toBe(1);
+    expect(stderr).not.toContain('agent-office: config: ');
+  });
+
+  it('off prints nothing about detail mode', { timeout: 60_000 }, async () => {
+    const file = join(home, 'off-config.json');
+    writeFileSync(file, JSON.stringify({ detailMode: false }));
+    expect(await stderrOfStart([])).not.toContain('detail mode');
+    expect(await stderrOfStart(['--config', file])).not.toContain('detail mode');
   });
 });

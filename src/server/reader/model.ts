@@ -30,6 +30,8 @@ export interface ModelOptions {
    * (`harness/read.ts` `readHarness`). Default: `() => null`. Called once per root per build.
    */
   harnessOf?: (root: string) => HarnessExtras | null;
+  /** Detail mode: activities carry `detail` (raw tool input, `activity.ts`). Default: off, no `detail` key. */
+  detail?: boolean;
 }
 
 /** A kept character with what the project step needs. */
@@ -123,7 +125,7 @@ function finish(
   const tokens = input.usage?.tokens ?? 0;
   const projectId = opts.rootOf(input.cwd);
   const where = whereIn(projectId, input.cwd);
-  const activities = activitiesOf(input.parsed.records, fileKind, input.id);
+  const activities = activitiesOf(input.parsed.records, fileKind, input.id, { detail: opts.detail === true });
   const character: Character = {
     id: input.id,
     sessionId: input.sessionId,

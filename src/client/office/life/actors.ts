@@ -4,16 +4,8 @@
 import type { ActivityKind } from '../../../shared/constants.js';
 import type { Activity, Character } from '../../../shared/types.js';
 import { characterFrame, isSeated, spot as spotOf, type Rect, type Spot, type SpotKind } from '../layout.js';
-import {
-  CHEER_FRAME_MS,
-  CHEER_FRAME_NAMES,
-  COUCH_AFTER_MS,
-  HEAD_FRAME,
-  WALK_FRAME_MS,
-  WALK_FRAME_NAMES,
-  WALK_FRAMES,
-  WALK_PX_PER_S,
-} from './constants.js';
+import { CHEER_FRAME_NAMES, HEAD_FRAME, WALK_FRAME_NAMES } from '../art-ids.js';
+import { CHEER_FRAME_MS, COUCH_AFTER_MS, WALK_FRAME_MS, WALK_FRAMES, WALK_PX_PER_S } from './constants.js';
 import type { Grid, Point } from './grid.js';
 import { findPath } from './path.js';
 
@@ -182,6 +174,9 @@ export function stepActors(actors: ReadonlyMap<string, Actor>, dtMs: number, red
     } else {
       let budget = (WALK_PX_PER_S * dtMs) / 1000;
       a.walkedMs += dtMs;
+      // The cheer clock stands still while walking, so a cheer starts on arrival (an
+      // expired cheer stays exactly as far in the past, so it never comes back).
+      if (a.cheerUntil > 0) a.cheerUntil += dtMs;
       while (budget > 0 && a.path.length > 0) {
         const p = a.path[0] ?? a;
         const d = Math.hypot(p.x - a.x, p.y - a.y);
