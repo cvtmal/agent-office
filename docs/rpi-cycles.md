@@ -1,6 +1,6 @@
 # Agent Office: RPI cycles
 
-_Last updated: 2026-11-11 (CTO-2: #2 done) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
+_Last updated: 2026-11-11 (CTO-2: #5/#6 seam) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
 
 We are building Agent Office, a local web app that shows the owner's Claude Code sessions and agents as pixel-art characters in an office, with the look of a point-and-click adventure: who is busy, idle or gone, what each one is doing, and how full its context is. It reads Claude Code transcripts read-only and adds harness detail when a repo has it. The scope document is the scope. This file turns it into `/rpi` cycles and sets the order.
 
@@ -264,6 +264,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - Speech bubbles: icon + target, 3 s, one per character, bursts coalesced (OFFICE-6).
 - Whiteboard with wave and CTO generation; done wall with one framed picture per outcome (`<nn> <slug>`); celebration with confetti and a cheering character when an outcome appears (OFFICE-7).
 - A checklist of every animation in the outcome file, each ticked against a replay of the harness fixture.
+- Seam with #6 (CTO, D-025): `mountOffice` emits the CustomEvent `office:layout` with each drawn character's box (scene px), which #6's HTML hotspot layer follows. #5 re-emits it whenever characters move or appear, and keeps its edits to `office/mount.ts` and `scene.ts` apart from #6's hooks; whichever of #5 and #6 lands second rebases onto the other.
 - **Done when:** the harness replay shows every item of the checklist (screenshots or a short recording per item in `.rpi-tracking/`); a burst of 20 tool calls in 2 s gives one readable bubble; fixture rows at each verdict show the right meter colour; frame time with 14 characters stays under 16 ms.
 
 ### 6. `inspector-ui`

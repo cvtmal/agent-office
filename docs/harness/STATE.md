@@ -37,14 +37,14 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
 | #3 live-api | implement | c03-impl | C (8003) | 2026-11-11 20:10 | plan done (D-024): session 1 = Phases 1–5, session 2 from Step 6.1 |
-| #6 inspector-ui | research | c06-research | A (8001) | 2026-11-11 20:10 | implements only after #3 lands |
+| #6 inspector-ui | plan | c06-plan | A (8001) | 2026-11-11 20:25 | research done (D-025); implements only after #3 lands, plan step 1 = lane sync |
 
 ## Next actions
 
 For the active CTO, in order (the loop, `CTO.md` §4):
 
 1. **#3 `live-api` (lane C, port 8003): `c03-impl` running Phases 1–5.** Then `c03-impl-2` from Step 6.1 (plan `.rpi-tracking/plans/2026-11-11/live-api-plan.md`), then `c03-review`. Arm a ctx watcher for implement and review.
-2. **#6 `inspector-ui` (lane A, port 8001): `c06-research` running**, then `c06-plan` reading #3's lane; `lane sync inspector-ui` and implement only after #3 lands. #5 `office-life` needs #3 landed (#4 is).
+2. **#6 `inspector-ui` (lane A, port 8001): `c06-plan` running** (reads #3's lane); `lane sync inspector-ui` and implement only after #3 lands. #5 `office-life` needs #3 landed (#4 is).
 3. **G2 (O-3):** push sent 2026-11-11 ~19:45; default go-ahead 2026-11-12 19:45. Owner feedback becomes a `fix-` lane or part of #5.
 4. Wave boundary after #3 lands (W2 done): commit `chore(harness): state after W2`.
 
