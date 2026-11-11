@@ -27,6 +27,7 @@ How the harness expects Claude Code to behave. The first CTO confirms the lines 
 - Fresh-session baseline: not measured yet (about 50k in an earlier run, with skills and MCP servers loaded). Measure it: run `bin/harness/ctx --self` at the very start of a fresh session and write the number here. A teammate's working room is 150k minus that.
 
 - **Preflight 2026-11-11 (CTO-1):** teammate `probe` spawned via Agent with `name` (agent teams work). It appears in `ctx` as its own `session` row (WHERE = its worktree), STATUS `ended` while live (judge by AGE); ~57k at its first report, plausible. EnterWorktree with `path` worked; `rpi:*` skills listed; `claude-in-chrome` tools available (deferred, load via ToolSearch). `successor --test` writes `ok` from this session and from a `claude --bg` session (the target directory must exist: `mkdir -p .rpi-tracking` first). `claude stop`/`claude rm` on a bg session worked. Pushes from the CTO session to `origin` work; `gh repo create` was denied by auto mode (owner did it).
+- **Cron:** a recurring `CronCreate` job fires while the CTO is idle (watchdog fired 16:54). A one-shot set for a minute that had already passed by the time the CTO went idle never fired; set one-shots several minutes ahead.
 - **Fresh-session baseline:** ~50k (bg session 50.5k after one command; probe 57k after five).
 
 ## Board
@@ -35,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #0 bootstrap | research | c00-research | A (8001) | 2026-11-11 16:45 | — |
+| #0 bootstrap | implement | c00-impl | A (8001) | 2026-11-11 17:02 | plan done (D-005); lands trunk, CI first verified after landing |
 
 ## Next actions
 
@@ -54,6 +55,8 @@ Bootstrap, in order (generation 0 → 1):
 ## Notes for the successor
 
 - 2026-11-11: bootstrap step 1 done (commit 4755b7f, local only). Step 2 blocked: auto mode denied both `gh repo create` and adding a local bare `origin` (DECISIONS O-1). Resolved: owner created the GitHub repo and pushed main. Pushes from sessions may still be denied by auto mode; if so, record it and tell the owner.
+
+- For #1's spawn prompt: `ctx` can emit status `live`, which is not in the S3 enum; #1 must map it (from c00-research).
 
 ## CTO log
 

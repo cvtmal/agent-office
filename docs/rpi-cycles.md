@@ -118,7 +118,7 @@ Settled now so that parallel cycles do not each decide them differently. A cycle
 - **One port.** The Node server serves the API and the client. In development it mounts Vite in middleware mode; in production it serves the built client from `dist/client`.
 - **Fonts:** a pixel font drawn as code for the canvas; an open-licence pixel font from an npm package (for example `@fontsource/*`) bundled by Vite for the HTML. Nothing is loaded from the network at runtime.
 - **Tests:** Vitest (unit and contract tests, `make test`); Playwright for browser checks (`make e2e`, not a landing gate, run by the cycles that draw). ESLint with typescript-eslint plus `tsc --noEmit` (`make lint`).
-- **Makefile targets** (created by #0, filled by later cycles): `install`, `dev`, `build`, `start`, `stop`, `lint`, `test`, `e2e`, `replay` (`make replay DIR=fixtures/replay/harness`). `bin/agent-office` is the CLI entry (RUN-1).
+- **Makefile targets** (created by #0, filled by later cycles): `install`, `dev`, `build`, `start`, `stop`, `lint`, `test`, `e2e`, `fixtures`, `replay` (`make replay DIR=fixtures/replay/harness`). `bin/agent-office` is the CLI entry (RUN-1).
 - **Not used:** databases, Docker, PixiJS or any engine, React/Vue/Svelte, CSS frameworks, CDNs, analytics, Claude Code hooks (scope §6).
 
 ### S2. Architecture
