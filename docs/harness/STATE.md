@@ -51,6 +51,7 @@ For the active CTO, in order (the loop, `CTO.md` §4):
 
 ## Notes for the successor
 
+- **Owner rule D-027:** minors never cause rework and are not routed anywhere. Lanes `live-api` and `office-life` got the TEAMMATE.md change only at their next `lane sync`; until then add the line "Minors never cause rework (D-027, TEAMMATE.md §5)" to every review spawn prompt.
 - `ctx` names the first CTO session `agent-office-91`, not `CTO-1`, so its verdict used teammate limits (RECYCLE at 180k). A successor started by `bin/harness/successor` is named `CTO-<n>`. CTO limits: `CTO.md` §2 (WARN 220k, HANDOVER 250k).
 - Teammates overshoot: research/plan sessions end at 125–145k, so research→plan always gets a fresh session. L-size implement sessions stop at their plan's handoff point (~140k) and a `-2` session finishes; that worked every time.
 - Spawn prompts that worked: the CTO.md §5 template plus, for implement/review, the "Save context" line and a pointer to the plan/changes log. Watcher: `until bin/harness/ctx <name> >/dev/null 2>&1; rc=$?; [ $rc -eq 20 ]; do sleep 60; done` in the background (exit 20 = RECYCLE).
