@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 3
-- **Phase of the project:** #0–#6 landed (dee2a25, CI green); only #7 `polish` left
-- **Wave in progress:** W4 (W1–W3 done 2026-11-11)
+- **Phase of the project:** #0–#7 landed (#7 = 6e0aa45); `fix-memory` lane (D-039) left before the finish
+- **Wave in progress:** W4 done 2026-11-12; only the `fix-memory` lane (D-039) remains
 
 ## Mechanics
 
@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #7 polish | review | c07-review | A (8001) | 2026-11-12 00:55 | implement done (WIP 0c5acdf, e2e 29/29); RSS 119–181 MB → fix-memory lane after landing (D-039) |
+| fix-memory | plan | fix-memory-plan | A (8001) | 2026-11-12 00:50 | D-039; #7 CI green (6e0aa45) |
 
 ## Next actions
 

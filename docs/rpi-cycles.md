@@ -76,7 +76,7 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 | 4 | `harness-extras` | W2 | DATA-6 | 1 | — | — | Research | M |✅ Done |
 | 5 | `office-life` | W3 | OFFICE-4, OFFICE-5, OFFICE-6, OFFICE-7 | 3, 4 | — | — | Research | L |✅ Done |
 | 6 | `inspector-ui` | W3 | UI-1, UI-2, UI-3, UI-5 | 3 | — | — | Research | M |✅ Done |
-| 7 | `polish` | W4 | RUN-3, OFFICE-1 (frame time), §7 Sound | 5, 6 | — | — | Research | M | Open |
+| 7 | `polish` | W4 | RUN-3, OFFICE-1 (frame time), §7 Sound | 5, 6 | — | — | Research | M |✅ Done |
 
 ### Waves at a glance
 
