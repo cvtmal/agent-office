@@ -48,7 +48,7 @@ Bootstrap, in order (generation 0 → 1):
 
 ## Notes for the successor
 
-- 2026-11-11: bootstrap step 1 done (commit 4755b7f, local only). Step 2 blocked: auto mode denied both `gh repo create` and adding a local bare `origin` (DECISIONS O-1). Resume at step 2 once the owner allows one of them.
+- 2026-11-11: bootstrap step 1 done (commit 4755b7f, local only). Step 2 blocked: auto mode denied both `gh repo create` and adding a local bare `origin` (DECISIONS O-1). Resolved: owner created the GitHub repo and pushed main. Pushes from sessions may still be denied by auto mode; if so, record it and tell the owner.
 
 ## CTO log
 

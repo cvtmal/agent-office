@@ -8,7 +8,7 @@ Things only the owner can do or approve. The project keeps moving on the default
 
 | # | What is needed | Why | Default we run on | Status |
 |---|---|---|---|---|
-| O-1 | Allow `gh repo create agent-office --public --source . --remote origin` (G1), or the fallback `git init --bare ../agent-office.git` + `git remote add origin` | Auto-mode classifier denied both (Create Public Surface, Remote Repoint) on 2026-11-11; without `origin`, `lane` and `land` cannot run | none possible: project halted after the bootstrap commit 4755b7f | open |
+| O-1 | Allow `gh repo create agent-office --public --source . --remote origin` (G1), or the fallback `git init --bare ../agent-office.git` + `git remote add origin` | Auto-mode classifier denied both (Create Public Surface, Remote Repoint) on 2026-11-11; without `origin`, `lane` and `land` cannot run | none possible: project halted after the bootstrap commit 4755b7f | done 2026-11-11: owner created github.com/cvtmal/agent-office and pushed |
 
 ## Log
 
