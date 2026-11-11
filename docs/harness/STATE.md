@@ -4,7 +4,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 
 ## Now
 
-- **CTO generation:** 2
+- **CTO generation:** 3
 - **Phase of the project:** #0–#6 landed (dee2a25, CI green); only #7 `polish` left
 - **Wave in progress:** W4 (W1–W3 done 2026-11-11)
 
@@ -69,3 +69,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
 CTO-2 active since 2026-11-11 19:30 · handed over 2026-11-11 22:56 at ~207k · landed #2, #3, #5, #6
+CTO-3 active since 2026-11-11 22:57
