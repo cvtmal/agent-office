@@ -42,9 +42,13 @@ async function tabWalk(page: Page): Promise<string[]> {
   return stops;
 }
 
+/**
+ * Ids of the characters in a room's office. The sample's ended characters ended hours ago,
+ * so their desks are tidied (#5, R2): they are not in the room and have no hotspot.
+ */
 function idsIn(snapshot: Snapshot, name: string): string[] {
   const project = snapshot.projects.find((p) => p.name === name);
-  return snapshot.characters.filter((c) => c.projectId === project?.id).map((c) => c.id);
+  return snapshot.characters.filter((c) => c.projectId === project?.id && c.status !== 'ended').map((c) => c.id);
 }
 
 test('keyboard alone reaches every tab, control and character', async ({ page }) => {
@@ -53,12 +57,12 @@ test('keyboard alone reaches every tab, control and character', async ({ page })
   const snapshot = (await res.json()) as Snapshot;
   const harbor = idsIn(snapshot, 'harbor');
   const notes = idsIn(snapshot, 'notes-app');
-  expect(harbor).toHaveLength(9);
-  expect(notes).toHaveLength(5);
+  expect(harbor).toHaveLength(8);
+  expect(notes).toHaveLength(3);
 
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-connection', 'ready');
-  await expect(page.locator('#room .hotspot')).toHaveCount(9);
+  await expect(page.locator('#room .hotspot')).toHaveCount(8);
 
   // Roving tabindex: only the active tab is a Tab stop.
   const stops = await tabWalk(page);
@@ -67,14 +71,14 @@ test('keyboard alone reaches every tab, control and character', async ({ page })
   for (const c of CONTROLS) expect(stops).toContain(`control:${c}`);
   for (const id of harbor) expect(stops).toContain(`hotspot:${id}`);
 
-  // ArrowRight on the tablist selects notes-app; its 5 characters become reachable.
+  // ArrowRight on the tablist selects notes-app; its 3 characters in the room become reachable.
   const notesTab = page.getByRole('tab', { name: 'notes-app' });
   await page.getByRole('tab', { name: 'harbor' }).focus();
   await page.keyboard.press('ArrowRight');
   await expect(notesTab).toHaveAttribute('aria-selected', 'true');
   await expect(notesTab).toBeFocused();
   await expect(page.locator('#office')).toHaveAttribute('data-room', 'notes-app');
-  await expect(page.locator('#room .hotspot')).toHaveCount(5);
+  await expect(page.locator('#room .hotspot')).toHaveCount(3);
   const notesStops = await tabWalk(page);
   for (const id of notes) expect(notesStops).toContain(`hotspot:${id}`);
   for (const id of harbor) expect(notesStops).not.toContain(`hotspot:${id}`);

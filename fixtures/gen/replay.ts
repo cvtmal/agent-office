@@ -358,7 +358,75 @@ function buildBuilder(out: Map<string, string>, lane: Lane): void {
   const lines: Line[] = [t.prompt(spawnPrompt(lane)), ...calls(t, list, 15_000, 118_000)];
   const last = t.toolUse('Bash', { command: 'make test', description: 'Run the tests' }, 120_000);
   lines.push(last.rec); // still running at the end of the replay
+
+  // #5 office-life (appended, R9): the tests finish, tokens climb to WARN (>= 150k) and
+  // RECYCLE (>= 180k), an Explore agent is stopped by the user, and an open tool use keeps the
+  // builder busy at the end. The existing lines end at 695.5 s, so everything lands in 696-708 s.
+  resumeAt(t, lines, 696_000, 400);
+  lines.push(t.toolResult(last.call, 'all tests passed'));
+  const warm: Call[] = [
+    ['Read', { file_path: `${w}/src/theme/contrast.ts` }, 'code'],
+    ['Edit', { file_path: `${w}/src/theme/contrast.ts`, old_string: 'a', new_string: 'b' }],
+    ['Grep', { pattern: 'contrast', path: `${w}/src` }, 'src/theme/contrast.ts:3'],
+    ['Bash', { command: 'npx vitest run src/theme/contrast.test.ts', description: 'Run one test file' }, 'passed'],
+  ];
+  lines.push(...calls(t, warm, 128_000, 155_000)); // WARN from 698.8 s
+  const explore = { subagent_type: 'Explore', description: 'Find the colour contrast checks', prompt: 'Where is contrast checked?' };
+  const spawn = t.toolUse('Agent', explore, 157_000);
+  lines.push(spawn.rec);
+  buildBuilderExplore(out, lane, t.sessionId, explore.description);
+  resumeAt(t, lines, 704_000, 400);
+  lines.push(t.toolResult(spawn.call, 'The user stopped the agent.', true));
+  const climb: Call[] = [
+    ['Read', { file_path: `${w}/src/theme/tokens.ts` }, 'code'],
+    ['Edit', { file_path: `${w}/src/theme/tokens.ts`, old_string: 'a', new_string: 'b' }],
+    ['Read', { file_path: `${w}/src/theme/index.ts` }, 'code'],
+    ['Edit', { file_path: `${w}/src/theme/index.ts`, old_string: 'a', new_string: 'b' }],
+  ];
+  lines.push(...calls(t, climb, 157_000, 185_000)); // RECYCLE from 706.8 s
+  lines.push(t.toolUse('Bash', { command: 'make test', description: 'Run the tests' }, 185_000).rec); // open at the end
   writeConfig(out, t, lines);
+}
+
+/** Moves the clock to `ms` (it may be ahead after the last tick) with a new step; never before the last record. */
+function resumeAt(t: Transcript, lines: Line[], ms: number, stepMs: number): void {
+  const lastLine = lines[lines.length - 1];
+  const lastMs = typeof lastLine === 'string' || lastLine === undefined ? 0 : Date.parse(String(lastLine.timestamp)) - Date.parse(BASE);
+  if (ms <= lastMs) throw new Error(`resumeAt(${String(ms)}) is not after the last record (${String(lastMs)} ms)`);
+  t.clockMs = ms;
+  t.stepMs = stepMs;
+}
+
+/** The builder's Explore agent (#5 office-life): 700-703.6 s, then stopped by the user while the builder is live. */
+function buildBuilderExplore(out: Map<string, string>, lane: Lane, sessionId: string, description: string): void {
+  const w = worktree(lane);
+  const id = agentId('replay:harness:builder-explore');
+  const a = new Transcript({
+    seed: 'replay:harness:builder-explore',
+    sessionId,
+    cwd: w,
+    gitBranch: lane.slug,
+    startMs: 700_000,
+    stepMs: 600,
+    sidechain: true,
+    extra: { agentId: id },
+  });
+  const agentLines: Line[] = [a.prompt(description)];
+  agentLines.push(
+    ...calls(
+      a,
+      [
+        ['Glob', { pattern: 'src/theme/**/*.ts', path: w }, 'src/theme/contrast.ts'],
+        ['Grep', { pattern: 'contrast', path: `${w}/src` }, 'src/theme/contrast.ts:3'],
+        ['Read', { file_path: `${w}/src/theme/contrast.ts` }, 'code'],
+      ],
+      8000,
+      12_000,
+    ),
+  );
+  const base = `config/projects/${slug(w)}/${sessionId}/subagents/agent-${id}`;
+  out.set(`${base}.jsonl`, jsonl(agentLines));
+  out.set(`${base}.meta.json`, JSON.stringify({ agentType: 'Explore', description, stoppedByUser: true }) + '\n');
 }
 
 function buildResearcher(out: Map<string, string>, lane: Lane): void {
@@ -378,6 +446,19 @@ function buildResearcher(out: Map<string, string>, lane: Lane): void {
   t.stepMs = 16_000;
   const lines: Line[] = [t.prompt(spawnPrompt(lane)), ...calls(t, list, 12_000, 68_000)];
   lines.push(t.thinking('Weighing two ways to pace the replay clock.', 70_000));
+
+  // #5 office-life (appended, R9): a burst of 20 Read/Grep calls within 2 s, one tool of kind
+  // `other`, then a thinking line. The existing lines end at 706 s, so this lands in 707-713 s.
+  resumeAt(t, lines, 707_000, 50);
+  const burst: Call[] = Array.from({ length: 20 }, (_, i): Call =>
+    i % 2 === 0
+      ? ['Read', { file_path: `${w}/src/replay/step-${String(i / 2 + 1)}.ts` }, 'code']
+      : ['Grep', { pattern: `step${String((i - 1) / 2 + 1)}`, path: `${w}/src` }, 'src/replay/clock.ts:7'],
+  );
+  lines.push(...calls(t, burst, 71_000, 80_000)); // tool uses at 707.0-708.9 s
+  resumeAt(t, lines, 711_000, 1000);
+  lines.push(...calls(t, [['mcp__demo__ping', { message: 'replay' }, 'pong']], 80_500, 80_500));
+  lines.push(t.thinking('Checking that the burst left the clock where it was.', 81_000));
   writeConfig(out, t, lines);
 }
 
@@ -410,6 +491,9 @@ function buildHarness(out: Map<string, string>): Manifest {
       { sessionId: teammateIds[0] ?? '', fromMs: a.fromMs, toMs: 490_000 },
       { sessionId: teammateIds[1] ?? '', fromMs: b.fromMs, toMs: DURATION },
       { sessionId: teammateIds[2] ?? '', fromMs: c.fromMs, toMs: DURATION },
+      // #5 office-life: the researcher waits for the owner at 600-660 s (a later window for
+      // the same session overrides the one above in the player's registry).
+      { sessionId: teammateIds[2] ?? '', fromMs: 600_000, toMs: 660_000, status: 'waiting' },
     ],
     files: [
       { path: `repo/${OUTCOME}`, appearsAtMs: OUTCOME_AT },

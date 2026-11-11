@@ -65,11 +65,21 @@ export function assignSeats(
   const free = (pred: (s: Spot) => boolean): Spot | undefined => spots.find((s) => !taken.has(s.name) && pred(s));
   const openDesk = (c: SeatCharacter): boolean => take(c, free((s) => s.kind === 'open'));
 
+  // An agent keeps its spot only beside its parent's current seat (that desk's intern
+  // spot, or any intern spot of the parent's group), so an intern follows a parent that
+  // moved. An agent whose parent has no seat keeps its spot.
+  const besideParent = (c: SeatCharacter, s: Spot): boolean => {
+    if (c.kind !== 'agent') return true;
+    const parentSeat = c.parentId === null ? undefined : seats.get(c.parentId);
+    const parent = parentSeat === undefined ? undefined : byName.get(parentSeat);
+    if (parent === undefined) return true;
+    return s.desk === parent.name || (parent.group !== undefined && s.group === parent.group);
+  };
   const sticky = (list: readonly SeatCharacter[]): void => {
     for (const c of list) {
       const name = previous?.get(c.id);
       const s = name === undefined ? undefined : byName.get(name);
-      if (s !== undefined && allowed(c, s)) take(c, s);
+      if (s !== undefined && allowed(c, s) && besideParent(c, s)) take(c, s);
     }
   };
 
@@ -118,8 +128,11 @@ export function assignSeats(
 
   for (const ended of [false, true]) {
     const mine = (c: SeatCharacter): boolean => isEnded(c) === ended;
-    sticky([...ordered.filter(mine), ...agents.filter(mine)]);
+    // Sessions and agents use disjoint spot kinds, so agents are kept only after their
+    // parents are seated (`besideParent` needs the parent's current seat).
+    sticky(ordered.filter(mine));
     for (const c of ordered.filter(mine)) if (!seats.has(c.id) && !placeSession(c)) overflow.push(c.id);
+    sticky(agents.filter(mine));
     for (const c of agents.filter(mine)) if (!seats.has(c.id) && !placeAgent(c)) overflow.push(c.id);
   }
   return { seats, overflow };

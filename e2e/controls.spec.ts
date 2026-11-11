@@ -122,8 +122,9 @@ test('each control works and survives a reload', async ({ page }) => {
   await control('zoom-3').click();
   await expect(office).toHaveAttribute('data-scale', '3');
 
-  // Hide ended: harbor 9 -> 8, notes-app 5 -> 3.
-  await expect(office).toHaveAttribute('data-drawn', '9');
+  // Hide ended: harbor 8, notes-app 3. The sample's ended characters ended hours ago, so
+  // their desks are already tidied (#5, R2) and hiding them changes no count here.
+  await expect(office).toHaveAttribute('data-drawn', '8');
   await control('hide-ended').click();
   await expect(control('hide-ended')).toHaveAttribute('aria-pressed', 'true');
   await expect(office).toHaveAttribute('data-drawn', '8');
@@ -175,7 +176,7 @@ test('a localStorage that throws does not stop the app', async ({ page }) => {
 
   await page.goto('/');
   await expect(page.locator('#app')).toHaveAttribute('data-connection', 'ready');
-  await expect(page.locator('#office')).toHaveAttribute('data-drawn', '9');
+  await expect(page.locator('#office')).toHaveAttribute('data-drawn', '8');
   // Controls still work; their state just is not remembered.
   await page.locator('#overview button.control[data-control="zoom-3"]').click();
   await expect(page.locator('#office')).toHaveAttribute('data-scale', '3');

@@ -1,8 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import sampleJson from '../../../fixtures/snapshots/sample.json';
 import type { Snapshot } from '../../shared/types.js';
-import { WHITEBOARD_TEXT } from './layout.js';
-import { backgroundProps, buildScene, compareItems, selectProject, wallContent, wallKey, wallTextRaster } from './scene.js';
+import { measure } from '../render/font.js';
+import { WHITEBOARD_TEXT, spot } from './layout.js';
+import { doneWallArea } from './life/celebrate.js';
+import {
+  backgroundProps,
+  buildScene,
+  compareItems,
+  selectProject,
+  tidied,
+  wallContent,
+  wallKey,
+  wallTextRaster,
+} from './scene.js';
 import { NEON, NERD } from './theme.js';
 
 const sample = sampleJson as unknown as Snapshot;
@@ -51,9 +62,10 @@ describe('buildScene', () => {
     expect(index('desk:cto')).toBeGreaterThan(index(idOf('cto-2')));
   });
 
-  it('lights occupied non-ended desks only, coffee and moon always', () => {
+  it('lights the desks of busy and waiting sitters only, coffee and moon always (R13)', () => {
     const l = harbor.lamps;
-    for (const id of ['lamp:cto', 'glow:cto', 'lamp:A-lead', 'glow:D-lead', 'lamp:open-1']) expect(l.has(id), id).toBe(true);
+    for (const id of ['lamp:cto', 'glow:cto', 'lamp:A-lead', 'glow:D-lead']) expect(l.has(id), id).toBe(true);
+    expect(l.has('lamp:open-1')).toBe(false); // an idle sitter: in the kitchen, desk dark
     expect(l.has('lamp:open-2')).toBe(false); // quick-fix has ended
     expect(l.has('lamp:A-second')).toBe(false);
     expect(l.has('lamp:coffee')).toBe(true);
@@ -64,6 +76,44 @@ describe('buildScene', () => {
     expect(notes.lamps.has('neon:sign')).toBe(true);
     expect(notes.lamps.has('neon:fairy')).toBe(true);
     expect(l.has('neon:sign')).toBe(false);
+  });
+
+  it('lamps follow status: busy/waiting on, idle/stopped/ended off', () => {
+    for (const scene of [harbor, notes]) {
+      const seen = new Set<string>();
+      for (const c of sample.characters.filter((x) => x.projectId === scene.project?.id)) {
+        const seat = scene.seats.get(c.id);
+        const lamp = seat === undefined ? undefined : spot(seat).lamp;
+        if (seat === undefined || lamp === undefined) continue;
+        const lit = c.status === 'busy' || c.status === 'waiting';
+        expect(scene.lamps.has(lamp), `${c.name} ${c.status}`).toBe(lit);
+        expect(scene.lamps.has(`glow:${seat}`), `${c.name} glow`).toBe(lit);
+        seen.add(c.status);
+      }
+      if (scene === harbor) expect([...seen].sort()).toEqual(['busy', 'ended', 'idle', 'waiting']);
+    }
+  });
+
+  it('tidies an ended desk 5 min after its last activity, keeping it unlit until then (R2)', () => {
+    const quick = sample.characters.find((c) => c.name === 'quick-fix');
+    if (quick === undefined || quick.lastActivityAt === null) throw new Error('no quick-fix');
+    const ended = Date.parse(quick.lastActivityAt);
+    const at = (min: number) => buildScene(sample, HARBOR, undefined, { nowMs: ended + min * 60_000 });
+    const six = at(6);
+    expect(six.seats.has(quick.id)).toBe(false);
+    expect(chars(six).some((i) => i.id === quick.id)).toBe(false);
+    const four = at(4);
+    const seat = four.seats.get(quick.id);
+    expect(seat).toBe(harbor.seats.get(quick.id));
+    expect(chars(four).some((i) => i.id === quick.id)).toBe(true);
+    const lamp = seat === undefined ? undefined : spot(seat).lamp;
+    expect(lamp === undefined ? false : four.lamps.has(lamp)).toBe(false);
+    expect(four.lamps.has(`glow:${seat ?? ''}`)).toBe(false);
+    // Without nowMs nothing is tidied; never a non-ended character.
+    expect(harbor.seats.has(quick.id)).toBe(true);
+    expect(tidied({ status: 'idle', lastActivityAt: null }, 0)).toBe(false);
+    expect(tidied({ status: 'ended', lastActivityAt: null }, 0)).toBe(true);
+    expect(tidied({ status: 'ended', lastActivityAt: null }, null)).toBe(false);
   });
 
   it('turns monitors of unlit desks off', () => {
@@ -146,6 +196,33 @@ describe('wallContent', () => {
     if (t === undefined) throw new Error('no CTO text');
     const r = wallTextRaster(t);
     expect([r.w, r.h]).toEqual([t.box.w, t.box.h]);
-    expect(wallKey(wall)).toBe('W2|CTO 2|00|01|02|-|-|-|-|-|-|-|-|-');
+    expect(wallKey(wall)).toBe('W2|CTO 2|00|01|02|-|-|-|-|-|-|-|-|-|02 office-scene');
+  });
+
+  it('captions the newest frame with one plate below the wall, cut to the wall edge (R8)', () => {
+    if (harbor?.harness == null) throw new Error('harbor has no harness');
+    const outcomes2 = [
+      { nn: 0, slug: 'bootstrap' },
+      { nn: 1, slug: 'session-store' },
+    ];
+    const two = wallContent({ ...harbor, harness: { ...harbor.harness, outcomes: outcomes2 } });
+    const plate = two?.plate;
+    if (plate == null) throw new Error('no plate');
+    expect(plate.id).toBe('plate');
+    expect('01 session-store'.startsWith(plate.text)).toBe(true);
+    expect(plate.text.startsWith('01 s')).toBe(true);
+    const newest = two?.frames.find((f) => f.slot === 'done-2');
+    const wallArea = doneWallArea();
+    expect(plate.box.x).toBe(newest?.x);
+    expect(plate.box.x + plate.box.w).toBeLessThanOrEqual(wallArea.x + wallArea.w);
+    expect(plate.box.y).toBeGreaterThanOrEqual(wallArea.y + wallArea.h);
+    expect(plate.box.y + plate.box.h).toBeLessThanOrEqual(76); // above the wall trim
+    // In the last slot the plate is cut to the frame's width.
+    const outcomes = Array.from({ length: 12 }, (_, i) => ({ nn: i, slug: `cycle-${String(i)}` }));
+    const full = wallContent({ ...harbor, harness: { ...harbor.harness, outcomes } });
+    const cut = full?.plate;
+    expect(cut?.text.startsWith('11')).toBe(true);
+    expect(measure(cut?.text ?? '') + 2).toBeLessThanOrEqual(16);
+    expect(wallContent({ ...harbor, harness: { ...harbor.harness, outcomes: [] } })?.plate).toBeNull();
   });
 });

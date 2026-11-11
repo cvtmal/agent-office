@@ -4,6 +4,7 @@ import { rasterize, type Raster } from '../render/raster.js';
 import { charactersFamily } from './characters/index.js';
 import { iconsFamily } from './icons/index.js';
 import { internsFamily } from './interns/index.js';
+import { lifeFamily } from './life/index.js';
 import { propsFamily } from './props/index.js';
 import { shellFamily } from './shell/index.js';
 import { tilesFamily } from './tiles/index.js';
@@ -17,6 +18,7 @@ export const FAMILIES: readonly Family[] = [
   charactersFamily,
   internsFamily,
   iconsFamily,
+  lifeFamily,
 ];
 
 const BY_ID = new Map<string, SpriteDef>(FAMILIES.flatMap((f) => f.sprites.map((s) => [s.id, s])));

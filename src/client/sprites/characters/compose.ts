@@ -21,18 +21,24 @@
 // Colour: every part is drawn in the slot alphabet (builds.ts); `tonesFor(look)`
 // picks the ramps of the look and `keyFor` turns them into the rasterize key.
 // DOM-free.
-import { compose, rasterize, shiftRows, type Layer, type Raster } from '../../render/raster.js';
+import { compose, rasterize, shiftRows, type Grid, type Layer, type Raster } from '../../render/raster.js';
 import type { SpriteDef } from '../types.js';
 import { BUILDS, CHAR_H, CHAR_W, DEFAULT_TONES, SHADOW, keyFor, type PartTones } from './builds.js';
 import { HAIRS, HEAD, accessoryFor, faceFor, headPartKey, type HeadPartDef } from './heads.js';
 import { overlayFor } from './overlays.js';
+import { armGeometry, dropArms, flatArms, liftFoot, raisedArms, type PoseFrame } from './poses.js';
 import { ACCESSORIES, FACES, HAIR_RAMPS, OVERLAYS, SKINS, type LookField } from './space.js';
+
+export { POSE_FRAMES, type PoseFrame } from './poses.js';
 
 /** The look fields composition reads (structurally the `Look` of office/look.ts). */
 export type CharacterLook = Readonly<Record<LookField, number>>;
 
 /** Idle frames (P-10): 0 rest, 1 breathe, 2 rest, 3 blink. */
 export type IdleFrame = 0 | 1 | 2 | 3;
+
+/** Any frame of a look: an idle frame 0-3 or a pose (POSE_FRAMES, poses.ts). */
+export type CharacterFrame = IdleFrame | PoseFrame;
 
 /**
  * Cloth materials: 3 palette tones each, dark -> light (deep fold, shade, base).
@@ -162,53 +168,151 @@ const HATS: ReadonlySet<string> = new Set(['cap', 'beanie']);
 /** Head row of the eyebrows (heads.ts: hair layer, head row 4). */
 const BROW_ROW = 4;
 
-/**
- * The 32x48 frame of a look. Every look field is drawn (see the header); frame 1
- * moves every row above the build's `waist` down 1 px (breathing: head and
- * shoulders sink onto the belt); frame 3 closes the eyes; frames 0 and 2 are the
- * rest pose. Look indices wrap, so any look composes.
- */
-export function composeCharacter(look: CharacterLook, frame: IdleFrame = 0): Raster {
+/** The pieces of one look a pose needs, shared by agents and interns (interns/index.ts). */
+export interface PoseDoll {
+  /** The body grid in slot chars, with its head and waist anchors. */
+  build: SpriteDef & { anchors: Readonly<Record<'head' | 'waist', { x: number; y: number }>> };
+  key: Readonly<Record<string, string>>;
+  /** Clothing overlay over the body, or null. */
+  overlay: Layer | null;
+  /** The overlay is the open jacket: raised and folded arms take its colours. */
+  jacket: boolean;
+  shadow: Layer;
+  /** The head stack at the head anchor, back to front; `face` false leaves out glasses and beard. */
+  heads: (blink: boolean, face: boolean) => Layer[];
+}
+
+/** Head pose geometry in frame rows: lowered head box top, forearms' top outline, sleeve rows. */
+export interface HeadDown {
+  top: number;
+  arms: number;
+  fill: number;
+}
+
+/** Agents, head pose: the forearms lie on rows 18-22, just above the desk line (row 23 of a seated frame, layout.ts). */
+const AGENT_HEAD_DOWN: HeadDown = { top: 14, arms: 18, fill: 3 };
+
+/** One agent look taken apart (the layers of the header, ready to stack). */
+function doll(look: CharacterLook): PoseDoll {
   const buildIndex = wrap(look.build, BUILDS.length);
   const build = pick(BUILDS, buildIndex);
   const hairDef = pick(HAIRS, look.hair);
   const faceDef = faceFor(wrap(look.face, FACES.length));
   const accessoryName = pick(ACCESSORIES, look.accessory);
   const accessoryDef = accessoryFor(wrap(look.accessory, ACCESSORIES.length));
-  const overlay = overlayFor(wrap(look.overlay, OVERLAYS.length), buildIndex);
+  const overlayIndex = wrap(look.overlay, OVERLAYS.length);
+  const overlay = overlayFor(overlayIndex, buildIndex);
   const tones = tonesFor(look);
   const key = keyFor(tones);
   const headKey = headPartKey(key);
-  const { head, shadow, waist } = build.anchors;
+  const { head, shadow } = build.anchors;
   const onHead = (def: HeadPartDef, k: Readonly<Record<string, string>>): Layer =>
     fitTop(layer(def, k, head.x - def.anchors.head.x, head.y - def.anchors.head.y));
+  const heads = (blink: boolean, face: boolean): Layer[] => {
+    const layers: Layer[] = [layer(HEAD, blink ? keyFor(tones, { blink: true }) : key, head.x, head.y)];
+    // Glasses frames (`o`, the only `o` of the face layer) take the accent shade: night0
+    // frames around night0 eyes read as sunglasses at 1x, on deep skin most of all.
+    if (face && faceDef !== null) layers.push(onHead(faceDef, { ...headKey, o: headKey['m'] ?? 'night0' }));
+    let hair = onHead(hairDef, key);
+    let accessory: Layer | null = null;
+    if (accessoryDef !== null) {
+      // The beanie is knitted in the accent material: its top slots t u v take the accent tones k m n.
+      const k =
+        accessoryName === 'beanie'
+          ? {
+              ...headKey,
+              t: headKey['k'] ?? '',
+              u: headKey['m'] ?? '',
+              v: headKey['n'] ?? '',
+            }
+          : headKey;
+      accessory = onHead(accessoryDef, k);
+      if (HATS.has(accessoryName)) hair = underHat(hair, accessory, head.y + BROW_ROW);
+    }
+    layers.push(hair);
+    if (accessory !== null) layers.push(accessory);
+    return layers;
+  };
+  return {
+    build,
+    key,
+    overlay: overlay === null ? null : layer(overlay.def, key, overlay.dx, overlay.dy),
+    jacket: OVERLAYS[overlayIndex] === 'open-jacket',
+    shadow: layer(SHADOW, key, shadow.x, shadow.y),
+    heads,
+  };
+}
 
-  const layers: Layer[] = [layer(SHADOW, key, shadow.x, shadow.y), layer(build, key, 0, 0)];
-  if (overlay !== null) layers.push(layer(overlay.def, key, overlay.dx, overlay.dy));
-  layers.push(layer(HEAD, frame === 3 ? keyFor(tones, { blink: true }) : key, head.x, head.y));
-  // Glasses frames (`o`, the only `o` of the face layer) take the accent shade: night0
-  // frames around night0 eyes read as sunglasses at 1x, on deep skin most of all.
-  if (faceDef !== null) layers.push(onHead(faceDef, { ...headKey, o: headKey['m'] ?? 'night0' }));
-  let hair = onHead(hairDef, key);
-  let accessory: Layer | null = null;
-  if (accessoryDef !== null) {
-    // The beanie is knitted in the accent material: its top slots t u v take the accent tones k m n.
-    const k =
-      accessoryName === 'beanie'
-        ? {
-            ...headKey,
-            t: headKey['k'] ?? '',
-            u: headKey['m'] ?? '',
-            v: headKey['n'] ?? '',
-          }
-        : headKey;
-    accessory = onHead(accessoryDef, k);
-    if (HATS.has(accessoryName)) hair = underHat(hair, accessory, head.y + BROW_ROW);
-  }
-  layers.push(hair);
-  if (accessory !== null) layers.push(accessory);
+/**
+ * The 32x48 frame of a look. Every look field is drawn (see the header); frame 1
+ * moves every row above the build's `waist` down 1 px (breathing: head and
+ * shoulders sink onto the belt); frame 3 closes the eyes; frames 0 and 2 are the
+ * rest pose. The pose frames (POSE_FRAMES) walk, rest the head on the desk or
+ * cheer (`posed`, poses.ts). Look indices wrap, so any look composes.
+ */
+export function composeCharacter(look: CharacterLook, frame: CharacterFrame = 0): Raster {
+  const d = doll(look);
+  if (typeof frame === 'string') return posed(d, frame, CHAR_W, CHAR_H, AGENT_HEAD_DOWN);
+  const layers: Layer[] = [d.shadow, { raster: rasterize(d.build.grid, d.key, undefined, d.build.id), dx: 0, dy: 0 }];
+  if (d.overlay !== null) layers.push(d.overlay);
+  layers.push(...d.heads(frame === 3, true));
   const still = compose(CHAR_W, CHAR_H, layers);
-  return frame === 1 ? shiftRows(still, 0, waist.y, 1) : still;
+  return frame === 1 ? shiftRows(still, 0, d.build.anchors.waist.y, 1) : still;
+}
+
+/** A copy of `r`, transparent from row `from` down. */
+function cropBelow(r: Raster, from: number): Raster {
+  const out: Raster = { w: r.w, h: r.h, data: new Uint8ClampedArray(r.data) };
+  out.data.fill(0, Math.max(0, from) * r.w * 4);
+  return out;
+}
+
+/** `l` with its pixels cleared wherever `g` (frame coordinates) is empty or outline. */
+function maskTo(l: Layer, g: Grid): Layer {
+  const r = l.raster;
+  const out: Raster = { w: r.w, h: r.h, data: new Uint8ClampedArray(r.data) };
+  for (let y = 0; y < r.h; y++) {
+    for (let x = 0; x < r.w; x++) {
+      const c = g[y + l.dy]?.charAt(x + l.dx) ?? '';
+      if (c === '' || c === '.' || c === 'o') out.data.fill(0, (y * r.w + x) * 4, (y * r.w + x) * 4 + 4);
+    }
+  }
+  return { ...l, raster: out };
+}
+
+/**
+ * A pose frame of a look taken apart, `w` x `h` (agents and interns):
+ * walk0/2 lift the left/right foot, walk1/3 bob every row down to the belt 1 px;
+ * head lowers the head stack (no face extras) to `down.top`, cropped below the
+ * forearms, which lie flat over it; cheer0/1 replace the hanging arms by raised
+ * ones, hands at head row 1 / 0, the jacket masked to the remaining body.
+ */
+export function posed(d: PoseDoll, pose: PoseFrame, w: number, h: number, down: HeadDown): Raster {
+  const grid = (g: Grid): Layer => ({ raster: rasterize(g, d.key, undefined, d.build.id), dx: 0, dy: 0 });
+  const { head, waist } = d.build.anchors;
+  if (pose === 'head') {
+    const stack = compose(w, h, d.heads(true, false));
+    const lowered = cropBelow(compose(w, h, [{ raster: stack, dx: 0, dy: down.top - head.y }]), down.arms + down.fill + 2);
+    const layers: Layer[] = [d.shadow, grid(d.build.grid)];
+    if (d.overlay !== null) layers.push(d.overlay);
+    layers.push({ raster: lowered, dx: 0, dy: 0 }, grid(flatArms(w, h, armGeometry(d.build.grid), down.arms, down.fill, d.jacket)));
+    return compose(w, h, layers);
+  }
+  if (pose === 'cheer0' || pose === 'cheer1') {
+    const a = armGeometry(d.build.grid);
+    const body = dropArms(d.build.grid, a);
+    const layers: Layer[] = [d.shadow, grid(body)];
+    if (d.overlay !== null) layers.push(d.jacket ? maskTo(d.overlay, body) : d.overlay);
+    layers.push(grid(raisedArms(body, a, head.y + (pose === 'cheer0' ? 1 : 0), d.jacket)), ...d.heads(false, true));
+    return compose(w, h, layers);
+  }
+  const lift = pose === 'walk0' ? 'left' : pose === 'walk2' ? 'right' : null;
+  const layers: Layer[] = [grid(lift === null ? d.build.grid : liftFoot(d.build.grid, lift))];
+  if (d.overlay !== null) layers.push(d.overlay);
+  layers.push(...d.heads(false, true));
+  const figure = compose(w, h, layers);
+  const bobbed = lift === null ? shiftRows(figure, 0, waist.y + 1, 1) : figure;
+  return compose(w, h, [d.shadow, { raster: bobbed, dx: 0, dy: 0 }]);
 }
 
 /** Variant counts the character parts provide, checked against AGENT_SPACE by the tests. */

@@ -120,6 +120,23 @@ describe('assignSeats rules', () => {
     expect(seats.get('z')).toBe('open-4');
   });
 
+  it('moves an intern along with its parent and keeps it while the parent stays', () => {
+    const before = assignSeats([mk('p', { lane: 'A' }), mk('i', { parent: 'p' })], SPOTS);
+    expect(before.seats.get('i')).toBe('A-intern-1');
+    // The parent changes lane (group A -> group B): its intern follows to a group-B intern spot.
+    const moved = assignSeats([mk('p', { lane: 'B' }), mk('i', { parent: 'p' })], SPOTS, before.seats);
+    expect(moved.seats.get('p')).toBe('B-lead');
+    const internSpot = spot(moved.seats.get('i') ?? '');
+    expect([internSpot.kind, internSpot.group]).toEqual(['intern', 'B']);
+    // Unchanged parent: the intern keeps its spot, even a group spot that is not the first free one.
+    const previous = new Map([
+      ['p', 'A-lead'],
+      ['i', 'A-intern-2'],
+    ]);
+    const kept = assignSeats([mk('p', { lane: 'A' }), mk('i', { parent: 'p' })], SPOTS, previous);
+    expect(kept.seats.get('i')).toBe('A-intern-2');
+  });
+
   it('never lets an ended character displace a live one', () => {
     const chars = [mk('dead', { lane: 'A', ended: true, at: '2026-11-11T09:00:00Z' }), mk('live', { lane: 'A' })];
     const { seats } = assignSeats(chars, SPOTS, new Map([['dead', 'A-lead']]));

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Raster } from '../../render/raster.js';
 import { INTERN_H as LAYOUT_INTERN_H, INTERN_W as LAYOUT_INTERN_W } from '../../office/layout.js';
 import { CHAR_H } from '../characters/builds.js';
-import type { CharacterLook, IdleFrame } from '../characters/compose.js';
+import { PALETTE } from '../../render/palette.js';
+import { POSE_FRAMES, type CharacterLook, type IdleFrame } from '../characters/compose.js';
 import { INTERN_ACCESSORIES, INTERN_SPACE, LOOK_FIELDS } from '../characters/space.js';
 import {
   INTERN_BUILDS,
@@ -137,6 +138,42 @@ describe('composeIntern', () => {
     const changed = diff(composeIntern(LOOK, 3), composeIntern(LOOK, 0));
     expect(changed.length).toBe(4);
     for (const p of changed) expect(eyePx.has(`${String(p.x)},${String(p.y)}`)).toBe(true);
+  });
+
+  it('every pose frame of every build is 24x36, differs from frame 0 and uses only palette colours', () => {
+    const rgb = new Set(Object.values(PALETTE).map((hex) => [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16)).join()));
+    for (const field of LOOK_FIELDS) {
+      for (let v = 0; v < INTERN_SPACE[field]; v++) {
+        const look = { ...LOOK, [field]: v };
+        const rest = composeIntern(look, 0);
+        for (const pose of POSE_FRAMES) {
+          const r = composeIntern(look, pose);
+          const at = `${field}=${String(v)} ${pose}`;
+          expect([r.w, r.h], at).toEqual([INTERN_W, INTERN_H]);
+          expect(diff(rest, r).length, at).toBeGreaterThan(0);
+          expect(opaque(r), at).toBeGreaterThan(150);
+          for (let i = 0; i < r.data.length; i += 4) {
+            if ((r.data[i + 3] ?? 0) > 0) expect(rgb.has([...r.data.subarray(i, i + 3)].join()), at).toBe(true);
+          }
+        }
+      }
+    }
+  });
+
+  it('poses: walk0/walk2 lift opposite feet, head lowers the head, cheer1 raises the hands a row above cheer0', () => {
+    const rest = composeIntern(LOOK, 0);
+    const waist = INTERN_BUILDS[0]?.anchors.waist.y ?? 0;
+    expect(diff(rest, composeIntern(LOOK, 'walk0')).every((p) => p.y > waist + 1 && p.x < INTERN_W / 2 + 1)).toBe(true);
+    expect(diff(rest, composeIntern(LOOK, 'walk2')).every((p) => p.y > waist + 1 && p.x >= INTERN_W / 2 - 1)).toBe(true);
+    const top = (r: Raster, x1 = r.w): number => {
+      for (let y = 0; y < r.h; y++) for (let x = 0; x < x1; x++) if (alpha(r, x, y) > 0) return y;
+      return r.h;
+    };
+    expect(top(composeIntern(LOOK, 'head'))).toBeGreaterThan(top(rest));
+    for (const build of INTERN_BUILDS.keys()) {
+      const look = { ...LOOK, build };
+      expect(top(composeIntern(look, 'cheer1'), 6)).toBe(top(composeIntern(look, 'cheer0'), 6) - 1);
+    }
   });
 
   it('hides the hair above the cap: under a cap, tuft, mop and spikes share the same top rows', () => {

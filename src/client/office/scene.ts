@@ -1,11 +1,13 @@
 // One room as data (research §Selected Approach 1, P-8, P-9): which project, its theme,
 // who sits where, the y-sorted dynamic draw list and the lit lamps. The canvas code
 // (`mount.ts`) only draws what this returns. DOM-free.
-import type { Project, Snapshot } from '../../shared/types.js';
+import type { Character, Project, Snapshot } from '../../shared/types.js';
 import { CAP_HEIGHT, measure, textRaster } from '../render/font.js';
 import { rgba } from '../render/palette.js';
 import { blank, blit, type Raster } from '../render/raster.js';
 import { PROPS, SPOTS, WHITEBOARD_TEXT, characterFrame, isSeated, spot as spotByName, type Prop } from './layout.js';
+import { doneWallArea } from './life/celebrate.js';
+import { TIDY_AFTER_MS } from './life/constants.js';
 import { lookFor, type Look } from './look.js';
 import { assignSeats } from './seats.js';
 import { themeFor, themedSprite, type Theme } from './theme.js';
@@ -67,16 +69,34 @@ export function backgroundProps(theme: Theme): DrawItem[] {
   });
 }
 
-/** Builds the room of `projectId` (falls back like `selectProject`); `previousSeats` keeps seats sticky. */
+/** Statuses whose desk lamp and monitor glow are on (R13): the desk is in use. */
+const LIT_STATUSES: ReadonlySet<Character['status']> = new Set(['busy', 'waiting']);
+
+/**
+ * True if an ended character's desk is tidied at server time `nowMs` (R2, PL4): ended for
+ * `TIDY_AFTER_MS` since its last activity (or with none). Never without `nowMs`.
+ */
+export function tidied(c: Pick<Character, 'status' | 'lastActivityAt'>, nowMs: number | null | undefined): boolean {
+  if (nowMs === null || nowMs === undefined || c.status !== 'ended') return false;
+  if (c.lastActivityAt === null) return true;
+  const at = Date.parse(c.lastActivityAt);
+  return Number.isNaN(at) || nowMs - at >= TIDY_AFTER_MS;
+}
+
+/**
+ * Builds the room of `projectId` (falls back like `selectProject`); `previousSeats` keeps seats
+ * sticky. With `nowMs` (estimated server time, #5), tidied ended characters lose their seat.
+ */
 export function buildScene(
   snapshot: Snapshot,
   projectId: string | null,
   previousSeats?: ReadonlyMap<string, string>,
-  opts: { hideEnded?: boolean } = {}, // #6
+  opts: { hideEnded?: boolean; nowMs?: number | null } = {}, // #6, #5 nowMs
 ): Scene {
   const project = selectProject(snapshot, projectId);
   const theme = themeFor(project?.id ?? '');
-  const characters = project === null ? [] : snapshot.characters.filter((c) => c.projectId === project.id);
+  const inRoom = (c: Character): boolean => c.projectId === project?.id && !tidied(c, opts.nowMs); // #5 tidy (R2)
+  const characters = project === null ? [] : snapshot.characters.filter(inRoom);
   const { seats, overflow } = assignSeats(characters, SPOTS, previousSeats);
 
   const lamps = new Set<string>([...ALWAYS_LIT, ...theme.lights]);
@@ -101,7 +121,7 @@ export function buildScene(
       y: frame.y,
       sortY: s.y,
     });
-    if (c.status !== 'ended' && s.lamp !== undefined) {
+    if (LIT_STATUSES.has(c.status) && s.lamp !== undefined) {
       lamps.add(s.lamp);
       lamps.add(`glow:${name}`);
     }
@@ -153,7 +173,12 @@ export interface WallFrame {
 export interface WallContent {
   texts: WallText[];
   frames: WallFrame[];
+  /** Caption plate `<nn> <slug>` under the newest filled frame (#5, R8); null without outcomes. */
+  plate: WallText | null;
 }
+
+/** Px between the done wall's bottom row and the caption plate's paper box. */
+const PLATE_GAP = 2;
 
 const clip = (text: string, n: number): string => [...text].slice(0, n).join('');
 
@@ -199,13 +224,34 @@ export function wallContent(project: Project | null): WallContent | null {
     };
     frames.push({ slot, sprite: 'done-frame', x: p.x, y: p.y, label });
   }
-  return { texts, frames };
+  return { texts, frames, plate: captionPlate(frames, done[done.length - 1]) };
+}
+
+/**
+ * The caption plate of the newest outcome (R8): `<nn> <slug>` below the done wall's bottom
+ * row, starting at the newest frame's x, cut glyph by glyph so its paper box ends at the
+ * wall's right edge at the latest. Below the wall, not right under the frame, so a plate
+ * of a top-row frame never covers the bottom row.
+ */
+function captionPlate(frames: readonly WallFrame[], newest: { nn: number; slug: string } | undefined): WallText | null {
+  if (newest === undefined) return null;
+  const frame = frames.filter((f) => f.sprite === 'done-frame').at(-1);
+  if (frame === undefined) return null;
+  const wall = doneWallArea();
+  const room = wall.x + wall.w - frame.x - 2;
+  const glyphs = [...`${String(newest.nn).padStart(2, '0')} ${newest.slug}`];
+  let text = glyphs.join('');
+  for (let n = glyphs.length; n > 0 && measure(text) > room; n--) text = glyphs.slice(0, n - 1).join('');
+  if (text === '') return null;
+  return wallText('plate', text, frame.x + 1, wall.y + wall.h + PLATE_GAP + 1);
 }
 
 /** Cache key of `content`: the room background is rebuilt when it changes. */
 export function wallKey(content: WallContent | null): string {
   if (content === null) return '';
-  return [...content.texts.map((t) => t.text), ...content.frames.map((f) => f.label?.text ?? '-')].join('|');
+  const parts = [...content.texts.map((t) => t.text), ...content.frames.map((f) => f.label?.text ?? '-')];
+  if (content.plate !== null) parts.push(content.plate.text);
+  return parts.join('|');
 }
 
 /** `t` as a raster: its paper box with the ink text in it. */

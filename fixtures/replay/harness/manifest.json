@@ -29,6 +29,12 @@
       "sessionId": "bdfb2772-befb-4905-bbfb-244cbcfb25df",
       "fromMs": 50000,
       "toMs": 720000
+    },
+    {
+      "sessionId": "bdfb2772-befb-4905-bbfb-244cbcfb25df",
+      "fromMs": 600000,
+      "toMs": 660000,
+      "status": "waiting"
     }
   ],
   "files": [

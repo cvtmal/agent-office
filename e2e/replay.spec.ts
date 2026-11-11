@@ -50,7 +50,9 @@ test('a replay at speed 60 ends with the set’s final characters drawn', async 
 
   const office = page.locator('#office');
   await expect(office).toHaveAttribute('data-room', room);
-  await expect(office).toHaveAttribute('data-drawn', String(final.characters.length));
+  // Ended characters walk out of the door and are not drawn (#5, R2/R4).
+  const inRoom = final.characters.filter((c) => c.status !== 'ended').length;
+  await expect(office).toHaveAttribute('data-drawn', String(inRoom), { timeout: 15_000 });
   await expect(office).toHaveAttribute('data-overflow', '0');
 
   const zoom = testInfo.project.name === 'desktop-2x' ? '4x' : '2x';

@@ -7,6 +7,7 @@ import {
   CLOTH_SETS,
   HAIR_TONES,
   MATERIALS,
+  POSE_FRAMES,
   composeCharacter,
   fitTop,
   tonesFor,
@@ -173,6 +174,97 @@ describe('look tones', () => {
         expect(ramp.length).toBeGreaterThan(0);
         expect(Object.hasOwn(PALETTE, ramp[Math.min(tone, ramp.length - 1)] ?? ''), part).toBe(true);
       }
+    }
+  });
+});
+
+/** `r,g,b` of every palette colour. */
+const PALETTE_RGB = new Set(
+  Object.values(PALETTE).map((hex) => [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16)).join()),
+);
+
+/** Every opaque pixel is a palette colour. */
+function onlyPalette(r: Raster): boolean {
+  for (let i = 0; i < r.data.length; i += 4) {
+    if ((r.data[i + 3] ?? 0) > 0 && !PALETTE_RGB.has([...r.data.subarray(i, i + 3)].join())) return false;
+  }
+  return true;
+}
+
+/** Topmost opaque row. */
+function topRow(r: Raster): number {
+  for (let y = 0; y < r.h; y++) if (opaque(r, y, y + 1) > 0) return y;
+  return r.h;
+}
+
+/** Topmost opaque row in the 8 leftmost columns (a raised left arm). */
+function sideTop(r: Raster): number {
+  for (let y = 0; y < r.h; y++) for (let x = 0; x < 8; x++) if ((r.data[(y * r.w + x) * 4 + 3] ?? 0) > 0) return y;
+  return r.h;
+}
+
+describe('composeCharacter, pose frames (#5)', () => {
+  it('exports the seven pose frames', () => {
+    expect([...POSE_FRAMES]).toEqual(['walk0', 'walk1', 'walk2', 'walk3', 'head', 'cheer0', 'cheer1']);
+  });
+
+  it('every pose of every build is 32x48, differs from frame 0 and uses only palette colours', () => {
+    for (let build = 0; build < AGENT_SPACE.build; build++) {
+      const rest = composeCharacter({ ...LOOK, build }, 0);
+      for (const pose of POSE_FRAMES) {
+        const r = composeCharacter({ ...LOOK, build }, pose);
+        const at = `build ${String(build)} ${pose}`;
+        expect([r.w, r.h], at).toEqual([CHAR_W, CHAR_H]);
+        expect(diff(rest, r).length, at).toBeGreaterThan(0);
+        expect(onlyPalette(r), at).toBe(true);
+        expect(opaque(r), at).toBeGreaterThan(250);
+      }
+    }
+  });
+
+  it('composes every pose for every value of every look field', () => {
+    for (const field of LOOK_FIELDS) {
+      for (let v = 0; v < AGENT_SPACE[field]; v++) {
+        for (const pose of POSE_FRAMES) {
+          const r = composeCharacter({ ...LOOK, [field]: v }, pose);
+          expect(onlyPalette(r), `${field}=${String(v)} ${pose}`).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('walk: frames 0 and 2 lift opposite feet (only leg rows change), frames 1 and 3 bob the upper body', () => {
+    const waist = BUILDS[0]?.anchors.waist.y ?? 0;
+    const rest = composeCharacter(LOOK, 0);
+    const left = diff(rest, composeCharacter(LOOK, 'walk0'));
+    const right = diff(rest, composeCharacter(LOOK, 'walk2'));
+    expect(left.length).toBeGreaterThan(0);
+    expect(right.length).toBeGreaterThan(0);
+    expect(left.every((p) => p.y > waist + 1 && p.x < CHAR_W / 2 + 1)).toBe(true);
+    expect(right.every((p) => p.y > waist + 1 && p.x >= CHAR_W / 2 - 1)).toBe(true);
+    expect(diff(rest, composeCharacter(LOOK, 'walk1')).some((p) => p.y < waist)).toBe(true);
+    expect(diff(composeCharacter(LOOK, 'walk1'), composeCharacter(LOOK, 'walk3'))).toEqual([]);
+  });
+
+  it('head: the head is lowered (top row moves down) and the eyes are covered', () => {
+    for (let build = 0; build < AGENT_SPACE.build; build++) {
+      const look = { ...LOOK, build };
+      expect(topRow(composeCharacter(look, 'head')), `build ${String(build)}`).toBeGreaterThan(topRow(composeCharacter(look, 0)));
+    }
+    const eyes = BUILDS[0]?.anchors.eyes ?? { x: 0, y: 0 };
+    const at = (eyes.y * CHAR_W + eyes.x) * 4;
+    const px = (r: Raster): string => [...r.data.subarray(at, at + 3)].join();
+    expect(px(composeCharacter(LOOK, 'head'))).not.toBe(px(composeCharacter(LOOK, 0)));
+  });
+
+  it('cheer: hands above the eyes beside the head, frame 1 one row higher', () => {
+    for (let build = 0; build < AGENT_SPACE.build; build++) {
+      const look = { ...LOOK, build, hair: 7 };
+      const c0 = composeCharacter(look, 'cheer0');
+      const c1 = composeCharacter(look, 'cheer1');
+      const head = BUILDS[build]?.anchors.head.y ?? 0;
+      expect(sideTop(c0), `build ${String(build)}`).toBeLessThan(head + 6);
+      expect(sideTop(c1), `build ${String(build)}`).toBe(sideTop(c0) - 1);
     }
   });
 });

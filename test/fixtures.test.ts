@@ -56,14 +56,14 @@ describe('replay sets through the reader', () => {
     expect(snapshot.projects.map((p) => [p.name, p.health.failed])).toEqual([['notes', 0]]);
   });
 
-  it('harness: CTO, three teammates and two agents in one project harbor', () => {
+  it('harness: CTO, three teammates and three agents in one project harbor', () => {
     const { snapshot, manifest } = readSet('harness');
     expect(validateSnapshot(snapshot)).toEqual([]);
     expect(snapshot.projects.map((p) => [p.name, p.health.failed])).toEqual([['harbor', 0]]);
     const sessions = snapshot.characters.filter((c) => c.kind === 'session');
     expect(sessions.filter((c) => c.role === 'cto').map((c) => c.name)).toEqual(['cto-1']);
     expect(sessions.filter((c) => c.role === 'teammate').map((c) => c.name).sort()).toEqual(['c01-review', 'c02-impl', 'c03-research']);
-    expect(snapshot.characters.filter((c) => c.kind === 'agent')).toHaveLength(2);
+    expect(snapshot.characters.filter((c) => c.kind === 'agent')).toHaveLength(3); // + the builder's stopped Explore (#5)
     expect(manifest.files.map((f) => [f.path, f.as ?? null])).toEqual([
       ['repo/docs/outcomes/01-session-store.md', null],
       ['repo/docs/harness/STATE.landed.md', 'repo/docs/harness/STATE.md'],

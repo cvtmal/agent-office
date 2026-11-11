@@ -30,7 +30,7 @@ import { compose, rasterize, shiftRows, type Layer, type Raster } from '../../re
 import { ellipse, grid } from '../kit.js';
 import type { Anchor, Family, SpriteDef } from '../types.js';
 import { PART_KEY, keyFor, type BuildAnchors, type PartTones } from '../characters/builds.js';
-import { tonesFor, type CharacterLook, type IdleFrame } from '../characters/compose.js';
+import { posed, tonesFor, type CharacterFrame, type CharacterLook, type HeadDown } from '../characters/compose.js';
 import { INTERN_ACCESSORIES, INTERN_SPACE } from '../characters/space.js';
 
 /** Intern frame size (plan P-3; equals office/layout.ts INTERN_W x INTERN_H). */
@@ -424,13 +424,17 @@ function internKey(tones: PartTones, blink = false): Record<string, string> {
   return { ...keyFor(tones, { blink }), ...EXTRA_KEY };
 }
 
+/** Interns, head pose: the forearms on rows 13-16, the head box lowered to row 9 (only the crown shows). */
+const INTERN_HEAD_DOWN: HeadDown = { top: 9, arms: 13, fill: 2 };
+
 /**
  * The 24x36 frame of an intern look (mirrors `composeCharacter`). Layers, back
  * to front: shadow, build, head (eyes closed in frame 3), face extra, hair,
  * accessory. Frame 1 moves every row above the build's `waist` down 1 px;
- * frames 0 and 2 are the rest pose. Look indices wrap, so any look composes.
+ * frames 0 and 2 are the rest pose. The pose frames (POSE_FRAMES) are drawn by
+ * compose.ts `posed`, as for agents. Look indices wrap, so any look composes.
  */
-export function composeIntern(look: CharacterLook, frame: IdleFrame = 0): Raster {
+export function composeIntern(look: CharacterLook, frame: CharacterFrame = 0): Raster {
   const build = at(INTERN_BUILDS, look.build);
   const hairDef = at(INTERN_HAIRS, look.hair);
   const accessory = ACCESSORY_BY_NAME[at(INTERN_ACCESSORIES, look.accessory)];
@@ -438,15 +442,19 @@ export function composeIntern(look: CharacterLook, frame: IdleFrame = 0): Raster
   const tones = tonesFor(look);
   const key = internKey(tones);
   const { head, shadow, waist } = build.anchors;
-  const hair = onHead(hairDef, key, head);
-  const layers: Layer[] = [
-    layer(INTERN_SHADOW, key, shadow.x, shadow.y),
-    layer(build, key, 0, 0),
-    layer(INTERN_HEAD, frame === 3 ? internKey(tones, true) : key, head.x, head.y),
-  ];
-  if (face !== null) layers.push(onHead(face, key, head));
-  layers.push(accessory === CAP ? underCap(hair, head) : hair);
-  if (accessory !== null) layers.push(onHead(accessory, key, head));
+  const heads = (blink: boolean, withFace: boolean): Layer[] => {
+    const hair = onHead(hairDef, key, head);
+    const layers: Layer[] = [layer(INTERN_HEAD, blink ? internKey(tones, true) : key, head.x, head.y)];
+    if (withFace && face !== null) layers.push(onHead(face, key, head));
+    layers.push(accessory === CAP ? underCap(hair, head) : hair);
+    if (accessory !== null) layers.push(onHead(accessory, key, head));
+    return layers;
+  };
+  const shadowLayer = layer(INTERN_SHADOW, key, shadow.x, shadow.y);
+  if (typeof frame === 'string') {
+    return posed({ build, key, overlay: null, jacket: false, shadow: shadowLayer, heads }, frame, INTERN_W, INTERN_H, INTERN_HEAD_DOWN);
+  }
+  const layers: Layer[] = [shadowLayer, layer(build, key, 0, 0), ...heads(frame === 3, true)];
   const still = compose(INTERN_W, INTERN_H, layers);
   return frame === 1 ? shiftRows(still, 0, waist.y, 1) : still;
 }

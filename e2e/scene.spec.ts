@@ -45,9 +45,10 @@ test('office draws both rooms at every scale, switched by the project tabs', asy
   await expect(page.locator('#app')).toHaveAttribute('data-connection', 'ready');
   const office = page.locator('#office');
   await expect(office).toHaveAttribute('data-scale', '2');
-  // The sample's first project: harbor, 9 characters, all seated.
+  // The sample's first project: harbor, 9 characters. Its ended one (quick-fix) ended hours
+  // ago, so its desk is tidied (#5, R2): 8 drawn; notes-app 5 - 2 tidied = 3.
   await expect(office).toHaveAttribute('data-room', 'harbor');
-  await expect(office).toHaveAttribute('data-drawn', '9');
+  await expect(office).toHaveAttribute('data-drawn', '8');
   await expect(office).toHaveAttribute('data-overflow', '0');
   await expectFrameTime(office, page);
   await shoot(office, 'office-', n);
@@ -63,7 +64,7 @@ test('office draws both rooms at every scale, switched by the project tabs', asy
   await page.getByRole('tab', { name: 'notes-app' }).click();
   await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
   await expect(office).toHaveAttribute('data-room', 'notes-app');
-  await expect(office).toHaveAttribute('data-drawn', '5');
+  await expect(office).toHaveAttribute('data-drawn', '3');
   await expect(overview).toContainText('14 characters');
   await shoot(office, 'office-', n);
 
@@ -74,12 +75,12 @@ test('office draws both rooms at every scale, switched by the project tabs', asy
     await shoot(office, 'office-', '1x');
     await page.getByRole('tab', { name: 'harbor' }).click();
     await expect(office).toHaveAttribute('data-room', 'harbor');
-    await expect(office).toHaveAttribute('data-drawn', '9');
+    await expect(office).toHaveAttribute('data-drawn', '8');
     await shoot(office, 'office-', '1x');
   } else {
     await page.getByRole('tab', { name: 'harbor' }).click();
     await expect(office).toHaveAttribute('data-room', 'harbor');
-    await expect(office).toHaveAttribute('data-drawn', '9');
+    await expect(office).toHaveAttribute('data-drawn', '8');
   }
   expect(problems).toEqual([]);
 });
