@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #0 bootstrap | implement | c00-impl | A (8001) | 2026-11-11 17:02 | plan done (D-005); lands trunk, CI first verified after landing |
+| #0 bootstrap | review | c00-review | A (8001) | 2026-11-11 17:27 | impl done (119 tests, e2e green); lands trunk, check first CI run |
 
 ## Next actions
 
