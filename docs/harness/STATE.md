@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #5 office-life | implement | c05-impl-2 | B (8002) | 2026-11-11 21:45 | session 1 done (Phases 1–6); session 2 from Step 7.1 on top of #6 |
+| #5 office-life | review | c05-review | B (8002) | 2026-11-11 22:30 | implement done (1198 tests, 27 e2e); its landing run is also cccf801's CI verdict (D-033) |
 
 ## Next actions
 
