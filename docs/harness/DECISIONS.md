@@ -10,6 +10,7 @@ Things only the owner can do or approve. The project keeps moving on the default
 |---|---|---|---|---|
 | O-1 | Allow `gh repo create agent-office --public --source . --remote origin` (G1), or the fallback `git init --bare ../agent-office.git` + `git remote add origin` | Auto-mode classifier denied both (Create Public Surface, Remote Repoint) on 2026-11-11; without `origin`, `lane` and `land` cannot run | none possible: project halted after the bootstrap commit 4755b7f | done 2026-11-11: owner created github.com/cvtmal/agent-office and pushed |
 | O-2 | G3 privacy check: approve the per-tool target table in `docs/outcomes/01-transcript-reader.md` § Per-tool target table, and say whether session names may fall back to `ai-title` (text Claude Code generates from the conversation) and agent names to their task `description` | only the owner can decide what the API may show | scope P-3 rules as in that table, `ai-title` and `description` fallbacks on, `detailMode` off | open |
+| O-3 | G2 art check (scope §8): does the office look right? Screenshots (synthetic sample snapshot) in the main checkout: `.rpi-tracking/screens/office-scene/office-{harbor,notes-app}-{1x,2x,4x}.png` and `looks-2x.png`; carried art points in D-022 | only the owner can judge the look | go ahead after 24 h (2026-11-12 19:45); later feedback becomes a `fix-` lane or part of #5 | open |
 
 ## Log
 
@@ -39,3 +40,4 @@ Newest last. "Undo" says what it would take to reverse the call.
 | D-020 | 2026-11-11 | CTO-1 | #3 extends the harness replay fixture's STATE.md (phase line, landed step) via the generator | #3 owns the player that shows it; no fix lane needed | leave the fixture as is |
 | D-021 | 2026-11-11 | CTO-1 | #4 landed (b326015); its review minor F-m1 (destructure ban flags function parameters) and the `git log` hardening go into #3 | #3 is the next server cycle; both are one-liners | move to a `fix-` lane |
 | D-022 | 2026-11-11 | c02-impl-2 | Builds 20–26 px wide; real intern sprites; hats hide hair; OFFICE-7 stretch done (whiteboard, done frames with 2-digit numbers); art points carried: neon saturation, attic slope, hidden chairs, monitors over chins, palette ramps | readable silhouettes; limits of the plan's phases | a `fix-` lane or #5/#7 for the carried art |
+| D-023 | 2026-11-11 | CTO-2 | #2 landed (06400d3); review minor F-m1 (changes-log summary placeholder) is artifact-only, no action; sticky intern seats carried to #5 | nothing in the repo to fix | — |
