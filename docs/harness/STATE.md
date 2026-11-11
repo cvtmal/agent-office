@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #6 inspector-ui | implement | c06-impl | A (8001) | 2026-11-11 21:00 | plan D-026, from Step 1.1 (lane sync); lands before #5 |
+| #6 inspector-ui | review | c06-review | A (8001) | 2026-11-11 21:30 | implement done (1094 tests, 23 e2e); lands before #5 |
 | #5 office-life | implement (paused) | — | B (8002) | 2026-11-11 21:20 | session 1 done (Phases 1–6, 1120 tests); c05-impl-2 from Step 7.1 after #6 lands + `lane sync office-life` |
 
 ## Next actions
