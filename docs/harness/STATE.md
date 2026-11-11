@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #1 transcript-reader | implement | c01-impl | A (8001) | 2026-11-11 18:10 | plan: 10 phases; planned handoff after Phase 6; watcher armed |
+| #1 transcript-reader | review | c01-review | A (8001) | 2026-11-11 18:28 | impl done (356 tests); after landing: G3 list from outcome file to Owner inbox |
 | #2 office-scene | implement | c02-impl | B (8002) | 2026-11-11 18:03 | plan: 17 phases; planned handoff after Phase 9; watcher armed |
 
 ## Next actions
