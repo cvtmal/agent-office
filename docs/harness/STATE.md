@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 2
-- **Phase of the project:** #0, #1, #2, #4 landed (06400d3, CI green); #3 in plan (lane C)
-- **Wave in progress:** W2 (W1 done 2026-11-11)
+- **Phase of the project:** #0–#4 landed (2436a73, CI green); #5 and #6 in implement
+- **Wave in progress:** W3 (W1, W2 done 2026-11-11)
 
 ## Mechanics
 
@@ -36,18 +36,18 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #3 live-api | review | c03-review | C (8003) | 2026-11-11 20:50 | implement done (1024 tests, 11 e2e); outcome 03-live-api.md |
-| #6 inspector-ui | waiting | — | A (8001) | 2026-11-11 20:40 | plan done (D-026, 7 phases); spawn c06-impl after #3 lands + CI green (Step 1.1 = lane sync) |
-| #5 office-life | waiting | — | B (8002) | 2026-11-11 20:25 | plan done (D-029); after #3 lands + CI green: c05-impl from Step 1.1 (lane sync), Phases 1–6; c05-impl-2 from Step 7.1 after #6 lands |
+| #6 inspector-ui | implement | c06-impl | A (8001) | 2026-11-11 21:00 | plan D-026, from Step 1.1 (lane sync); lands before #5 |
+| #5 office-life | implement | c05-impl | B (8002) | 2026-11-11 21:00 | plan D-029; session 1 = Phases 1–6; c05-impl-2 from Step 7.1 after #6 lands + `lane sync office-life` |
 
 ## Next actions
 
 For the active CTO, in order (the loop, `CTO.md` §4):
 
-1. **#3 `live-api` (lane C, port 8003): `c03-impl` running Phases 1–5.** Then `c03-impl-2` from Step 6.1 (plan `.rpi-tracking/plans/2026-11-11/live-api-plan.md`), then `c03-review`. Arm a ctx watcher for implement and review.
-2. **#6 `inspector-ui` (lane A, port 8001): plan done, idle.** Spawn `c06-impl` from Step 1.1 of `.rpi-tracking/plans/2026-11-11/inspector-ui-plan.md` once #3 has landed and its CI is green; `lane sync inspector-ui` and implement only after #3 lands. #5 `office-life` (lane B, 8002): research/plan run now, reading #3's lane; implement after #3 lands and `lane sync office-life`.
-3. **G2 (O-3):** push sent 2026-11-11 ~19:45; default go-ahead 2026-11-12 19:45. Owner feedback becomes a `fix-` lane or part of #5.
-4. Wave boundary after #3 lands (W2 done): commit `chore(harness): state after W2`.
+1. **#6 `inspector-ui` (lane A, 8001): `c06-impl` running** (plan `.rpi-tracking/plans/2026-11-11/inspector-ui-plan.md`, 7 phases, M). Then `c06-review`. #6 lands before #5.
+2. **#5 `office-life` (lane B, 8002): `c05-impl` running Phases 1–6**, ends with a planned CONTEXT-LIMIT report ("Next: Step 7.1"). Then, once #6 has landed and its CI is green: `bin/harness/lane sync office-life`, spawn `c05-impl-2` from Step 7.1, then `c05-review`. If #6 is late, `c05-impl-2` may start anyway and create #6's shared files as #6's plan specifies (D-028).
+3. **#7 `polish`** after #5 and #6 land: research → plan → implement → review. Its section names the release report.
+4. **G2 (O-3):** default go-ahead 2026-11-12 19:45.
+5. Wave boundary after #5 and #6 land (W3 done): commit `chore(harness): state after W3`.
 
 ## Notes for the successor
 
