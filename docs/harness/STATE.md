@@ -36,9 +36,9 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #2 office-scene | implement | c02-impl | B (8002) | 2026-11-11 18:03 | plan: 17 phases; planned handoff after Phase 9; watcher armed |
-| #4 harness-extras | plan | c04-plan | A (8001) | 2026-11-11 18:50 | research done (D-016) |
-| #3 live-api | research | c03-research | C (8003) | 2026-11-11 18:40 | #2 not landed: sync lane C before implement |
+| #2 office-scene | implement (2) | c02-impl-2 | B (8002) | 2026-11-11 19:06 | Phases 1–9 done (647cd58); resumes at 10; watcher armed; screens in lane .rpi-tracking/screens/office-scene/ |
+| #4 harness-extras | review | c04-review | A (8001) | 2026-11-11 19:12 | impl done (400 tests); check CI run after landing (per-commit group, M3) |
+| #3 live-api | waiting | — | C (8003) | 2026-11-11 18:55 | research done (D-017–D-019); plan after #2 lands + `lane sync live-api` (D-018) |
 
 ## Next actions
 
