@@ -49,7 +49,10 @@ Run `bin/harness/ctx --self` when you start, after every large step in every pha
 
 If your spawn prompt says "PR route: do not run land", do step 1 only and report; the CTO lands the cycle through a pull request. Otherwise, if your verdict is `✅ Complete` with no critical and no major finding:
 
-1. Check that `docs/outcomes/<nn>-<slug>.md` exists and matches what was built (the implementation session drafts it; correct it where it is wrong; add minor findings under "Carried forward").
+**Minor findings (owner rule, D-027):** they never make a verdict `Needs Rework` and nobody fixes them. A review with only minor findings is `✅ Complete` and lands. Minors may be fixed only inside a rework that critical or major findings already force.
+
+
+1. Check that `docs/outcomes/<nn>-<slug>.md` exists and matches what was built (the implementation session drafts it; correct it where it is wrong; list minor findings in one line under "Carried forward" as "not scheduled").
 2. `bin/harness/land -m "<slug>: <one line saying what the cycle delivers>"`.
 3. A rebase conflict (exit 3): resolve it if it is mechanical (lock file, an import list, an appended line), `git add` the files and run the same `land` command again; it continues the rebase and runs the gates itself. Anything that needs judgement about another cycle's code: stop and report. Exit 7 (the gates fail after the rebase): change nothing and report `NEEDS-REWORK(implement)` with the failing gate. Any other exit code: change nothing and report `BLOCKED` with the code and the message `land` printed.
 4. Report the landed commit.

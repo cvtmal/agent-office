@@ -96,7 +96,7 @@ Idle notifications arrive after each report and repeat it in prose; they need no
 
 **When a report is not good enough** (gate not met, vague, contradicts the plan): send it back once with the specific gap. If the second report is still weak, shut the teammate down and start a fresh one with a note about what went wrong.
 
-**Rework.** A `Needs Rework` review names the phase to re-enter. Two rework rounds per cycle are normal. On the third, stop and decide yourself: narrow the cycle, split it, or change the approach, and log the decision.
+**Rework.** Only critical and major findings cause rework (owner rule, D-027): a review with only minors lands, and the minors are not routed into later cycles or fix lanes. A rework forced by critical or major findings may fix the minors too. A `Needs Rework` review names the phase to re-enter. Two rework rounds per cycle are normal. On the third, stop and decide yourself: narrow the cycle, split it, or change the approach, and log the decision.
 
 ## 6. Merge strategy
 
