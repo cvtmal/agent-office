@@ -4,7 +4,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 
 ## Now
 
-- **CTO generation:** 1
+- **CTO generation:** 2
 - **Phase of the project:** #0, #1, #4 landed (b326015); #2 in implement (lane B); #3 waits for #2 (lane C open, idle)
 - **Wave in progress:** W1
 
@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #2 office-scene | review (next) | — | B (8002) | 2026-11-11 19:36 | impl DONE (529 tests, e2e green, last 590e98e); spawn c02-review |
+| #2 office-scene | review | c02-review | B (8002) | 2026-11-11 19:31 | impl DONE (529 tests, e2e green, last 590e98e) |
 | #3 live-api | waiting | — | C (8003) | 2026-11-11 18:55 | research done (D-017–D-019); plan after #2 lands + `lane sync live-api` (D-018) |
 
 ## Next actions
@@ -67,3 +67,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 `CTO-<n> active since <date time> · handed over <time> at <tokens> · landed <cycles>`
 
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
+CTO-2 active since 2026-11-11 19:30 · handed over — · landed —
