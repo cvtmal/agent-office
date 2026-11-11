@@ -36,14 +36,14 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #2 office-scene | implement (2) | c02-impl-2 | B (8002) | 2026-11-11 19:06 | Phases 1–9 done (647cd58); resumes at 10; watcher armed; screens in lane .rpi-tracking/screens/office-scene/ |
+| #2 office-scene | review (next) | — | B (8002) | 2026-11-11 19:36 | impl DONE (529 tests, e2e green, last 590e98e); spawn c02-review |
 | #3 live-api | waiting | — | C (8003) | 2026-11-11 18:55 | research done (D-017–D-019); plan after #2 lands + `lane sync live-api` (D-018) |
 
 ## Next actions
 
 For CTO-2, in order (the loop, `CTO.md` §4):
 
-1. **#2 `office-scene` (lane B, port 8002).** If `c02-impl-2` is still on the board, its report is pending: it was finishing Phases 10–17 of `.rpi-tracking/plans/2026-11-11/office-scene-plan.md` in `.claude/worktrees/office-scene`; wip commits are on branch `office-scene`. Check `bin/harness/ctx c02-impl-2` and the lane's `.rpi-tracking/reports/c02-impl-2.md`. DONE → spawn `c02-review`. CONTEXT-LIMIT → spawn `c02-impl-3` resuming where its changes log says. Arm a ctx watcher for each implement/review session.
+1. **#2 `office-scene` (lane B, port 8002): spawn `c02-review`.** Implement is DONE (`c02-impl-2`: 529 tests, e2e green, outcome `docs/outcomes/02-office-scene.md`, changes log `.rpi-tracking/changes/2026-11-11/office-scene-changes.md`, G2 screenshots in the lane's `.rpi-tracking/screens/office-scene/`). Tell the reviewer: `land` will hit a Makefile conflict (`.PHONY` and `fixtures` from #1 vs `sprites`): keep both sides. Carried art points (neon saturation, attic slope, hidden chairs, monitors over chins, palette ramps) are known; judge them as carried, not blocking, unless the art checklist fails. Arm a ctx watcher.
 2. **G2 art check** after #2 lands: put the #2 screenshots named in `docs/outcomes/02-office-scene.md` (1×, 2×, 4×) into Owner inbox O-3, send ONE push notification ("G2 art check: screenshots in DECISIONS O-3; default go-ahead in 24 h"), continue.
 3. **#3 `live-api` (lane C, port 8003, worktree exists, idle).** Research done (`.claude/worktrees/live-api/.rpi-tracking/research/2026-11-11/live-api-research.md`). After #2 lands and its CI is green: `bin/harness/lane sync live-api`, then spawn `c03-plan`. Tell it: D-017 (may touch `playwright.config.ts`, replace one line in `src/client/main.ts`), D-018 (re-check #2's real code: mountOffice, activeProjectId, status span), the #3 section's extra lines (D-016, D-020, D-021), G3 still open (P-3 rules, detailMode off). Size L.
 4. **#6 `inspector-ui`** may research and plan once #3's plan exists; #5 needs #3 and #4 landed (#4 is landed).
@@ -66,4 +66,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 
 `CTO-<n> active since <date time> · handed over <time> at <tokens> · landed <cycles>`
 
-CTO-1 active since 2026-11-11 16:35 · handed over — · landed —
+CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
