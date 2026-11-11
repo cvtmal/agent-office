@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 1
-- **Phase of the project:** #0, #1 landed (c967320); #2 in implement; c967320 CI green; W2 research started
+- **Phase of the project:** #0, #1, #4 landed (b326015); #2 in implement (lane B); #3 waits for #2 (lane C open, idle)
 - **Wave in progress:** W1
 
 ## Mechanics
@@ -37,7 +37,6 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
 | #2 office-scene | implement (2) | c02-impl-2 | B (8002) | 2026-11-11 19:06 | Phases 1–9 done (647cd58); resumes at 10; watcher armed; screens in lane .rpi-tracking/screens/office-scene/ |
-| #4 harness-extras | review | c04-review | A (8001) | 2026-11-11 19:12 | impl done (400 tests); check CI run after landing (per-commit group, M3) |
 | #3 live-api | waiting | — | C (8003) | 2026-11-11 18:55 | research done (D-017–D-019); plan after #2 lands + `lane sync live-api` (D-018) |
 
 ## Next actions

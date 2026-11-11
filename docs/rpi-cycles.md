@@ -73,7 +73,7 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 | 1 | `transcript-reader` | W1 | DATA-1, DATA-2, DATA-3, DATA-4, DATA-8, DATA-9 (fixtures) | 0 | — | G3 | Research | L |✅ Done |
 | 2 | `office-scene` | W1 | OFFICE-1, OFFICE-2, OFFICE-3 | 0 | — | G2 | Research | L | Open |
 | 3 | `live-api` | W2 | DATA-5, DATA-7, DATA-9, RUN-1, RUN-2, UI-4 | 1, 2 | — | G3 | Research | L | Open |
-| 4 | `harness-extras` | W2 | DATA-6 | 1 | — | — | Research | M | Open |
+| 4 | `harness-extras` | W2 | DATA-6 | 1 | — | — | Research | M |✅ Done |
 | 5 | `office-life` | W3 | OFFICE-4, OFFICE-5, OFFICE-6, OFFICE-7 | 3, 4 | — | — | Research | L | Open |
 | 6 | `inspector-ui` | W3 | UI-1, UI-2, UI-3, UI-5 | 3 | — | — | Research | M | Open |
 | 7 | `polish` | W4 | RUN-3, OFFICE-1 (frame time), §7 Sound | 5, 6 | — | — | Research | M | Open |
@@ -244,7 +244,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - `src/server/replay/`: `--replay <dir>` and `--speed N` serve a fixture set as if live, by appending its lines to a temp copy over time (DATA-9).
 - `src/server/config/`: the optional config file with defaults and clear messages (RUN-2); CLI options `--port`, `--config`, `--replay`, `--open` (RUN-1).
 - `src/client/app/`: SSE client, applying deltas to the store, connection state with "reconnecting" and backoff, new snapshot on reconnect (UI-4). The office from #2 now follows live data; characters that appear or leave are placed or removed (walking comes in #5).
-- Integration with #4 (CTO, D-016): turn `watchHarness`'s `onChange` (`src/server/harness/watch.ts`) into the `project` SSE delta, inject a cached `harnessOf(root)` into the model options, and map replay roots to the manifest's `repos[].dir`. #3 may also extend the #1-owned replay fixture `fixtures/replay/harness/repo/docs/harness/STATE.md` (through the generator) with a phase line and a landed step (D-020).
+- Integration with #4 (CTO, D-016): turn `watchHarness`'s `onChange` (`src/server/harness/watch.ts`) into the `project` SSE delta, inject a cached `harnessOf(root)` into the model options, and map replay roots to the manifest's `repos[].dir`. #3 may also extend the #1-owned replay fixture `fixtures/replay/harness/repo/docs/harness/STATE.md` (through the generator) with a phase line and a landed step (D-020). Also from #4's review (D-021): narrow the `fs` destructure ban in `eslint.config.js` to `VariableDeclarator > :matches(ObjectPattern, ArrayPattern) Property[…]` so destructured function parameters are not flagged, and run harness `git log` with `-c log.showSignature=false`.
 - **Done when:** appending a line to a watched fixture reaches the browser within 2 s (Playwright); `make replay DIR=fixtures/replay/harness` plays the run start to finish in the browser; stopping and starting the server recovers without reload; CPU under 5 % with 20 watched 10 MB transcripts (generated in `var/`); every config setting has a test.
 
 ### 4. `harness-extras`
