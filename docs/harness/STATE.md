@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 1
-- **Phase of the project:** #0 landed (60fff9d); W1 next
-- **Wave in progress:** W0
+- **Phase of the project:** #0 landed (60fff9d, CI green); W1 running
+- **Wave in progress:** W1
 
 ## Mechanics
 
@@ -36,7 +36,8 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| — | — | — | — | — | — |
+| #1 transcript-reader | research | c01-research | A (8001) | 2026-11-11 17:40 | — |
+| #2 office-scene | plan | c02-plan | B (8002) | 2026-11-11 17:50 | research done (D-008, D-009) |
 
 ## Next actions
 

@@ -232,7 +232,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - `src/client/render/`: canvas setup, integer zoom, `palette.ts` (the ramps of the art direction), sprite-sheet packing from palette-indexed grids, light layer, pixel font for the canvas.
 - `src/client/sprites/`: floor and wall tiles, the room shell (beams, window with an original night skyline), props for every area (CTO corner office with a big desk and lamp, four desk groups with monitors and lamps, open desks, kitchen with coffee machine, couch and plants, whiteboard, done wall with frames, door, shelves, posters, rug, clutter); character parts for at least 8 builds and hair/face/clothes/accessory sets × 6 palettes; intern size; 48×48 portraits from the same parts (used by #6).
 - `src/client/office/`: `layout.ts` (the room template and named spots of S2), seat assignment from the store (CTO → corner office, lane letter → desk group, interns next to their parent, others → open desks), stable look per id, name tags, a 2–4 frame idle animation. No walking yet (#5).
-- Project tabs when there are more than two projects (OFFICE-2 default); with the sample, two rooms.
+- Project tabs whenever there are two or more projects, one room per 480×270 canvas (CTO, D-008; scope OFFICE-2 leaves this to the plan); with the sample, two rooms on two tabs.
 - **Done when:** with the sample snapshot the scene shows both rooms (via tabs), every character at its seat with its name tag; screenshots at 1×, 2× and 4× are crisp and pass the art-direction checklist in the reviewer's judgement; the screenshots are in `.rpi-tracking/` and named in the outcome file for G2; frame time with 14 characters is under 16 ms (measured in Playwright).
 
 ## W2 Live
