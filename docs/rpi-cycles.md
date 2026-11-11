@@ -1,6 +1,6 @@
 # Agent Office: RPI cycles
 
-_Last updated: 2026-11-11 (CTO-2: #6 done) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
+_Last updated: 2026-11-11 (CTO-2: G2/G3 answered) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
 
 We are building Agent Office, a local web app that shows the owner's Claude Code sessions and agents as pixel-art characters in an office, with the look of a point-and-click adventure: who is busy, idle or gone, what each one is doing, and how full its context is. It reads Claude Code transcripts read-only and adds harness detail when a repo has it. The scope document is the scope. This file turns it into `/rpi` cycles and sets the order.
 
@@ -103,8 +103,8 @@ Every gate has a default, so no cycle is blocked as a whole. The CTO records ans
 | ID | Question | Default until answered | Affects |
 |---|---|---|---|
 | G1 | Where does the repository live? | **Answered by the owner (2026-11-11): a public GitHub repository.** At bootstrap the CTO runs `gh repo create agent-office --public --source . --remote origin` with the logged-in `gh` account, then pushes. If that fails, a local bare repository `../agent-office.git` as `origin`, and the failure goes to the Owner inbox. Because the repository is public, the rule "no secrets and no personal data" is checked by every review before landing. | #0 |
-| G2 | Art check (scope §8): does the office look right? | The CTO puts the screenshots of #2 in the Owner inbox, sends one push notification, and continues; no answer within 24 h means go ahead. Feedback that arrives later becomes a `fix-` lane or part of #5. | #5 |
-| G3 | Privacy check (scope §8): what may the API show per tool? | #1's outcome file lists the target rule per tool; the CTO puts that list in the Owner inbox. Until answered, the rules of scope P-3 apply and `detailMode` stays off. | #3 |
+| G2 | Art check (scope §8): does the office look right? | **Answered by the owner (2026-11-11): looks okay, G2 closed; the owner wants to see the finished app running before the final verdict, and the art must stay easy to replace (D-034).** Before: the CTO puts the screenshots of #2 in the Owner inbox, sends one push notification, and continues; no answer within 24 h means go ahead. Feedback that arrives later becomes a `fix-` lane or part of #5. | #5 |
+| G3 | Privacy check (scope §8): what may the API show per tool? | **Answered by the owner (2026-11-11): per-tool table approved, `ai-title` and `description` name fallbacks allowed, detail mode allowed as an opt-in (#7, D-034).** Before: #1's outcome file lists the target rule per tool; the CTO puts that list in the Owner inbox. Until answered, the rules of scope P-3 apply and `detailMode` stays off. | #3 |
 
 ## Settled decisions
 
@@ -284,6 +284,10 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - A few tiny sounds generated with Web Audio (typing, coffee, landing fanfare), off by default (scope §7).
 - `README.md`: what it is, `npx agent-office` / `bin/agent-office`, options, config, replay, privacy and detail mode.
 - A full visual pass over the harness replay against the art-direction checklist; fixes for what it finds inside this cycle's size, the rest under "Carried forward".
+- From the owner (2026-11-11, D-034): **detail mode is allowed.** Make `detailMode` (config and a CLI flag) actually work: off by default, when on the API may carry raw tool input to the local client, the inspector shows it, the server prints one warning at start-up; with it off, the secrets test still passes unchanged. Replace the "warns and stays off until G3" behaviour from #3 (D-019).
+- From the owner (D-034): **the art must stay easy to replace.** Write `docs/design/art-seam.md` (≤60 lines): which modules a new art set or renderer replaces (sprites, sprite sheet, palette, room layout, renderer) and which stay (store, API, `office/life/` logic, UI), with the exact interfaces between them. Fix any place where game logic reaches into sprite or palette internals, if it fits the cycle; else list it under Carried forward.
+- Memory: #3 measured 171 MB RSS with 20 × 10 MB transcripts, above RUN-3's 150 MB. Find and reduce the cause, or record the measured value and the reason in the README and the outcome file.
+- Weak art carried from #5: faint meter track, neighbouring bubbles over name tags, standing intern head-down pose, typing hands not skin-toned.
 - **Done when:** the measurements are in the README and within the limits; a fresh clone runs with the documented commands and only Node installed (RUN-1); the visual pass screenshots are named in the outcome file.
 
 ## Out of scope / proposals (not scheduled)

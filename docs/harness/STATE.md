@@ -45,7 +45,7 @@ For the active CTO, in order (the loop, `CTO.md` §4):
 1. **#6 landed** (cccf801); lane A closed.
 2. **#5 `office-life` (lane B, 8002): `c05-impl` running Phases 1–6**, ends with a planned CONTEXT-LIMIT report ("Next: Step 7.1"). Then, once #6 has landed and its CI is green: `bin/harness/lane sync office-life`, spawn `c05-impl-2` from Step 7.1, then `c05-review`. If #6 is late, `c05-impl-2` may start anyway and create #6's shared files as #6's plan specifies (D-028).
 3. **#7 `polish`** after #5 and #6 land: research → plan → implement → review. Its section names the release report.
-4. **G2 (O-3):** default go-ahead 2026-11-12 19:45.
+4. **G2 and G3 answered by the owner (D-034).** #7's section has the new lines (detail mode opt-in, art seam doc, memory 171 MB vs 150 MB, carried art). At the finish (`CTO.md` §11): the owner wants to see the app running before the final verdict; the push notification says how to start it (`make start` / `make replay DIR=fixtures/replay/harness`) and lists the manual checks.
 5. Wave boundary after #5 and #6 land (W3 done): commit `chore(harness): state after W3`.
 
 ## Notes for the successor
@@ -57,7 +57,7 @@ For the active CTO, in order (the loop, `CTO.md` §4):
 - Spawn prompts that worked: the CTO.md §5 template plus, for implement/review, the "Save context" line and a pointer to the plan/changes log. Watcher: `until bin/harness/ctx <name> >/dev/null 2>&1; rc=$?; [ $rc -eq 20 ]; do sleep 60; done` in the background (exit 20 = RECYCLE).
 - Do not `cd` into a lane in a Bash call: it moves the CTO session.
 - The owner may have `docs/harness/STATE.md` open in vim (a `.STATE.md.swp` appeared); untracked, harmless.
-- Open owner items: O-2 (G3 privacy table). G2 comes after #2.
+- Owner items O-1–O-3 are all done. Manual checks for the owner after v1 are in D-030 and D-031, plus #5's on-screen animations (per-kind overlays, couch, raised hand, WARN/HANDOVER meter, CTO cheer, pause).
 - CI: since #4 landed, each push to `main` has its own concurrency group and harness-only pushes skip CI (`paths-ignore`), so harness pushes no longer cancel a landing's run.
 - The owner looked at interim art (#2 Phase 5 and 9 screenshots) and asked for visuals; show them the G2 screenshots when #2 lands.
 
