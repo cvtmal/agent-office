@@ -17,3 +17,4 @@ Newest last. "Undo" says what it would take to reverse the call.
 | ID | Date | By | Decision | Why | Undo |
 |---|---|---|---|---|---|
 | D-001 | 2026-11-11 | CTO-1 | Bootstrap commit made locally (4755b7f); halted before preflight | no `origin` could be created, and every lane is cut from `origin/main` | none needed |
+| D-002 | 2026-11-11 | CTO-1 | #0 also creates the GitHub Actions CI workflow (lint + test on push to `main` and on PRs) | the playbook's CI checks (§4 step 5, PR route) assume a CI no cycle created | delete `.github/workflows/ci.yml` and the line in #0 |

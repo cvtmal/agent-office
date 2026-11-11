@@ -1,6 +1,6 @@
 # Agent Office: RPI cycles
 
-_Last updated: 2026-11-11 · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
+_Last updated: 2026-11-11 (CTO-1: CI added to #0) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
 
 We are building Agent Office, a local web app that shows the owner's Claude Code sessions and agents as pixel-art characters in an office, with the look of a point-and-click adventure: who is busy, idle or gone, what each one is doing, and how full its context is. It reads Claude Code transcripts read-only and adds harness detail when a repo has it. The scope document is the scope. This file turns it into `/rpi` cycles and sets the order.
 
@@ -51,7 +51,7 @@ Artifacts land in `.rpi-tracking/{research,plans,changes,reviews}/<date>/<slug>-
 
    | File | Owner | Others may |
    |---|---|---|
-   | `package.json`, `package-lock.json`, `Makefile`, `tsconfig*.json`, `eslint.config.js`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `.gitignore` | #0 | add a dependency or a Makefile target with a one-line reason in the outcome file |
+   | `.github/workflows/*`, `package.json`, `package-lock.json`, `Makefile`, `tsconfig*.json`, `eslint.config.js`, `vite.config.ts`, `vitest.config.ts`, `playwright.config.ts`, `.gitignore` | #0 | add a dependency or a Makefile target with a one-line reason in the outcome file |
    | `src/shared/types.ts` (the API contract, DATA-7) | #0 | add optional fields, never rename or remove; list them in the outcome file |
    | `src/client/main.ts` (client bootstrap) | #0 | append one mount call for their own module |
    | `src/server/api/routes.ts` | #3 | append one route line for their own endpoint |
@@ -209,6 +209,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - `fixtures/snapshots/sample.json`: one harness project with a CTO, four lane teammates (one per desk group A–D), two interns, two main-checkout sessions, and a second, non-harness project with three sessions; together covering every status, every activity kind and every verdict; outcomes and a wave for the whiteboard. 14 characters in all.
 - Server skeleton: `bin/agent-office` and `src/server/cli.ts` start the HTTP server on the port rule of § Running cycles in parallel, mount Vite in development, serve `GET /api/snapshot` from the sample file (replaced in #3), print the URL.
 - Client skeleton: `src/client/main.ts`, the store of S2 loading the snapshot from `/api/snapshot`, an empty canvas at 480×270 scaled by an integer, and the page shell (dark purple background, slots for the overview strip, the canvas and the inspector panel).
+- CI: `.github/workflows/ci.yml` (GitHub Actions, `ubuntu-latest`, Node 22) runs `make install && make lint && make test` on every push to `main` and on every pull request. No secrets, no deploy. #0 owns the file (hotspot).
 - `CLAUDE.md` § The application (commands, module map, conventions) and `.claude/rules/` one file per module (`shared.md`, `server.md`, `client.md`, `fixtures.md`).
 - **Done when:** on a clean clone `make install && make lint && make test` pass; `make dev` serves the page on 4477 (or the lane port) with an empty scaled canvas and `/api/snapshot` returns the sample; the import boundaries and the write ban each have a failing-case test or lint fixture.
 
