@@ -69,7 +69,7 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 
 | # | Slug | Wave | Requirements | Depends on | Schema | Gate | Start at | Size | Status |
 |---|---|---|---|---|---|---|---|---|---|
-| 0 | `bootstrap` | W0 | DATA-7 (types only), RUN-1 (skeleton) | — | creates `src/shared/types.ts` | G1 | Research | M | Open |
+| 0 | `bootstrap` | W0 | DATA-7 (types only), RUN-1 (skeleton) | — | creates `src/shared/types.ts` | G1 | Research | M |✅ Done |
 | 1 | `transcript-reader` | W1 | DATA-1, DATA-2, DATA-3, DATA-4, DATA-8, DATA-9 (fixtures) | 0 | — | G3 | Research | L | Open |
 | 2 | `office-scene` | W1 | OFFICE-1, OFFICE-2, OFFICE-3 | 0 | — | G2 | Research | L | Open |
 | 3 | `live-api` | W2 | DATA-5, DATA-7, DATA-9, RUN-1, RUN-2, UI-4 | 1, 2 | — | G3 | Research | L | Open |
@@ -223,6 +223,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - `fixtures/gen/` and the two replay sets (DATA-9 fixtures, no player yet): `fixtures/replay/solo/` (one session, about 10 minutes of activity) and `fixtures/replay/harness/` (CTO plus three teammates in lanes A–C with a `lanes.tsv`, subagents, one cycle landing with an outcome file appearing), with relative timestamps so a player can shift them.
 - A comparison script `make compare-ctx` that runs the reader and `bin/harness/ctx --json` on the real config dir and prints differences in status and tokens (read-only; used by DATA-2/4 checks, not a gate).
 - The per-tool target rules as a table in the outcome file (input for G3).
+- Carried from #0 (CTO, D-007; #1 may edit these #0 hotspots for this): close the server write-ban gaps in `eslint.config.js` (`fs.open`/`openSync` with a write flag, destructured `fs` write functions), each with a failing-case lint test; in `.github/workflows/ci.yml` set `cancel-in-progress` only for pull requests and add `paths-ignore` for `docs/harness/**` and `docs/rpi-cycles.md`.
 - **Done when:** every DATA-1/2/3/4/8 rule has a unit test; the fake-secret fixture leaks nothing; `make compare-ctx` shows no difference for the sessions on the machine at the time of the review (or each difference is explained in the outcome file); the generator reproduces the committed replay sets byte for byte.
 
 ### 2. `office-scene`

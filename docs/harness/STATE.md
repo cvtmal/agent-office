@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 1
-- **Phase of the project:** W0 running
+- **Phase of the project:** #0 landed (60fff9d); W1 next
 - **Wave in progress:** W0
 
 ## Mechanics
@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| #0 bootstrap | review | c00-review | A (8001) | 2026-11-11 17:27 | impl done (119 tests, e2e green); lands trunk, check first CI run |
+| — | — | — | — | — | — |
 
 ## Next actions
 
@@ -56,7 +56,9 @@ Bootstrap, in order (generation 0 → 1):
 
 - 2026-11-11: bootstrap step 1 done (commit 4755b7f, local only). Step 2 blocked: auto mode denied both `gh repo create` and adding a local bare `origin` (DECISIONS O-1). Resolved: owner created the GitHub repo and pushed main. Pushes from sessions may still be denied by auto mode; if so, record it and tell the owner.
 
-- For #1's spawn prompt: `ctx` can emit status `live`, which is not in the S3 enum; #1 must map it (from c00-research).
+- For #1's spawn prompt: `ctx` can emit status `live`, which is not in the S3 enum; #1 must map it (from c00-research). Also: the write ban misses `fs.open`/`openSync` (from c00-impl); #1 closes it.
+
+- Until #1 lands its `ci.yml` fix, a push to `main` cancels the CI run still going for an earlier commit: after a landing, wait for its run before pushing harness files.
 
 ## CTO log
 
