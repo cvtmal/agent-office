@@ -41,25 +41,24 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 ## Next actions
 
-Bootstrap steps 0–4 done (2026-11-11). Now: the loop, CTO.md §4; #0 is in research.
+For CTO-2, in order (the loop, `CTO.md` §4):
 
-Bootstrap, in order (generation 0 → 1):
-
-0. Set **CTO generation** under § Now to 1 and add your line to § CTO log, before anything else.
-1. `git status`: commit everything present on `main` (`chore: project plan and agent harness`), on top of the repository's existing commits if it has any.
-2. If `origin` exists, push with `git push origin HEAD:main` (create no repository, add no remote). If no `origin` exists, resolve the repository gate in `docs/rpi-cycles.md` § Owner gates. If creating the remote is refused or fails, create a local bare repository beside the project, add it as `origin`, push, and put the gate in the Owner inbox.
-3. Preflight as in `CTO.md` §3. Record the results under § Mechanics.
-4. Check whatever the owner gates need from outside the repository (logins, accounts, access). For each one that is missing, add an Owner inbox row, send one push notification if the owner has to act, and continue on the gate's default.
-5. Open the lanes for the cycles of wave 0 and start their first phases.
-6. From here on: the loop in `CTO.md` §4.
+1. **#2 `office-scene` (lane B, port 8002).** If `c02-impl-2` is still on the board, its report is pending: it was finishing Phases 10–17 of `.rpi-tracking/plans/2026-11-11/office-scene-plan.md` in `.claude/worktrees/office-scene`; wip commits are on branch `office-scene`. Check `bin/harness/ctx c02-impl-2` and the lane's `.rpi-tracking/reports/c02-impl-2.md`. DONE → spawn `c02-review`. CONTEXT-LIMIT → spawn `c02-impl-3` resuming where its changes log says. Arm a ctx watcher for each implement/review session.
+2. **G2 art check** after #2 lands: put the #2 screenshots named in `docs/outcomes/02-office-scene.md` (1×, 2×, 4×) into Owner inbox O-3, send ONE push notification ("G2 art check: screenshots in DECISIONS O-3; default go-ahead in 24 h"), continue.
+3. **#3 `live-api` (lane C, port 8003, worktree exists, idle).** Research done (`.claude/worktrees/live-api/.rpi-tracking/research/2026-11-11/live-api-research.md`). After #2 lands and its CI is green: `bin/harness/lane sync live-api`, then spawn `c03-plan`. Tell it: D-017 (may touch `playwright.config.ts`, replace one line in `src/client/main.ts`), D-018 (re-check #2's real code: mountOffice, activeProjectId, status span), the #3 section's extra lines (D-016, D-020, D-021), G3 still open (P-3 rules, detailMode off). Size L.
+4. **#6 `inspector-ui`** may research and plan once #3's plan exists; #5 needs #3 and #4 landed (#4 is landed).
+5. Wave boundary after #2 lands (W1 done): commit `chore(harness): state after W1`.
 
 ## Notes for the successor
 
-- 2026-11-11: bootstrap step 1 done (commit 4755b7f, local only). Step 2 blocked: auto mode denied both `gh repo create` and adding a local bare `origin` (DECISIONS O-1). Resolved: owner created the GitHub repo and pushed main. Pushes from sessions may still be denied by auto mode; if so, record it and tell the owner.
-
-- For #1's spawn prompt: `ctx` can emit status `live`, which is not in the S3 enum; #1 must map it (from c00-research). Also: the write ban misses `fs.open`/`openSync` (from c00-impl); #1 closes it.
-
-- Until #1 lands its `ci.yml` fix, a push to `main` cancels the CI run still going for an earlier commit: after a landing, wait for its run before pushing harness files.
+- `ctx` names the first CTO session `agent-office-91`, not `CTO-1`, so its verdict used teammate limits (RECYCLE at 180k). A successor started by `bin/harness/successor` is named `CTO-<n>`. CTO limits: `CTO.md` §2 (WARN 220k, HANDOVER 250k).
+- Teammates overshoot: research/plan sessions end at 125–145k, so research→plan always gets a fresh session. L-size implement sessions stop at their plan's handoff point (~140k) and a `-2` session finishes; that worked every time.
+- Spawn prompts that worked: the CTO.md §5 template plus, for implement/review, the "Save context" line and a pointer to the plan/changes log. Watcher: `until bin/harness/ctx <name> >/dev/null 2>&1; rc=$?; [ $rc -eq 20 ]; do sleep 60; done` in the background (exit 20 = RECYCLE).
+- Do not `cd` into a lane in a Bash call: it moves the CTO session.
+- The owner may have `docs/harness/STATE.md` open in vim (a `.STATE.md.swp` appeared); untracked, harmless.
+- Open owner items: O-2 (G3 privacy table). G2 comes after #2.
+- CI: since #4 landed, each push to `main` has its own concurrency group and harness-only pushes skip CI (`paths-ignore`), so harness pushes no longer cancel a landing's run.
+- The owner looked at interim art (#2 Phase 5 and 9 screenshots) and asked for visuals; show them the G2 screenshots when #2 lands.
 
 ## CTO log
 
