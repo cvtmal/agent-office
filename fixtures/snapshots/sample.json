@@ -1,0 +1,597 @@
+{
+  "version": 1,
+  "generatedAt": "2026-11-11T09:00:00Z",
+  "projects": [
+    {
+      "id": "/home/demo/code/harbor",
+      "name": "harbor",
+      "displayPath": "~/code/harbor",
+      "harness": {
+        "lanes": [
+          {
+            "slug": "live-updates",
+            "letter": "A",
+            "port": 8001,
+            "worktree": ".claude/worktrees/live-updates"
+          },
+          {
+            "slug": "inspector",
+            "letter": "B",
+            "port": 8002,
+            "worktree": ".claude/worktrees/inspector"
+          },
+          {
+            "slug": "project-overview",
+            "letter": "C",
+            "port": 8003,
+            "worktree": ".claude/worktrees/project-overview"
+          },
+          {
+            "slug": "replay-mode",
+            "letter": "D",
+            "port": 8004,
+            "worktree": ".claude/worktrees/replay-mode"
+          }
+        ],
+        "ctoGeneration": 2,
+        "phase": "implement",
+        "wave": "W2",
+        "outcomes": [
+          {
+            "nn": 0,
+            "slug": "bootstrap"
+          },
+          {
+            "nn": 1,
+            "slug": "transcript-reader"
+          },
+          {
+            "nn": 2,
+            "slug": "office-scene"
+          }
+        ],
+        "lastCommit": {
+          "sha": "936c6259926c60c6916c5f33906c5da0976c68a5",
+          "subject": "office-scene: the office room and characters",
+          "at": "2026-11-11T08:15:00Z"
+        }
+      },
+      "health": {
+        "lines": 4210,
+        "failed": 3,
+        "drift": false,
+        "version": "2.9.0"
+      }
+    },
+    {
+      "id": "/home/demo/code/notes-app",
+      "name": "notes-app",
+      "displayPath": "~/code/notes-app",
+      "harness": null,
+      "health": {
+        "lines": 500,
+        "failed": 40,
+        "drift": true,
+        "version": "2.8.4"
+      }
+    }
+  ],
+  "characters": [
+    {
+      "id": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "sessionId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "cto",
+      "name": "cto-2",
+      "status": "busy",
+      "tokens": 252000,
+      "verdict": "HANDOVER",
+      "cwd": "/home/demo/code/harbor",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": "harbor",
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "55ded1f3-54de-4060-57de-d51956ded386",
+      "sessionId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "c03-implement",
+      "status": "busy",
+      "tokens": 120000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/live-updates",
+      "where": ".claude/worktrees/live-updates",
+      "gitBranch": "live-updates",
+      "agentType": null,
+      "teamName": "harbor",
+      "lane": {
+        "slug": "live-updates",
+        "letter": "A",
+        "port": 8001
+      },
+      "lastActivityAt": "2026-11-11T08:58:00Z",
+      "lastUsageAt": "2026-11-11T08:58:00Z"
+    },
+    {
+      "id": "96104384-9710-4517-9810-46aa9910483d",
+      "sessionId": "96104384-9710-4517-9810-46aa9910483d",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "c04-research",
+      "status": "idle",
+      "tokens": 160000,
+      "verdict": "WARN",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/inspector",
+      "where": ".claude/worktrees/inspector",
+      "gitBranch": "inspector",
+      "agentType": null,
+      "teamName": "harbor",
+      "lane": {
+        "slug": "inspector",
+        "letter": "B",
+        "port": 8002
+      },
+      "lastActivityAt": "2026-11-11T08:35:00Z",
+      "lastUsageAt": "2026-11-11T08:35:00Z"
+    },
+    {
+      "id": "8d3655b3-8c36-4420-8f36-58d98e365746",
+      "sessionId": "8d3655b3-8c36-4420-8f36-58d98e365746",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "c05-plan",
+      "status": "waiting",
+      "tokens": 90000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/project-overview",
+      "where": ".claude/worktrees/project-overview",
+      "gitBranch": "project-overview",
+      "agentType": null,
+      "teamName": "harbor",
+      "lane": {
+        "slug": "project-overview",
+        "letter": "C",
+        "port": 8003
+      },
+      "lastActivityAt": "2026-11-11T08:56:00Z",
+      "lastUsageAt": "2026-11-11T08:56:00Z"
+    },
+    {
+      "id": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "sessionId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "c06-review",
+      "status": "busy",
+      "tokens": 185000,
+      "verdict": "RECYCLE",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/replay-mode",
+      "where": ".claude/worktrees/replay-mode",
+      "gitBranch": "replay-mode",
+      "agentType": null,
+      "teamName": "harbor",
+      "lane": {
+        "slug": "replay-mode",
+        "letter": "D",
+        "port": 8004
+      },
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "55ded1f3-54de-4060-57de-d51956ded386/a3cd35cee3dd35e81",
+      "sessionId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "agentId": "a3cd35cee3dd35e81",
+      "parentId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "projectId": "/home/demo/code/harbor",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "explore-imports",
+      "status": "busy",
+      "tokens": 40000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/live-updates",
+      "where": ".claude/worktrees/live-updates",
+      "gitBranch": "live-updates",
+      "agentType": "Explore",
+      "teamName": null,
+      "lane": {
+        "slug": "live-updates",
+        "letter": "A",
+        "port": 8001
+      },
+      "lastActivityAt": "2026-11-11T08:55:00Z",
+      "lastUsageAt": "2026-11-11T08:55:00Z"
+    },
+    {
+      "id": "68cce1af-67cc-401c-6acc-e4d569cce342/af51c7f16f61c80a9",
+      "sessionId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "agentId": "af51c7f16f61c80a9",
+      "parentId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "projectId": "/home/demo/code/harbor",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "check-tests",
+      "status": "stopped",
+      "tokens": 30000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor/.claude/worktrees/replay-mode",
+      "where": ".claude/worktrees/replay-mode",
+      "gitBranch": "replay-mode",
+      "agentType": "general-purpose",
+      "teamName": null,
+      "lane": {
+        "slug": "replay-mode",
+        "letter": "D",
+        "port": 8004
+      },
+      "lastActivityAt": "2026-11-11T08:47:00Z",
+      "lastUsageAt": "2026-11-11T08:47:00Z"
+    },
+    {
+      "id": "3c4d77a0-3d4d-4933-3e4d-7ac63f4d7c59",
+      "sessionId": "3c4d77a0-3d4d-4933-3e4d-7ac63f4d7c59",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "owner-docs",
+      "status": "idle",
+      "tokens": 60000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:25:00Z",
+      "lastUsageAt": "2026-11-11T08:25:00Z"
+    },
+    {
+      "id": "145c7c02-155c-4d95-125c-78dc135c7a6f",
+      "sessionId": "145c7c02-155c-4d95-125c-78dc135c7a6f",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/harbor",
+      "kind": "session",
+      "role": "teammate",
+      "name": "quick-fix",
+      "status": "ended",
+      "tokens": 12000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/harbor",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T06:00:00Z",
+      "lastUsageAt": "2026-11-11T06:00:00Z"
+    },
+    {
+      "id": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "sessionId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/notes-app",
+      "kind": "session",
+      "role": "teammate",
+      "name": "notes-search",
+      "status": "busy",
+      "tokens": 100000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/notes-app",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:59:00Z",
+      "lastUsageAt": "2026-11-11T08:59:00Z"
+    },
+    {
+      "id": "eb460db3-ea46-4c20-ed46-10d9ec460f46",
+      "sessionId": "eb460db3-ea46-4c20-ed46-10d9ec460f46",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/notes-app",
+      "kind": "session",
+      "role": "teammate",
+      "name": "notes-ui",
+      "status": "idle",
+      "tokens": 155000,
+      "verdict": "WARN",
+      "cwd": "/home/demo/code/notes-app",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:15:00Z",
+      "lastUsageAt": "2026-11-11T08:15:00Z"
+    },
+    {
+      "id": "99369a12-9a36-4ba5-9736-96ec9836987f",
+      "sessionId": "99369a12-9a36-4ba5-9736-96ec9836987f",
+      "agentId": null,
+      "parentId": null,
+      "projectId": "/home/demo/code/notes-app",
+      "kind": "session",
+      "role": "teammate",
+      "name": "notes-migrate",
+      "status": "ended",
+      "tokens": 70000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/notes-app",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": null,
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T05:00:00Z",
+      "lastUsageAt": "2026-11-11T05:00:00Z"
+    },
+    {
+      "id": "5d851f99-5c85-4e06-5b85-1c735a851ae0/a98b6980899b6999b",
+      "sessionId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "agentId": "a98b6980899b6999b",
+      "parentId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "projectId": "/home/demo/code/notes-app",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "find-index",
+      "status": "idle",
+      "tokens": 20000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/notes-app",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "Explore",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T08:56:00Z",
+      "lastUsageAt": "2026-11-11T08:56:00Z"
+    },
+    {
+      "id": "99369a12-9a36-4ba5-9736-96ec9836987f/ace30dc06cf30dd99",
+      "sessionId": "99369a12-9a36-4ba5-9736-96ec9836987f",
+      "agentId": "ace30dc06cf30dd99",
+      "parentId": "99369a12-9a36-4ba5-9736-96ec9836987f",
+      "projectId": "/home/demo/code/notes-app",
+      "kind": "agent",
+      "role": "teammate",
+      "name": "rename-files",
+      "status": "ended",
+      "tokens": 25000,
+      "verdict": "OK",
+      "cwd": "/home/demo/code/notes-app",
+      "where": ".",
+      "gitBranch": "main",
+      "agentType": "general-purpose",
+      "teamName": null,
+      "lane": null,
+      "lastActivityAt": "2026-11-11T04:50:00Z",
+      "lastUsageAt": "2026-11-11T04:50:00Z"
+    }
+  ],
+  "activities": [
+    {
+      "characterId": "eb460db3-ea46-4c20-ed46-10d9ec460f46",
+      "at": "2026-11-11T08:10:00Z",
+      "tool": "Write",
+      "kind": "write",
+      "target": "Button.tsx"
+    },
+    {
+      "characterId": "eb460db3-ea46-4c20-ed46-10d9ec460f46",
+      "at": "2026-11-11T08:15:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "npm"
+    },
+    {
+      "characterId": "3c4d77a0-3d4d-4933-3e4d-7ac63f4d7c59",
+      "at": "2026-11-11T08:20:00Z",
+      "tool": "Edit",
+      "kind": "write",
+      "target": "README.md"
+    },
+    {
+      "characterId": "3c4d77a0-3d4d-4933-3e4d-7ac63f4d7c59",
+      "at": "2026-11-11T08:25:00Z",
+      "tool": "mcp__claude-in-chrome__navigate",
+      "kind": "web",
+      "target": "localhost"
+    },
+    {
+      "characterId": "96104384-9710-4517-9810-46aa9910483d",
+      "at": "2026-11-11T08:30:00Z",
+      "tool": "WebFetch",
+      "kind": "web",
+      "target": "vite.dev"
+    },
+    {
+      "characterId": "96104384-9710-4517-9810-46aa9910483d",
+      "at": "2026-11-11T08:32:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "scope.md"
+    },
+    {
+      "characterId": "96104384-9710-4517-9810-46aa9910483d",
+      "at": "2026-11-11T08:35:00Z",
+      "tool": "Skill",
+      "kind": "plan",
+      "target": "rpi-research"
+    },
+    {
+      "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "at": "2026-11-11T08:40:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "c06-review"
+    },
+    {
+      "characterId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "at": "2026-11-11T08:45:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "check-tests"
+    },
+    {
+      "characterId": "68cce1af-67cc-401c-6acc-e4d569cce342/af51c7f16f61c80a9",
+      "at": "2026-11-11T08:46:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "make"
+    },
+    {
+      "characterId": "68cce1af-67cc-401c-6acc-e4d569cce342/af51c7f16f61c80a9",
+      "at": "2026-11-11T08:47:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "sample.test.ts"
+    },
+    {
+      "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "at": "2026-11-11T08:48:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "STATE.md"
+    },
+    {
+      "characterId": "8d3655b3-8c36-4420-8f36-58d98e365746",
+      "at": "2026-11-11T08:50:00Z",
+      "tool": "TodoWrite",
+      "kind": "plan",
+      "target": "todos"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "at": "2026-11-11T08:51:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "store.ts"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "at": "2026-11-11T08:52:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "explore-imports"
+    },
+    {
+      "characterId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "at": "2026-11-11T08:53:00Z",
+      "tool": "Grep",
+      "kind": "read",
+      "target": "routes.ts"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386/a3cd35cee3dd35e81",
+      "at": "2026-11-11T08:53:00Z",
+      "tool": "Glob",
+      "kind": "read",
+      "target": "src"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "at": "2026-11-11T08:54:00Z",
+      "tool": "Edit",
+      "kind": "write",
+      "target": "store.ts"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386/a3cd35cee3dd35e81",
+      "at": "2026-11-11T08:55:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "main.ts"
+    },
+    {
+      "characterId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "at": "2026-11-11T08:55:00Z",
+      "tool": "Agent",
+      "kind": "delegate",
+      "target": "find-index"
+    },
+    {
+      "characterId": "8d3655b3-8c36-4420-8f36-58d98e365746",
+      "at": "2026-11-11T08:56:00Z",
+      "tool": "AskUserQuestion",
+      "kind": "other",
+      "target": "question"
+    },
+    {
+      "characterId": "5d851f99-5c85-4e06-5b85-1c735a851ae0/a98b6980899b6999b",
+      "at": "2026-11-11T08:56:00Z",
+      "tool": "Grep",
+      "kind": "read",
+      "target": "index.ts"
+    },
+    {
+      "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "at": "2026-11-11T08:57:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "git"
+    },
+    {
+      "characterId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "at": "2026-11-11T08:57:00Z",
+      "tool": "Read",
+      "kind": "read",
+      "target": "search.ts"
+    },
+    {
+      "characterId": "55ded1f3-54de-4060-57de-d51956ded386",
+      "at": "2026-11-11T08:58:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "make"
+    },
+    {
+      "characterId": "3ec6f864-3fc6-49f7-40c6-fb8a41c6fd1d",
+      "at": "2026-11-11T08:59:00Z",
+      "tool": "Edit",
+      "kind": "write",
+      "target": "DECISIONS.md"
+    },
+    {
+      "characterId": "68cce1af-67cc-401c-6acc-e4d569cce342",
+      "at": "2026-11-11T08:59:00Z",
+      "tool": "Bash",
+      "kind": "shell",
+      "target": "npx"
+    },
+    {
+      "characterId": "5d851f99-5c85-4e06-5b85-1c735a851ae0",
+      "at": "2026-11-11T08:59:00Z",
+      "tool": "mcp__playwright__browser_navigate",
+      "kind": "web",
+      "target": "localhost"
+    }
+  ]
+}

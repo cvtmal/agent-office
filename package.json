@@ -1,0 +1,27 @@
+{
+  "name": "agent-office",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "bin": {
+    "agent-office": "bin/agent-office"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@fontsource/pixelify-sans": "^5.3.0",
+    "@playwright/test": "^1.65.0",
+    "@types/node": "^22",
+    "eslint": "^10.14.0",
+    "globals": "^17.14.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  }
+}

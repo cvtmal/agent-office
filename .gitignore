@@ -8,3 +8,11 @@
 # Editors and OS
 /.idea/
 .DS_Store
+
+# Build and test output
+node_modules/
+/dist/
+/var/
+test-results/
+playwright-report/
+*.tsbuildinfo

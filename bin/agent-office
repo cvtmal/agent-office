@@ -1,0 +1,29 @@
+#!/bin/sh
+# Starts Agent Office. Runs the compiled server from dist/ when it exists,
+# otherwise (or with --dev) the TypeScript source through tsx.
+set -e
+
+# Resolve this script's real directory, following symlinks (npx, node_modules/.bin).
+self=$0
+while [ -L "$self" ]; do
+  link=$(readlink "$self")
+  case $link in
+    /*) self=$link ;;
+    *) self=$(dirname "$self")/$link ;;
+  esac
+done
+ROOT=$(cd "$(dirname "$self")/.." && pwd)
+
+dev=0
+for arg in "$@"; do
+  [ "$arg" = "--dev" ] && dev=1
+done
+
+if [ "$dev" = 1 ] || [ ! -f "$ROOT/dist/node/server/cli.js" ]; then
+  if [ ! -x "$ROOT/node_modules/.bin/tsx" ]; then
+    echo 'run "make install" first' >&2
+    exit 1
+  fi
+  exec "$ROOT/node_modules/.bin/tsx" "$ROOT/src/server/cli.ts" "$@"
+fi
+exec node "$ROOT/dist/node/server/cli.js" "$@"

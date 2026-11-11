@@ -41,4 +41,31 @@ Commit messages, PR titles and descriptions never contain a Claude Code session 
 
 ## The application
 
-Nothing is built yet. The first cycle adds the commands, the module map and the conventions below this line and in `.claude/rules/`.
+TypeScript (ESM) on Node ≥ 22.13: one local `http` server (Vite middleware in dev) serving a canvas client. Per-module rules are in `.claude/rules/` (`shared.md`, `server.md`, `client.md`, `fixtures.md`).
+
+### Commands
+
+- `make install` (`npm ci`; other targets run it on demand) · `make dev` (hot reload) · `make build` · `make start` · `make stop`
+- Gates: `make lint` (ESLint + `tsc` for shared, node, client) and `make test` (Vitest). `make e2e` (Playwright smoke at 1280×800 and 2×) is not a gate.
+- `make fixtures` regenerates `fixtures/snapshots/sample.json`; `make replay DIR=<dir>` arrives in #3.
+- **Port rule:** the port is `PORT`, else `HARNESS_PORT`, else 4477. In a lane, `.lane.env` sets `HARNESS_PORT` (8001–8004 for lanes A–D); use only your own lane's port, never 4477, and `make stop` when you are done.
+
+### Module map
+
+- `src/shared/` — API contract `types.ts`, `constants.ts`, pure helpers (`tools`, `verdict`, `validate`); no Node or DOM imports. #0
+- `src/server/` — `cli.ts`, `start.ts`, `paths.ts`, `var.ts` (the only writer), `sample.ts`. #0
+  - `config/` port and config resolution (#0, config file #3) · `api/` handler, `routes.ts` (#3 owns), static files · `discovery/` and `reader/` (#1) · `live/` and `replay/` (#3) · `harness/` (#4)
+- `src/client/` — `main.ts` bootstrap. #0
+  - `app/` store and snapshot loader (#0, live connection #3) · `render/` canvas and integer scale (#0, palette and sprite sheet #2) · `sprites/` and `office/` (#2, life #5) · `ui/` shell and overview (#0, inspector #6)
+- `fixtures/` — `gen/` generators, `snapshots/sample.json` (#0) · `transcripts/` and `replay/` (#1)
+- `test/` cross-module tests (API contract, dev server, sample, lint rules) · `e2e/` Playwright · `bin/agent-office` launcher
+
+### Conventions
+
+- ESM everywhere; relative imports use the `.js` specifier (`./store.js`), even from `.ts` files.
+- Unit tests sit next to the code (`foo.ts` + `foo.test.ts`); cross-module tests in `test/`; browser tests in `e2e/`.
+- Server code writes files only through `src/server/var.ts` (into `var/`); ESLint bans `fs` write functions elsewhere. Tests write only to the OS temp dir or `var/`.
+- Add a dependency only with a one-line reason in your outcome file (`package.json` is a #0 hotspot).
+- `src/shared/types.ts` is append-only: add optional fields, never rename or remove; list them in the outcome file.
+- `src/client/main.ts`: one mount call per module; append yours, do not restructure.
+- No real paths, session ids, prompts or config-dir content in fixtures or anywhere in the repo (it is public). Fixture ids come from `syntheticUuid()`.
