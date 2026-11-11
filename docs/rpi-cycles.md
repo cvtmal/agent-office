@@ -244,6 +244,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - `src/server/replay/`: `--replay <dir>` and `--speed N` serve a fixture set as if live, by appending its lines to a temp copy over time (DATA-9).
 - `src/server/config/`: the optional config file with defaults and clear messages (RUN-2); CLI options `--port`, `--config`, `--replay`, `--open` (RUN-1).
 - `src/client/app/`: SSE client, applying deltas to the store, connection state with "reconnecting" and backoff, new snapshot on reconnect (UI-4). The office from #2 now follows live data; characters that appear or leave are placed or removed (walking comes in #5).
+- Integration with #4 (CTO, D-016): turn `watchHarness`'s `onChange` (`src/server/harness/watch.ts`) into the `project` SSE delta, inject a cached `harnessOf(root)` into the model options, and map replay roots to the manifest's `repos[].dir`.
 - **Done when:** appending a line to a watched fixture reaches the browser within 2 s (Playwright); `make replay DIR=fixtures/replay/harness` plays the run start to finish in the browser; stopping and starting the server recovers without reload; CPU under 5 % with 20 watched 10 MB transcripts (generated in `var/`); every config setting has a test.
 
 ### 4. `harness-extras`

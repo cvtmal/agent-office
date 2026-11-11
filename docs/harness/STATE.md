@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 1
-- **Phase of the project:** #0, #1 landed (c967320); #2 in implement; #4 ready once c967320 CI is green; #3 may research/plan reading lane B
+- **Phase of the project:** #0, #1 landed (c967320); #2 in implement; c967320 CI green; W2 research started
 - **Wave in progress:** W1
 
 ## Mechanics
@@ -37,6 +37,8 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
 | #2 office-scene | implement | c02-impl | B (8002) | 2026-11-11 18:03 | plan: 17 phases; planned handoff after Phase 9; watcher armed |
+| #4 harness-extras | plan | c04-plan | A (8001) | 2026-11-11 18:50 | research done (D-016) |
+| #3 live-api | research | c03-research | C (8003) | 2026-11-11 18:40 | #2 not landed: sync lane C before implement |
 
 ## Next actions
 
