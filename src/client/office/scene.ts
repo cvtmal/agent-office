@@ -72,6 +72,7 @@ export function buildScene(
   snapshot: Snapshot,
   projectId: string | null,
   previousSeats?: ReadonlyMap<string, string>,
+  opts: { hideEnded?: boolean } = {}, // #6
 ): Scene {
   const project = selectProject(snapshot, projectId);
   const theme = themeFor(project?.id ?? '');
@@ -83,6 +84,9 @@ export function buildScene(
   for (const c of characters) {
     const name = seats.get(c.id);
     if (name === undefined) continue;
+    // #6 inspector-ui hooks: hide ended skips drawing, not seating (P-4), so the room never reshuffles.
+    if (opts.hideEnded === true && c.status === 'ended') continue;
+    // end #6 inspector-ui hooks
     const s = spotByName(name);
     const intern = c.kind === 'agent';
     const frame = characterFrame(s, intern);

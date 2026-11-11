@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import sampleJson from '../../../fixtures/snapshots/sample.json';
 import type { Snapshot } from '../../shared/types.js';
-import { createStore } from './store.js';
+import { createStore, ZOOM_STEPS } from './store.js';
 
 // Client code has no node:fs (S2), so the fixture comes in as a JSON import.
 const sample = sampleJson as unknown as Snapshot;
@@ -9,7 +9,24 @@ const sample = sampleJson as unknown as Snapshot;
 describe('createStore', () => {
   it('starts loading with no snapshot', () => {
     const state = createStore().getState();
-    expect(state).toEqual({ snapshot: null, connection: 'loading', error: null, ui: { selectedId: null, activeProjectId: null } });
+    expect(state).toEqual({
+      snapshot: null,
+      connection: 'loading',
+      error: null,
+      ui: {
+        selectedId: null,
+        activeProjectId: null,
+        zoom: null,
+        paused: false,
+        sound: false,
+        hideEnded: false,
+        reducedMotion: false,
+      },
+    });
+  });
+
+  it('exports the integer zoom steps', () => {
+    expect([...ZOOM_STEPS]).toEqual([1, 2, 3, 4]);
   });
 
   it('notifies subscribers on each change with a new state object', () => {

@@ -19,6 +19,7 @@ import { FrameStats } from '../render/stats.js';
 import { composeCharacter, type IdleFrame } from '../sprites/characters/compose.js';
 import { composeIntern } from '../sprites/interns/index.js';
 import { rasterizeSprite, spriteById } from '../sprites/registry.js';
+import { characterBoxes, LAYOUT_EVENT } from './boxes.js'; // #6
 import { galleryEntries } from './gallery.js';
 import { idleFrame, IDLE_FRAMES } from './idle.js';
 import { COLS, LAMP_POINTS, ROWS, TILE, tileKind, type TileKind } from './layout.js';
@@ -38,7 +39,7 @@ import { layoutTags, inkTop, tagRaster, tagText, truncateTag, type PlacedTextTag
 import { NERD, type Theme } from './theme.js';
 
 export interface OfficeOptions {
-  /** Hold every character on idle frame 0 (default: the `prefers-reduced-motion` media query). */
+  /** Hold every character on idle frame 0 (default: the store's live `ui.reducedMotion`, app/motion.ts; #6). */
   reducedMotion?: boolean;
   /** `looks`: the looks gallery (P-12) instead of the room (default: `?view=looks` in the URL). */
   view?: 'office' | 'looks';
@@ -78,7 +79,23 @@ function offscreen(w = SCENE_WIDTH, h = SCENE_HEIGHT): { canvas: HTMLCanvasEleme
 
 /** Draws the office of the store's active project into `canvas`; returns a disposer. */
 export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: OfficeOptions = {}): () => void {
-  const reduced = opts.reducedMotion ?? matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // #6 inspector-ui hooks
+  /** Reduced motion, read every frame so a media-query change applies live (R7). */
+  const reducedNow = (): boolean => opts.reducedMotion ?? store.getState().ui.reducedMotion;
+  /** `ui.hideEnded` of the last rebuild (part of the rebuild key). */
+  let lastHideEnded = false;
+  /**
+   * The character boxes changed: the next `draw` dispatches `LAYOUT_EVENT` (P-5), so
+   * listeners mounted after `mountOffice` never miss the first layout.
+   * #5: set layoutDirty when characters move.
+   */
+  let layoutDirty = false;
+  const emitLayout = (): void => {
+    if (!layoutDirty || scene === null) return;
+    layoutDirty = false;
+    canvas.dispatchEvent(new CustomEvent(LAYOUT_EVENT, { detail: gallery ? [] : characterBoxes(scene.items) }));
+  };
+  // end #6 inspector-ui hooks
   const gallery = (opts.view ?? viewFromUrl()) === 'looks';
   const ctx = context(canvas);
   const atlas = createAtlas();
@@ -224,6 +241,7 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
     canvas.dataset['room'] = 'looks';
     canvas.dataset['overflow'] = '0';
     drawnShown = -1;
+    layoutDirty = true; // #6
   };
 
   const rebuild = (snapshot: Snapshot, activeProjectId: string | null): void => {
@@ -232,7 +250,7 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
       return;
     }
     const target = selectProject(snapshot, activeProjectId);
-    const next = buildScene(snapshot, activeProjectId, seatsByProject.get(target?.id ?? ''));
+    const next = buildScene(snapshot, activeProjectId, seatsByProject.get(target?.id ?? ''), { hideEnded: lastHideEnded }); // #6
     if (next.project !== null) seatsByProject.set(next.project.id, next.seats);
     registerLooks(next);
     const byId = new Map<string, Character>(snapshot.characters.map((c) => [c.id, c]));
@@ -246,13 +264,19 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
     canvas.dataset['room'] = next.project?.name ?? '';
     canvas.dataset['overflow'] = String(next.overflow.length);
     drawnShown = -1;
+    layoutDirty = true; // #6
   };
 
   const onState = (): void => {
     const { snapshot, ui } = store.getState();
-    if (snapshot === null || (snapshot === lastSnapshot && ui.activeProjectId === lastActive)) return;
+    if (
+      snapshot === null ||
+      (snapshot === lastSnapshot && ui.activeProjectId === lastActive && ui.hideEnded === lastHideEnded) // #6
+    )
+      return;
     lastSnapshot = snapshot;
     lastActive = ui.activeProjectId;
+    lastHideEnded = ui.hideEnded; // #6
     rebuild(snapshot, ui.activeProjectId);
   };
 
@@ -268,7 +292,7 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
     let drawn = 0;
     for (const item of scene.items) {
       if (item.kind === 'character' && item.look !== undefined) {
-        if (atlas.draw(ctx, lookSprite(item.look, idleFrame(timeMs, item.id, reduced)), item.x, item.y)) drawn++;
+        if (atlas.draw(ctx, lookSprite(item.look, idleFrame(timeMs, item.id, reducedNow())), item.x, item.y)) drawn++; // #6
       } else if (item.sprite !== undefined) {
         tile(ctx, item.sprite, item.x, item.y, scene.theme);
       }
@@ -285,13 +309,14 @@ export function mountOffice(canvas: HTMLCanvasElement, store: Store, opts: Offic
       drawnShown = drawn;
       canvas.dataset['drawn'] = String(drawn);
     }
+    emitLayout(); // #6
   };
 
   const unsubscribe = store.subscribe(onState);
   onState();
   const stopLoop = startLoop({
     update: (dtMs) => {
-      timeMs += dtMs;
+      if (!store.getState().ui.paused) timeMs += dtMs; // #6
     },
     draw,
     stats: new FrameStats(),

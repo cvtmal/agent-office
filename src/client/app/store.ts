@@ -9,7 +9,20 @@ export interface UiState {
   selectedId: string | null;
   /** Project whose room is shown; null = the first project (see office/scene.ts `selectProject`). */
   activeProjectId: string | null;
+  /** Fixed integer canvas scale (one of `ZOOM_STEPS`); null = fit the stage. */
+  zoom: number | null;
+  /** Freezes the office clock; the loop keeps drawing. */
+  paused: boolean;
+  /** Sound switch (off by default; no sounds play yet, #7). */
+  sound: boolean;
+  /** Ended characters are not drawn (they keep their seats). */
+  hideEnded: boolean;
+  /** Live `prefers-reduced-motion` (app/motion.ts); never saved. */
+  reducedMotion: boolean;
 }
+
+/** Zoom steps offered by the controls (integer scales only). */
+export const ZOOM_STEPS = [1, 2, 3, 4] as const;
 
 export interface AppState {
   snapshot: Snapshot | null;
@@ -29,7 +42,20 @@ export interface Store {
 }
 
 export function initialState(): AppState {
-  return { snapshot: null, connection: 'loading', error: null, ui: { selectedId: null, activeProjectId: null } };
+  return {
+    snapshot: null,
+    connection: 'loading',
+    error: null,
+    ui: {
+      selectedId: null,
+      activeProjectId: null,
+      zoom: null,
+      paused: false,
+      sound: false,
+      hideEnded: false,
+      reducedMotion: false,
+    },
+  };
 }
 
 export function createStore(initial: AppState = initialState()): Store {

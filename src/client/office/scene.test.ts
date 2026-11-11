@@ -78,6 +78,16 @@ describe('buildScene', () => {
     moved.set(idOf('owner-docs'), 'open-5');
     expect(buildScene(sample, HARBOR, moved).seats.get(idOf('owner-docs'))).toBe('open-5');
   });
+
+  it('hideEnded skips drawing ended characters but keeps their seats (P-4)', () => {
+    const hidden = buildScene(sample, HARBOR, undefined, { hideEnded: true });
+    expect(chars(hidden)).toHaveLength(8);
+    expect(chars(harbor)).toHaveLength(9);
+    expect([...hidden.seats]).toEqual([...harbor.seats]);
+    const ended = sample.characters.filter((c) => c.projectId === HARBOR && c.status === 'ended').map((c) => c.id);
+    expect(ended).toHaveLength(1);
+    expect(chars(hidden).some((i) => ended.includes(i.id))).toBe(false);
+  });
 });
 
 describe('backgroundProps', () => {

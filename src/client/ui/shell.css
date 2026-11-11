@@ -4,6 +4,11 @@
   --panel: #2b1a38; /* palette night1 */
   --border: #f2e6c9; /* palette lamp2 */
   --text: #f2e6c9; /* palette lamp2 */
+  /* render/verdict-colour.ts VERDICT_COLOUR (test/palette-css.test.ts) */
+  --verdict-ok: #5e9a5a; /* palette green1 */
+  --verdict-warn: #f6c560; /* palette lamp1 */
+  --verdict-recycle: #d8642e; /* palette orange1 */
+  --verdict-handover: #c4508e; /* palette magenta1 */
 }
 
 * {
@@ -106,9 +111,255 @@ body {
   grid-area: inspector;
   min-height: 120px;
   padding: 4px 8px;
+  overflow: auto;
+}
+
+/* Positioned wrapper of the canvas: the hotspot layer (ui/hotspots.ts) sits on it. */
+#room {
+  position: relative;
+  width: max-content;
 }
 
 #office {
   display: block;
   image-rendering: pixelated;
+}
+
+/* Verdict classes (render/verdict-colour.ts): set --verdict for chips and bars. */
+.verdict-ok {
+  --verdict: var(--verdict-ok);
+}
+
+.verdict-warn {
+  --verdict: var(--verdict-warn);
+}
+
+.verdict-recycle {
+  --verdict: var(--verdict-recycle);
+}
+
+.verdict-handover {
+  --verdict: var(--verdict-handover);
+}
+
+/* Hotspots (ui/hotspots.ts): transparent buttons over the drawn characters, in percent of the scene. */
+.hotspots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hotspot {
+  position: absolute;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.hotspot:focus-visible {
+  outline: 1px solid var(--border);
+  outline-offset: 1px;
+}
+
+/* Overview strip (ui/strip.ts): one line per project. */
+.strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.strip li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.strip-name {
+  font-weight: bold;
+}
+
+.chip {
+  padding: 0 4px;
+  background: var(--verdict);
+  color: var(--bg);
+}
+
+.drift {
+  padding: 0 4px;
+  border: 1px dashed var(--border);
+}
+
+/* Controls (ui/controls.ts): zoom steps and toggles, pressed = filled. */
+.controls,
+.zoom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.controls {
+  gap: 4px 8px;
+}
+
+.control {
+  padding: 2px 8px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font: inherit;
+  cursor: pointer;
+}
+
+.control:hover {
+  background: var(--panel);
+}
+
+.control[aria-pressed='true'] {
+  background: var(--border);
+  color: var(--bg);
+}
+
+.control:focus-visible {
+  outline: 1px solid var(--border);
+  outline-offset: 2px;
+}
+
+/* Inspector card (ui/inspector.ts). */
+.hint {
+  margin: 8px 0;
+  opacity: 0.8;
+}
+
+.card h2,
+.card h3,
+.card p {
+  margin: 0;
+}
+
+.card h2 {
+  font-size: 1.25rem;
+}
+
+.card h3 {
+  margin-top: 8px;
+  font-size: 1rem;
+}
+
+.card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+.portrait {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+  flex: none;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 2px 8px;
+  margin: 0;
+}
+
+.fields dt {
+  opacity: 0.8;
+}
+
+.fields dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.fields .verdict {
+  justify-self: start;
+  padding: 0 4px;
+  background: var(--verdict);
+  color: var(--bg);
+}
+
+.bar {
+  height: 8px;
+  margin-top: 6px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.bar-fill {
+  height: 100%;
+  background: var(--verdict);
+}
+
+.activities {
+  margin: 4px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activities li {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 6px;
+}
+
+.activities .icon {
+  width: 16px;
+  height: 16px;
+  image-rendering: pixelated;
+}
+
+.activities .target {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activities li.hint {
+  display: block;
+}
+
+/* Below 1000 px the inspector stacks under the stage (#app grid above): the card
+   spreads into two columns, head and fields beside the activity list. */
+@media (max-width: 999.98px) {
+  .card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'head heading'
+      'fields list'
+      'bar list';
+    gap: 0 16px;
+    align-items: start;
+  }
+
+  .card-head {
+    grid-area: head;
+  }
+
+  .fields {
+    grid-area: fields;
+  }
+
+  .bar {
+    grid-area: bar;
+  }
+
+  .card h3 {
+    grid-area: heading;
+    align-self: end;
+  }
+
+  .activities {
+    grid-area: list;
+  }
 }

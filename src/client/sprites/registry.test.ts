@@ -7,9 +7,9 @@ import { FAMILIES, rasterizeSprite, spriteById } from './registry.js';
 const ALL = FAMILIES.flatMap((f) => f.sprites.map((s) => ({ family: f.name, s })));
 
 describe('sprite registry', () => {
-  it('has the five families with unique names', () => {
+  it('has the six families with unique names', () => {
     const names = FAMILIES.map((f) => f.name);
-    expect(names).toEqual(['tiles', 'shell', 'props', 'characters', 'interns']);
+    expect(names).toEqual(['tiles', 'shell', 'props', 'characters', 'interns', 'icons']);
   });
 
   it('has unique sprite ids, all found by spriteById', () => {

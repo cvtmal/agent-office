@@ -2,6 +2,7 @@
 // preview test draws them, the registry test checks them. DOM-free.
 import { rasterize, type Raster } from '../render/raster.js';
 import { charactersFamily } from './characters/index.js';
+import { iconsFamily } from './icons/index.js';
 import { internsFamily } from './interns/index.js';
 import { propsFamily } from './props/index.js';
 import { shellFamily } from './shell/index.js';
@@ -9,7 +10,14 @@ import { tilesFamily } from './tiles/index.js';
 import type { Family, SpriteDef } from './types.js';
 
 /** Every sprite family, in preview and packing order. */
-export const FAMILIES: readonly Family[] = [tilesFamily, shellFamily, propsFamily, charactersFamily, internsFamily];
+export const FAMILIES: readonly Family[] = [
+  tilesFamily,
+  shellFamily,
+  propsFamily,
+  charactersFamily,
+  internsFamily,
+  iconsFamily,
+];
 
 const BY_ID = new Map<string, SpriteDef>(FAMILIES.flatMap((f) => f.sprites.map((s) => [s.id, s])));
 
