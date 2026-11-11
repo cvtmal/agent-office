@@ -36,6 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
+| #7 polish | implement | c07-impl | A (8001) | 2026-11-11 23:40 | plan has handoffs H1 (after Ph1), H2 (after Ph4); -2 resumes at Ph5 |
 
 ## Next actions
 
