@@ -37,7 +37,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
 | #6 inspector-ui | implement | c06-impl | A (8001) | 2026-11-11 21:00 | plan D-026, from Step 1.1 (lane sync); lands before #5 |
-| #5 office-life | implement | c05-impl | B (8002) | 2026-11-11 21:00 | plan D-029; session 1 = Phases 1–6; c05-impl-2 from Step 7.1 after #6 lands + `lane sync office-life` |
+| #5 office-life | implement (paused) | — | B (8002) | 2026-11-11 21:20 | session 1 done (Phases 1–6, 1120 tests); c05-impl-2 from Step 7.1 after #6 lands + `lane sync office-life` |
 
 ## Next actions
 
@@ -51,6 +51,7 @@ For the active CTO, in order (the loop, `CTO.md` §4):
 
 ## Notes for the successor
 
+- `src/server/live/watch.test.ts` (#3, 500 ms timing) failed once in a #5 subagent run, green on rerun. If it fails in `land` or CI, open `fix-watch-flake` (plan → implement → review).
 - **Owner rule D-027:** minors never cause rework and are not routed anywhere. Lanes `live-api` and `office-life` got the TEAMMATE.md change only at their next `lane sync`; until then add the line "Minors never cause rework (D-027, TEAMMATE.md §5)" to every review spawn prompt.
 - `ctx` names the first CTO session `agent-office-91`, not `CTO-1`, so its verdict used teammate limits (RECYCLE at 180k). A successor started by `bin/harness/successor` is named `CTO-<n>`. CTO limits: `CTO.md` §2 (WARN 220k, HANDOVER 250k).
 - Teammates overshoot: research/plan sessions end at 125–145k, so research→plan always gets a fresh session. L-size implement sessions stop at their plan's handoff point (~140k) and a `-2` session finishes; that worked every time.
