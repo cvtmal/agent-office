@@ -9,6 +9,7 @@ Things only the owner can do or approve. The project keeps moving on the default
 | # | What is needed | Why | Default we run on | Status |
 |---|---|---|---|---|
 | O-1 | Allow `gh repo create agent-office --public --source . --remote origin` (G1), or the fallback `git init --bare ../agent-office.git` + `git remote add origin` | Auto-mode classifier denied both (Create Public Surface, Remote Repoint) on 2026-11-11; without `origin`, `lane` and `land` cannot run | none possible: project halted after the bootstrap commit 4755b7f | done 2026-11-11: owner created github.com/cvtmal/agent-office and pushed |
+| O-2 | G3 privacy check: approve the per-tool target table in `docs/outcomes/01-transcript-reader.md` § Per-tool target table, and say whether session names may fall back to `ai-title` (text Claude Code generates from the conversation) and agent names to their task `description` | only the owner can decide what the API may show | scope P-3 rules as in that table, `ai-title` and `description` fallbacks on, `detailMode` off | open |
 
 ## Log
 
@@ -29,3 +30,5 @@ Newest last. "Undo" says what it would take to reverse the call.
 | D-011 | 2026-11-11 | CTO-1 | `bin/harness/ctx` keeps showing live teammates as `ended`; not fixed now | liveness by AGE already works for the harness | patch ctx to use the same `ps` probe |
 | D-012 | 2026-11-11 | c02-plan | `make sprites` target (PNG previews in `var/sprites/`); themes by `fnv1a(projectId)%2`; `?view=looks` gallery for the look check and a second frame-time run | agents can inspect sprites without a browser; one room draws at most 9 of 14 | drop the target / gallery |
 | D-013 | 2026-11-11 | c01-plan | Replay sets carry a `manifest.json` (live windows, appearing files; no registry or pid files): the format #3's player reads; unsafe shell/identifier targets become ''; teammate transcripts older than `maxAgeHours` are dropped even if running | one replay format; privacy by allow-list | change in #3 with the player |
+| D-014 | 2026-11-11 | CTO-1 | #1 landed (c967320) with three review minors; F-m1 (`ai-title` name fallback) goes to the owner via G3 | model-generated text is a privacy call | drop the fallback in `reader/names.ts` |
+| D-015 | 2026-11-11 | CTO-1 | #1 review minors F-m2 (CI concurrency group per commit) and F-m3 (nested destructuring write ban) go into #4 | small; #4 is the lighter W2 cycle | move to a `fix-` lane |

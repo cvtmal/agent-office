@@ -70,7 +70,7 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 | # | Slug | Wave | Requirements | Depends on | Schema | Gate | Start at | Size | Status |
 |---|---|---|---|---|---|---|---|---|---|
 | 0 | `bootstrap` | W0 | DATA-7 (types only), RUN-1 (skeleton) | — | creates `src/shared/types.ts` | G1 | Research | M |✅ Done |
-| 1 | `transcript-reader` | W1 | DATA-1, DATA-2, DATA-3, DATA-4, DATA-8, DATA-9 (fixtures) | 0 | — | G3 | Research | L | Open |
+| 1 | `transcript-reader` | W1 | DATA-1, DATA-2, DATA-3, DATA-4, DATA-8, DATA-9 (fixtures) | 0 | — | G3 | Research | L |✅ Done |
 | 2 | `office-scene` | W1 | OFFICE-1, OFFICE-2, OFFICE-3 | 0 | — | G2 | Research | L | Open |
 | 3 | `live-api` | W2 | DATA-5, DATA-7, DATA-9, RUN-1, RUN-2, UI-4 | 1, 2 | — | G3 | Research | L | Open |
 | 4 | `harness-extras` | W2 | DATA-6 | 1 | — | — | Research | M | Open |
@@ -250,6 +250,7 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 
 - `src/server/harness/`: per project, read `.claude/harness/lanes.tsv`, map sessions to lanes by `cwd` under `.claude/worktrees/<slug>`, read `docs/harness/STATE.md` § Now (CTO generation, phase, wave), list `docs/outcomes/*.md`, `git log -1` on `main` (read-only `git` call). Missing files give empty parts, never errors (DATA-6). Fills the harness fields of the model and the snapshot.
 - Re-read on change (watch the files) so a new outcome file reaches the client as a `project` delta.
+- Carried from #1's review (CTO, D-015; #4 may edit these #0 hotspots for this): in `.github/workflows/ci.yml` make the concurrency group per commit on push (`ci-${{ github.event_name == 'pull_request' && github.ref || github.sha }}`); in `eslint.config.js` ban nested destructuring of `fs` write functions (`const { promises: { writeFile } } = fs`), with a failing-case lint test.
 - **Done when:** unit tests per file, including missing and malformed ones; pointed at `~/code/tanzhaken` the snapshot lists its outcomes (and lanes if `lanes.tsv` exists); pointed at a non-harness repo the snapshot shows sessions only; the harness replay fixture yields lanes A–C and the landed cycle.
 
 ## W3 Life and interaction
