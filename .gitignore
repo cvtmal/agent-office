@@ -1,0 +1,10 @@
+# Agent harness: local, never committed
+/.claude/worktrees/
+/.claude/harness/
+/.claude/settings.local.json
+/.rpi-tracking/
+.lane.env
+
+# Editors and OS
+/.idea/
+.DS_Store

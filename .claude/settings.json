@@ -1,0 +1,49 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "teammateMode": "iterm2",
+  "permissions": {
+    "allow": [
+      "Bash(bin/harness/*)",
+      "Bash(claude --bg *)",
+      "Bash(claude stop *)",
+      "Bash(claude rm *)",
+      "Bash(claude agents*)",
+      "Bash(claude logs *)",
+      "Bash(make *)",
+      "Bash(git status*)",
+      "Bash(git log *)",
+      "Bash(git diff*)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git fetch*)",
+      "Bash(git pull --ff-only*)",
+      "Bash(git rebase *)",
+      "Bash(git switch *)",
+      "Bash(git worktree *)",
+      "Bash(git push origin HEAD:main)",
+      "Bash(git push origin HEAD:refs/heads/*)",
+      "Bash(gh run *)",
+      "Bash(gh pr *)",
+      "Bash(gh repo view*)",
+      "Bash(gh repo create agent-office *)"
+    ],
+    "deny": [
+      "Bash(bin/harness/land --no-gates*)",
+      "Bash(bin/harness/land * --no-gates*)",
+      "Bash(bin/harness/land --no-review-check*)",
+      "Bash(bin/harness/land * --no-review-check*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f *)",
+      "Bash(git push * --force*)",
+      "Bash(git push * -f)",
+      "Bash(git push * -f *)",
+      "Bash(git push * +*)",
+      "Bash(git push * --delete*)",
+      "Bash(git push * :*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh repo edit*)"
+    ]
+  }
+}
