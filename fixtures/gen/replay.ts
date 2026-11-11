@@ -30,8 +30,11 @@ export interface Manifest {
   repos: { root: string; dir: string | null }[];
   /** When each session counts as live (replaces registry files and pids). */
   live: LiveWindow[];
-  /** Repo files that appear mid-run; a file not listed is present from the start. */
-  files: { path: string; appearsAtMs: number }[];
+  /**
+   * Repo files that appear mid-run; a file not listed is present from the start. With `as`, the
+   * file replaces the file at `as` when it appears (D-020) and is never present under `path`.
+   */
+  files: { path: string; appearsAtMs: number; as?: string }[];
 }
 
 /** A tool call: name, input and the result text. */
@@ -147,6 +150,9 @@ const CTO_ID = syntheticUuid('replay:harness:cto-1');
 const TEAM = `session-${CTO_ID.slice(0, 8)}`;
 const OUTCOME = 'docs/outcomes/01-session-store.md';
 const OUTCOME_AT = 540_000;
+const STATE = 'repo/docs/harness/STATE.md';
+/** Replaces STATE.md at the CTO's land step (D-020, `files[].as`). */
+const STATE_LANDED = 'repo/docs/harness/STATE.landed.md';
 const DURATION = 720_000;
 
 interface Lane {
@@ -184,7 +190,21 @@ function spawnPrompt(lane: Lane): string {
   return `You are teammate ${lane.agentName}. Cycle ${lane.slug}, phase ${lane.phase}, lane ${lane.letter}, port ${lane.port}.`;
 }
 
-function buildCto(out: Map<string, string>): void {
+/** Offset (ms after BASE) of the first assistant record whose tool_use matches `pick`. */
+function toolUseAt(lines: Line[], pick: (name: string, input: Json) => boolean): number {
+  for (const line of lines) {
+    if (typeof line === 'string') continue;
+    const content = (line.message as { content?: unknown } | undefined)?.content;
+    const block = Array.isArray(content) ? (content[0] as Json | undefined) : undefined;
+    if (block?.type === 'tool_use' && pick(String(block.name), block.input as Json)) {
+      return Date.parse(String(line.timestamp)) - Date.parse(BASE);
+    }
+  }
+  throw new Error('tool_use not found');
+}
+
+/** Builds the CTO transcript; returns the offset of its land step (the `Edit` of STATE.md, D-020). */
+function buildCto(out: Map<string, string>): number {
   const t = new Transcript({ seed: 'replay:harness:cto-1', sessionId: CTO_ID, cwd: HARBOR, stepMs: 2000 });
   const lines: Line[] = [t.title('custom-title', 'cto-1'), t.prompt('Run wave W1.')];
   lines.push(
@@ -229,6 +249,28 @@ function buildCto(out: Map<string, string>): void {
   lines.push(...calls(t, [['Bash', { command: 'bin/harness/status', description: 'Show the board' }, 'two lanes busy']], 63_000, 63_000));
   lines.push(...endTurn(t, 64_000, 'Lanes B and C are still working.'));
   writeConfig(out, t, lines);
+  return toolUseAt(lines, (name, input) => name === 'Edit' && String(input.file_path).endsWith('/docs/harness/STATE.md'));
+}
+
+/** `docs/harness/STATE.md` of the harness set: W1 `building`, or `landing` with lane A landed (D-020). */
+function stateFile(landed: boolean): string {
+  return [
+    '# Harness state',
+    '',
+    '## Now',
+    '',
+    '- CTO generation: 1',
+    '- Wave: W1',
+    `- Phase: W1 ${landed ? 'landing' : 'building'}`,
+    ...LANES.map(
+      (lane) => `- Lane ${lane.letter}: #0${LANES.indexOf(lane) + 1} ${lane.slug} (${landed && lane.letter === 'A' ? 'landed' : lane.phase}), ${lane.agentName}`,
+    ),
+    '',
+    '## Next',
+    '',
+    '- W2 after W1 lands',
+    '',
+  ].join('\n');
 }
 
 function buildReviewer(out: Map<string, string>, lane: Lane): void {
@@ -340,7 +382,8 @@ function buildResearcher(out: Map<string, string>, lane: Lane): void {
 }
 
 function buildHarness(out: Map<string, string>): Manifest {
-  buildCto(out);
+  const landMs = buildCto(out);
+  if (landMs < OUTCOME_AT) throw new Error(`the land step (${String(landMs)} ms) comes before the outcome file`);
   const [a, b, c] = LANES as [Lane, Lane, Lane];
   buildReviewer(out, a);
   buildBuilder(out, b);
@@ -350,23 +393,8 @@ function buildHarness(out: Map<string, string>): Manifest {
     'repo/.claude/harness/lanes.tsv',
     '#slug\tlane\tport\tcreated\n' + LANES.map((lane, i) => `${lane.slug}\t${lane.letter}\t${lane.port}\t${at(8000 + i * 2000)}\n`).join(''),
   );
-  out.set(
-    'repo/docs/harness/STATE.md',
-    [
-      '# Harness state',
-      '',
-      '## Now',
-      '',
-      '- CTO generation: 1',
-      '- Wave: W1',
-      ...LANES.map((lane) => `- Lane ${lane.letter}: #0${LANES.indexOf(lane) + 1} ${lane.slug} (${lane.phase}), ${lane.agentName}`),
-      '',
-      '## Next',
-      '',
-      '- W2 after W1 lands',
-      '',
-    ].join('\n'),
-  );
+  out.set(STATE, stateFile(false));
+  out.set(STATE_LANDED, stateFile(true));
   out.set('repo/docs/outcomes/00-bootstrap.md', '# #00 bootstrap — outcome\n\n## Delivered\n\nToolchain and skeleton.\n');
   out.set(`repo/${OUTCOME}`, '# #01 session-store — outcome\n\n## Delivered\n\nSessions survive a restart.\n');
 
@@ -383,7 +411,10 @@ function buildHarness(out: Map<string, string>): Manifest {
       { sessionId: teammateIds[1] ?? '', fromMs: b.fromMs, toMs: DURATION },
       { sessionId: teammateIds[2] ?? '', fromMs: c.fromMs, toMs: DURATION },
     ],
-    files: [{ path: `repo/${OUTCOME}`, appearsAtMs: OUTCOME_AT }],
+    files: [
+      { path: `repo/${OUTCOME}`, appearsAtMs: OUTCOME_AT },
+      { path: STATE_LANDED, appearsAtMs: landMs, as: STATE },
+    ],
   };
 }
 

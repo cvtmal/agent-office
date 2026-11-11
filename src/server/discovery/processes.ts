@@ -1,6 +1,7 @@
 // The process table: one `ps` per scan serves the pid-reuse guard and the teammate
 // scan (research D3, decision P4; ctx:203-232).
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
+import { promisify } from 'node:util';
 
 export interface ProcessRow {
   pid: number;
@@ -48,17 +49,38 @@ export function parsePsOutput(text: string): ProcessRow[] {
   return rows;
 }
 
+const PS_ARGS = ['-axo', 'pid=,lstart=,command='];
+const PS_TIMEOUT_MS = 3000;
+const PS_MAX_BUFFER = 32 * 1024 * 1024;
+const psEnv = (): NodeJS.ProcessEnv => ({ ...process.env, LC_ALL: 'C', TZ: 'UTC' });
+const execFileAsync = promisify(execFile);
+
 /** Runs `ps` once; any failure → `null` (callers fall back to `kill(pid, 0)`). */
 export function readProcessTable(): Map<number, ProcessRow> | null {
   try {
-    const out = execFileSync('ps', ['-axo', 'pid=,lstart=,command='], {
+    const out = execFileSync('ps', PS_ARGS, {
       encoding: 'utf8',
-      env: { ...process.env, LC_ALL: 'C', TZ: 'UTC' },
-      timeout: 3000,
-      maxBuffer: 32 * 1024 * 1024,
+      env: psEnv(),
+      timeout: PS_TIMEOUT_MS,
+      maxBuffer: PS_MAX_BUFFER,
       stdio: ['ignore', 'pipe', 'ignore'],
     });
     return new Map(parsePsOutput(out).map((row) => [row.pid, row]));
+  } catch {
+    return null;
+  }
+}
+
+/** `readProcessTable` without blocking the event loop (same args and timeout); any failure → `null`. */
+export async function readProcessTableAsync(): Promise<Map<number, ProcessRow> | null> {
+  try {
+    const { stdout } = await execFileAsync('ps', PS_ARGS, {
+      encoding: 'utf8',
+      env: psEnv(),
+      timeout: PS_TIMEOUT_MS,
+      maxBuffer: PS_MAX_BUFFER,
+    });
+    return new Map(parsePsOutput(stdout).map((row) => [row.pid, row]));
   } catch {
     return null;
   }

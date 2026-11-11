@@ -47,11 +47,11 @@ function str(value: unknown): string | null {
   return typeof value === 'string' ? value : null;
 }
 
-function readCustomTitle(path: string): string | null {
+export function readCustomTitle(path: string): string | null {
   return str(readObject(path)?.['customTitle']);
 }
 
-function readMeta(path: string): AgentMeta | null {
+export function readMeta(path: string): AgentMeta | null {
   const raw = readObject(path);
   if (!raw) return null;
   return {
@@ -85,10 +85,27 @@ export interface TranscriptOptions {
   isLive: (sessionId: string) => boolean;
 }
 
-/** Reads every kept session and agent transcript of every project dir. */
-export function readTranscripts(opts: TranscriptOptions): { sessions: RawSession[]; agents: RawAgent[] } {
-  const sessions: RawSession[] = [];
-  const agents: RawAgent[] = [];
+export interface ListedSession {
+  sessionId: string;
+  path: string;
+  mtimeMs: number;
+  /** `<project>/<sessionId>/custom-title.json` (may not exist). */
+  titlePath: string;
+}
+
+export interface ListedAgent {
+  sessionId: string;
+  agentId: string;
+  path: string;
+  mtimeMs: number;
+  /** `agent-<id>.meta.json` beside the transcript (may not exist). */
+  metaPath: string;
+}
+
+/** Lists every kept session and agent transcript of every project dir, without reading content. */
+export function listTranscripts(opts: TranscriptOptions): { sessions: ListedSession[]; agents: ListedAgent[] } {
+  const sessions: ListedSession[] = [];
+  const agents: ListedAgent[] = [];
   const projects = join(opts.cfgDir, 'projects');
   for (const project of entries(projects)) {
     if (!project.isDirectory()) continue;
@@ -99,22 +116,42 @@ export function readTranscripts(opts: TranscriptOptions): { sessions: RawSession
         const sessionId = entry.name.slice(0, -'.jsonl'.length);
         const mtimeMs = mtimeOf(path);
         if (mtimeMs === null || (mtimeMs < opts.cutoffMs && !opts.isLive(sessionId))) continue;
-        const file = readFile(path);
-        if (!file) continue;
-        const customTitle = readCustomTitle(join(pdir, sessionId, 'custom-title.json'));
-        sessions.push({ sessionId, path, mtimeMs: file.mtimeMs, text: file.text, customTitle });
+        sessions.push({ sessionId, path, mtimeMs, titlePath: join(pdir, sessionId, 'custom-title.json') });
       } else if (entry.isDirectory()) {
-        // read even when `<sessionId>.jsonl` is gone (ctx:416-423)
+        // listed even when `<sessionId>.jsonl` is gone (ctx:416-423)
         for (const { path: apath, agentId } of agentFiles(join(path, 'subagents'))) {
           const mtimeMs = mtimeOf(apath);
           if (mtimeMs === null || mtimeMs < opts.cutoffMs) continue;
-          const file = readFile(apath);
-          if (!file) continue;
-          const meta = readMeta(apath.replace(/\.jsonl$/, '.meta.json'));
-          agents.push({ sessionId: entry.name, agentId, path: apath, mtimeMs: file.mtimeMs, text: file.text, meta });
+          agents.push({
+            sessionId: entry.name,
+            agentId,
+            path: apath,
+            mtimeMs,
+            metaPath: apath.replace(/\.jsonl$/, '.meta.json'),
+          });
         }
       }
     }
+  }
+  return { sessions, agents };
+}
+
+/** Reads every kept session and agent transcript of every project dir. */
+export function readTranscripts(opts: TranscriptOptions): { sessions: RawSession[]; agents: RawAgent[] } {
+  const listed = listTranscripts(opts);
+  const sessions: RawSession[] = [];
+  const agents: RawAgent[] = [];
+  for (const s of listed.sessions) {
+    const file = readFile(s.path);
+    if (!file) continue;
+    const customTitle = readCustomTitle(s.titlePath);
+    sessions.push({ sessionId: s.sessionId, path: s.path, mtimeMs: file.mtimeMs, text: file.text, customTitle });
+  }
+  for (const a of listed.agents) {
+    const file = readFile(a.path);
+    if (!file) continue;
+    const meta = readMeta(a.metaPath);
+    agents.push({ sessionId: a.sessionId, agentId: a.agentId, path: a.path, mtimeMs: file.mtimeMs, text: file.text, meta });
   }
   return { sessions, agents };
 }

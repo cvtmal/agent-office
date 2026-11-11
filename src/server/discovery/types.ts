@@ -1,4 +1,5 @@
 // The only IO result the reader sees (plan § Contracts); re-exported by index.ts.
+import type { ParsedTranscript } from '../reader/records.js';
 
 /** One live entry of `<config>/sessions/*.json`. */
 export interface RegistryEntry {
@@ -25,6 +26,8 @@ export interface RawSession {
   path: string;
   mtimeMs: number;
   text: string;
+  /** Pre-parsed (e.g. retained) records; when set, the reader uses it instead of parsing `text`. */
+  parsed?: ParsedTranscript;
   customTitle: string | null;
 }
 
@@ -34,6 +37,8 @@ export interface RawAgent {
   path: string;
   mtimeMs: number;
   text: string;
+  /** Pre-parsed (e.g. retained) records; when set, the reader uses it instead of parsing `text`. */
+  parsed?: ParsedTranscript;
   meta: AgentMeta | null;
 }
 

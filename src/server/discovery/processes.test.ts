@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseLstart, parsePsOutput, readProcessTable } from './processes.js';
+import { parseLstart, parsePsOutput, readProcessTable, readProcessTableAsync } from './processes.js';
 
 const SAMPLE = [
   '    1 Sun Nov  1 09:00:00 2026     /sbin/launchd',
@@ -51,5 +51,15 @@ describe('readProcessTable', () => {
   it('lists this process, or returns null when ps is unavailable', () => {
     const table = readProcessTable();
     if (table !== null) expect(table.has(process.pid)).toBe(true);
+  });
+});
+
+describe('readProcessTableAsync', () => {
+  it('lists this process like the sync table, or returns null when ps is unavailable', async () => {
+    const table = await readProcessTableAsync();
+    if (table !== null) {
+      expect(table.has(process.pid)).toBe(true);
+      expect(table.get(process.pid)?.command).toBe(readProcessTable()?.get(process.pid)?.command);
+    }
   });
 });

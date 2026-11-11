@@ -1,8 +1,8 @@
 // Client entry: one store, one mount call per part of the page, then the
-// first snapshot load.
+// live connection (its first event is the snapshot).
 import '@fontsource/pixelify-sans/400.css';
 import './ui/shell.css';
-import { loadSnapshot } from './app/api.js';
+import { connectLive } from './app/live.js';
 import { createStore } from './app/store.js';
 import { mountOffice } from './office/mount.js';
 import { mountCanvas } from './render/canvas.js';
@@ -23,4 +23,4 @@ mountStatus(byId('overview'), store);
 mountOffice(byId<HTMLCanvasElement>('office'), store);
 mountTabs(byId('overview'), store);
 
-void loadSnapshot(store);
+connectLive(store);

@@ -8,12 +8,15 @@ import { parseGitLog, parseLanes, parseOutcomeNames, parseStateNow } from './par
 /** Raw stdout of `git log -1` on `main` in `dir`, or null. Injectable for tests. */
 export type GitLog = (dir: string) => string | null;
 
-/** `git -C dir log -1 main` (read-only: no optional locks); null on any failure. */
+/**
+ * `git -C dir log -1 main` (read-only: no optional locks; `log.showSignature` off so a
+ * user config cannot add signature lines to the output); null on any failure.
+ */
 export function gitLastCommit(dir: string): string | null {
   try {
     return execFileSync(
       'git',
-      ['-C', dir, 'log', '-1', '--format=%H%x00%s%x00%ct', 'main', '--'],
+      ['-c', 'log.showSignature=false', '-C', dir, 'log', '-1', '--format=%H%x00%s%x00%ct', 'main', '--'],
       {
         encoding: 'utf8',
         timeout: 3000,

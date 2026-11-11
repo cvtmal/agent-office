@@ -40,4 +40,11 @@ describe('createStore', () => {
     store.applySnapshot(sample);
     expect(store.getState()).toMatchObject({ snapshot: sample, connection: 'ready', error: null });
   });
+
+  it('setConnection reconnecting keeps the snapshot', () => {
+    const store = createStore();
+    store.applySnapshot(sample);
+    store.setConnection('reconnecting');
+    expect(store.getState()).toMatchObject({ snapshot: sample, connection: 'reconnecting', error: null });
+  });
 });

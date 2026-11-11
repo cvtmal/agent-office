@@ -2,7 +2,8 @@
 // listeners synchronously.
 import type { Snapshot } from '../../shared/types.js';
 
-export type Connection = 'loading' | 'ready' | 'error';
+/** Client-only (not part of the API contract): the state of the live connection. */
+export type Connection = 'loading' | 'ready' | 'reconnecting' | 'error';
 
 export interface UiState {
   selectedId: string | null;

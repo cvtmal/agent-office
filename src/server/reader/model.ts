@@ -51,8 +51,8 @@ function newestOf<T>(records: Rec[], pick: (rec: Rec) => T | null): T | null {
   return null;
 }
 
-/** `agentName`/`teamName` of the newest main record carrying both. */
-function teamPair(records: Rec[]): TeammateProc | null {
+/** `agentName`/`teamName` of the newest main record carrying both (session files; also the live model, R7). */
+export function teamPair(records: Rec[]): TeammateProc | null {
   return newestOf(mainRecords(records, 'session'), (rec) =>
     rec.agentName !== null && rec.teamName !== null ? { agentName: rec.agentName, teamName: rec.teamName } : null,
   );
@@ -154,7 +154,7 @@ function byId<T extends { id: string }>(a: T, b: T): number {
 
 /** The snapshot of one scan, plus why each live session is live (keyed by session id). */
 export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: Snapshot; liveBy: Map<string, LiveBy> } {
-  const parsed = new Map<RawSession, ParsedTranscript>(input.sessions.map((s) => [s, parseTranscript(s.text)]));
+  const parsed = new Map<RawSession, ParsedTranscript>(input.sessions.map((s) => [s, s.parsed ?? parseTranscript(s.text)]));
   const liveBy = liveness(input.sessions, parsed, input.registry, input.teammates);
   const harnessOf = opts.harnessOf ?? ((): HarnessExtras | null => null);
   const harnessCache = new Map<string, HarnessExtras | null>();
@@ -166,7 +166,7 @@ export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: S
   const built: Built[] = [];
   const sessionCwd = new Map<string, string>();
   for (const session of input.sessions) {
-    const p = parsed.get(session) ?? parseTranscript(session.text);
+    const p = parsed.get(session) ?? session.parsed ?? parseTranscript(session.text);
     const live = liveBy.get(session.sessionId) ?? null;
     const usage = lastUsage(p.records, 'session');
     if (usage === null && live === null) {
@@ -200,7 +200,7 @@ export function buildModel(input: Discovered, opts: ModelOptions): { snapshot: S
   }
 
   for (const agent of input.agents) {
-    const p = parseTranscript(agent.text);
+    const p = agent.parsed ?? parseTranscript(agent.text);
     const usage = lastUsage(p.records, 'agent');
     if (usage === null) {
       continue;

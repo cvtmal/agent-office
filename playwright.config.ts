@@ -12,7 +12,7 @@ export default defineConfig({
   reporter: 'list',
   use: { baseURL },
   webServer: {
-    command: `bin/agent-office --dev --port ${String(port)}`,
+    command: `bin/agent-office --dev --sample --port ${String(port)}`,
     url: `${baseURL}/api/snapshot`,
     reuseExistingServer: !process.env['CI'],
     timeout: 60_000,

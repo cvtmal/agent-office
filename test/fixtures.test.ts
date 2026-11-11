@@ -4,13 +4,11 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { REPLAY_SETS, buildReplaySet, type Manifest } from '../fixtures/gen/replay.js';
+import { REPLAY_SETS, buildReplaySet } from '../fixtures/gen/replay.js';
 import { buildTranscriptFixtures } from '../fixtures/gen/transcripts.js';
-import { discover } from '../src/server/discovery/index.js';
-import type { RegistryEntry } from '../src/server/discovery/types.js';
-import { buildModel } from '../src/server/reader/model.js';
-import { THRESHOLDS } from '../src/shared/constants.js';
+import { parseStateNow } from '../src/server/harness/parse.js';
 import { validateSnapshot } from '../src/shared/validate.js';
+import { readSet } from './replay-set.js';
 
 const FIXTURES = fileURLToPath(new URL('../fixtures/', import.meta.url));
 
@@ -49,25 +47,6 @@ describe.each(GENERATED)('fixtures/%s equals its generator', (_label, dir, build
   });
 });
 
-/** The set read through `discover` with every `manifest.live` session registered live. */
-function readSet(name: (typeof REPLAY_SETS)[number]) {
-  const dir = join(FIXTURES, 'replay', name);
-  const manifest = JSON.parse(readFileSync(join(dir, 'manifest.json'), 'utf8')) as Manifest;
-  const now = new Date(Date.parse(manifest.base) + manifest.durationMs);
-  const found = discover({ cfgDir: join(dir, 'config'), now, maxAgeHours: Infinity, table: null });
-  const registry = new Map<string, RegistryEntry>(
-    manifest.live.map((w, i) => [
-      w.sessionId,
-      { pid: 5000 + i, sessionId: w.sessionId, procStart: null, status: w.status ?? null, updatedAt: 0, cwd: null, name: null },
-    ]),
-  );
-  const rootOf = (cwd: string) => cwd.replace(/\/\.claude\/worktrees\/.*$/, '');
-  return {
-    manifest,
-    ...buildModel({ ...found, registry }, { now, home: manifest.home, thresholds: THRESHOLDS, rootOf }),
-  };
-}
-
 describe('replay sets through the reader', () => {
   it('solo: one session character, no failed lines, a valid snapshot', () => {
     const { snapshot } = readSet('solo');
@@ -85,6 +64,22 @@ describe('replay sets through the reader', () => {
     expect(sessions.filter((c) => c.role === 'cto').map((c) => c.name)).toEqual(['cto-1']);
     expect(sessions.filter((c) => c.role === 'teammate').map((c) => c.name).sort()).toEqual(['c01-review', 'c02-impl', 'c03-research']);
     expect(snapshot.characters.filter((c) => c.kind === 'agent')).toHaveLength(2);
-    expect(manifest.files.map((f) => f.path)).toEqual(['repo/docs/outcomes/01-session-store.md']);
+    expect(manifest.files.map((f) => [f.path, f.as ?? null])).toEqual([
+      ['repo/docs/outcomes/01-session-store.md', null],
+      ['repo/docs/harness/STATE.landed.md', 'repo/docs/harness/STATE.md'],
+    ]);
+  });
+
+  it('harness: STATE.md is W1 building; STATE.landed.md (D-020) is W1 landing with lane A landed', () => {
+    const repo = join(FIXTURES, 'replay', 'harness', 'repo', 'docs', 'harness');
+    const building = readFileSync(join(repo, 'STATE.md'), 'utf8');
+    const landed = readFileSync(join(repo, 'STATE.landed.md'), 'utf8');
+    expect(parseStateNow(building)).toEqual({ ctoGeneration: 1, phase: 'W1 building', wave: 'W1' });
+    expect(parseStateNow(landed)).toEqual({ ctoGeneration: 1, phase: 'W1 landing', wave: 'W1' });
+    expect(landed).toContain('- Lane A: #01 session-store (landed), c01-review');
+    const { manifest } = readSet('harness');
+    const reveal = manifest.files.find((f) => f.as !== undefined);
+    expect(reveal?.appearsAtMs).toBeGreaterThanOrEqual(540_000);
+    expect(reveal?.appearsAtMs).toBeLessThan(manifest.durationMs);
   });
 });

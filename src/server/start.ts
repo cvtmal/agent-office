@@ -7,6 +7,7 @@ import { join } from 'node:path';
 import type { Snapshot } from '../shared/types.js';
 import { createRequestHandler, type Middleware } from './api/http.js';
 import { serveStatic } from './api/static.js';
+import { type LiveSource, staticSource } from './live/source.js';
 import { REPO_ROOT } from './paths.js';
 import { loadSampleSnapshot } from './sample.js';
 
@@ -25,7 +26,10 @@ export interface StartOptions {
   host?: string;
   dev: boolean;
   root?: string;
+  /** Kept for callers; used only when `source` is absent. */
   getSnapshot?: () => Snapshot;
+  /** Where the API gets its data (default: the sample, research R9). `close()` closes it. */
+  source?: LiveSource;
 }
 
 export interface RunningServer {
@@ -36,15 +40,17 @@ export interface RunningServer {
 
 export async function startServer(options: StartOptions): Promise<RunningServer> {
   const { port, host = '127.0.0.1', root = REPO_ROOT } = options;
-  let getSnapshot = options.getSnapshot;
-  if (!getSnapshot) {
-    const snapshot = loadSampleSnapshot(root);
-    getSnapshot = () => snapshot;
+  let source = options.source;
+  if (!source) {
+    const fixed = options.getSnapshot;
+    source = fixed ? { ...staticSource(fixed()), getSnapshot: fixed } : staticSource(loadSampleSnapshot(root));
   }
+  const live = source;
+  const deps = { getSnapshot: () => live.getSnapshot(), source: live };
 
   // The server exists before Vite so Vite can attach HMR to it; the request
   // handler is set once the fallback is known (before listen).
-  let requestHandler = createRequestHandler({ getSnapshot });
+  let requestHandler = createRequestHandler(deps);
   const httpServer: Server = createServer((req, res) => requestHandler(req, res));
 
   let fallback: Middleware;
@@ -68,7 +74,7 @@ export async function startServer(options: StartOptions): Promise<RunningServer>
   } else {
     fallback = serveStatic(clientDir);
   }
-  requestHandler = createRequestHandler({ getSnapshot }, fallback);
+  requestHandler = createRequestHandler(deps, fallback);
 
   try {
     await new Promise<void>((resolve, reject) => {
@@ -88,10 +94,11 @@ export async function startServer(options: StartOptions): Promise<RunningServer>
     port: actual,
     async close() {
       await closeVite?.();
-      await new Promise<void>((resolve) => {
-        httpServer.close(() => resolve());
-        httpServer.closeAllConnections();
-      });
+      // closeAllConnections() ends open SSE responses, so their unsubscribe runs before the source closes.
+      const closed = new Promise<void>((resolve) => httpServer.close(() => resolve()));
+      httpServer.closeAllConnections();
+      await live.close();
+      await closed;
     },
   };
 }

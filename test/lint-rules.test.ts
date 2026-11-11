@@ -51,6 +51,8 @@ const cases: Record<string, Case[]> = {
     ["import fs from 'node:fs';\nconst { readFileSync } = fs;", SYNTAX, false],
     ["import fs from 'node:fs';\nconst { promises: { writeFile } } = fs;", SYNTAX, true],
     ["import fs from 'node:fs';\nconst { promises: { readFile } } = fs;", SYNTAX, false],
+    ["type Deps = { writeFile: () => void };\nexport const f = ({ writeFile }: Deps) => writeFile;", SYNTAX, false],
+    ["import fs from 'node:fs';\nconst [{ writeFileSync }] = [fs];", SYNTAX, true],
   ],
   'src/server/var.ts': [
     ["import { writeFileSync } from 'node:fs';\nwriteFileSync('a', 'b');", IMPORT, false],

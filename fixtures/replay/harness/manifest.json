@@ -35,6 +35,11 @@
     {
       "path": "repo/docs/outcomes/01-session-store.md",
       "appearsAtMs": 540000
+    },
+    {
+      "path": "repo/docs/harness/STATE.landed.md",
+      "appearsAtMs": 551000,
+      "as": "repo/docs/harness/STATE.md"
     }
   ]
 }

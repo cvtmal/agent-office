@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -91,7 +91,7 @@ describe('readHarness', () => {
         { slug: 'replay-player', letter: 'C', port: 8003, worktree: '.claude/worktrees/replay-player' },
       ],
       ctoGeneration: 1,
-      phase: null,
+      phase: 'W1 building', // D-020: STATE.landed.md (W1 landing) replaces it during a replay
       wave: 'W1',
       outcomes: [
         { nn: 0, slug: 'bootstrap' },
@@ -127,7 +127,7 @@ function hasGit(): boolean {
   }
 }
 
-describe.skipIf(!hasGit())('gitLastCommit (real git, temp repo)', () => {
+describe.skipIf(!hasGit() || process.platform === 'win32')('gitLastCommit (real git, temp repo)', () => {
   const env = {
     ...process.env,
     GIT_AUTHOR_NAME: 'Test',
@@ -156,6 +156,33 @@ describe.skipIf(!hasGit())('gitLastCommit (real git, temp repo)', () => {
       subject: 'first: one',
       at: '2026-01-02T03:04:05.000Z',
     });
+  });
+
+  it('passes log.showSignature=false before -C, so a user config cannot change the output', () => {
+    const bin = fresh();
+    put(bin, 'git', '#!/bin/sh\nprintf \'%s\\n\' "$@"\n');
+    chmodSync(join(bin, 'git'), 0o755);
+    vi.stubEnv('PATH', `${bin}:${process.env.PATH ?? ''}`);
+    try {
+      const args = (gitLastCommit('/repo') ?? '').trimEnd().split('\n');
+      expect(args.slice(0, 5)).toEqual(['-c', 'log.showSignature=false', '-C', '/repo', 'log']);
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it('reads the last commit on main with log.showSignature=true in the config', () => {
+    const d = fresh();
+    git(d, 'init', '-q', '-b', 'main');
+    git(d, 'commit', '-q', '--allow-empty', '-m', 'first: one');
+    vi.stubEnv('GIT_CONFIG_COUNT', '1');
+    vi.stubEnv('GIT_CONFIG_KEY_0', 'log.showSignature');
+    vi.stubEnv('GIT_CONFIG_VALUE_0', 'true');
+    try {
+      expect(parseGitLog(gitLastCommit(d) ?? '')?.subject).toBe('first: one');
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it('gives null outside a repo and without a main branch', () => {

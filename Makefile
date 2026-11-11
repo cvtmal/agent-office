@@ -1,10 +1,11 @@
 -include .lane.env
 
 PORT ?= $(or $(HARNESS_PORT),4477)
+SPEED ?= 1
 BIN := node_modules/.bin
 DEPS := node_modules/.package-lock.json
 
-.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx sprites
+.PHONY: install dev build start stop lint test e2e replay fixtures compare-ctx sprites bench-live
 
 $(DEPS): package-lock.json
 	npm ci
@@ -37,8 +38,9 @@ test: $(DEPS)
 e2e: $(DEPS)
 	$(BIN)/playwright install chromium && PORT=$(PORT) $(BIN)/playwright test
 
+# Play a replay set: make replay DIR=fixtures/replay/harness [SPEED=10] (the copy goes to var/replay/).
 replay: $(DEPS)
-	bin/agent-office --replay $(DIR) --port $(PORT)
+	bin/agent-office --replay $(DIR) --speed $(SPEED) --port $(PORT)
 
 # Regenerate fixtures/snapshots/sample.json (gen/sample.ts) and fixtures/transcripts/ (gen/transcripts.ts).
 # Fixture generators: the sample, the transcript unit cases and the replay sets (plan Phase 5, 7).
@@ -54,3 +56,8 @@ compare-ctx: $(DEPS)
 # Write a 4x PNG preview sheet per sprite family (and the palette) to var/sprites/.
 sprites: $(DEPS)
 	SPRITE_PNG=1 $(BIN)/vitest run test/sprite-preview.test.ts
+
+# Live source CPU bench (plan step 9.5): 20 x 10 MB synthetic transcripts in var/bench/, 5 growing
+# for 30 s; prints CPU % and RSS, fails above 5 %. Not a gate; var/bench/ is removed afterwards.
+bench-live: $(DEPS)
+	BENCH=1 $(BIN)/vitest run --disableConsoleIntercept test/live-cpu.bench.ts

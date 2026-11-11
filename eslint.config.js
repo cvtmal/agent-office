@@ -66,10 +66,12 @@ const openBanSyntax = {
 
 /**
  * Destructuring a write function, also nested (`const { writeFileSync } = fs;`,
- * `const { promises: { writeFile } } = fs;`).
+ * `const { promises: { writeFile } } = fs;`), but only in the declarator's own
+ * pattern: a function parameter named like a write function
+ * (`const f = ({ writeFile }: Deps) => writeFile;`) is allowed.
  */
 const destructureBanSyntax = {
-  selector: `VariableDeclarator ObjectPattern > Property[key.name=/^(${WRITE_FNS.join('|')})$/]`,
+  selector: `VariableDeclarator > :matches(ObjectPattern, ArrayPattern) Property[key.name=/^(${WRITE_FNS.join('|')})$/]`,
   message: WRITE_MESSAGE,
 };
 
