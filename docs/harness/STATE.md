@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 4
-- **Phase of the project:** v1 done (#0–#7, `fix-memory`); theming #8–#11 planned but parked (D-043); the owner's current project is the hardened Claude-Office fork, bootstrapped from here by CTO-4
+- **Phase of the project:** v1 done; theming #8–#11 parked (D-043). Fork bootstrap prepared in `~/code/claude-office` (uncommitted) and **waiting for the owner** (O-4, D-044)
 - **Wave in progress:** none; W1–W4 done
 
 ## Mechanics
@@ -39,14 +39,10 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 ## Next actions
 
-For CTO-4: you are the **bootstrap CTO of a new project**, a hardened, browser-only, local fork of github.com/W17ant/Claude-Office (D-043). Nothing runs in agent-office (no lanes; theming parked). Read only the summaries at the top of these files in `.rpi-tracking/research/2026-11-12/`: `claude-office-security.md`, `claude-office-followup.md`, `claude-office-seasons.md` (and `look-research.md` for how it is built).
+Nothing runs here (no lanes, no watchdog). The fork is blocked on the owner (Owner inbox O-4):
 
-1. **Clone, do not run.** `git clone https://github.com/W17ant/Claude-Office ~/code/claude-office`, then `git checkout -B main 9967015` (the reviewed commit). Rename the remote to `upstream` and disable pushing to it (`git remote set-url --push upstream DISABLED`). Create a local bare repo `~/code/claude-office.git` as `origin` (local only, like G1's fallback). No GitHub repo: creating one is the owner's call (Owner inbox). Nothing from the clone runs before the fork's #0 has looked at the install scripts (security report: better-sqlite3 prebuild in prod; electron, esbuild, fsevents in dev); then `npm ci` is allowed.
-2. **Bootstrap its harness** in the fork: copy `bin/harness/`, `docs/harness/{CTO,TEAMMATE,README,INCIDENTS}.md`, `successor-prompt.txt` and `.claude/settings.json` from here; a fresh `STATE.md` (generation 0; keep § Mechanics) and `DECISIONS.md`; a `CLAUDE.md` modelled on this repo's (roles, budgets, worktrees, rules). Its § Git is the owner's standing instruction of 2026-11-12 (D-043): commits on lane branches and `main`, pushes only to the local `origin`, never to `upstream` or any network remote, no force push. Adapt what assumes GitHub: no CI, so `status` has no `ci` line and `land` pushes to the local `origin`. One bootstrap commit.
-3. **Write `docs/scope.md` and `docs/rpi-cycles.md`** (with Settled decisions) for the fork. Hardening scope from the research: (a) remove the Electron app, updater, tray and widget, electron deps and builds; browser only (`npm run server` + a tab); (b) safe defaults: `answerPermissions` off by default; permission and chat routes accept only the UI token, not the 0600 file token (`server/index.js:446`); the Stop-hook prompt queue behind an off-by-default switch; `logPrompts` summary; (c) remove the LAN/host modes (`AGENT_OFFICE_LAN`, `_HOST`, `_ALLOWED_HOSTS`), the `claude -p` chat watcher and the npx path; (d) production deps without known advisories (`npm audit`); (e) remove the Dunder Mifflin skin, all `-dm` assets and the DM cast (not MIT); keep LICENSE and NOTICE; seasons and day/night stay; (f) hook installer: explicit `CLAUDE_CONFIG_DIR`, backup first, `--no-status-line` by default, tests only against a temp config dir; (g) gates: its lint and Vitest suite green, `make lint`/`make test`. The research sized hardening at 1–1.5 cycles of work; split it into small cycles as you see fit.
-4. **Rules for the fork's harness:** no session ever installs hooks into or edits a real `~/.claude*` config, and none starts its server on the owner's port; the owner installs the hooks by hand (put the exact commands, with the backup step, in its Owner inbox).
-5. **Start the fork's CTO-1** from the fork: `( cd ~/code/claude-office && bin/harness/successor 1 )`, wait for its "CTO-1 active" line in the fork's `STATE.md` (§9 step 4), then complete your line here, commit, push, and stop.
-6. If this session may not edit files outside agent-office (denied), start the bootstrap instead as `( cd ~/code/claude-office && claude --name CTO-fork-boot "<steps 2–5>" )` after step 1, and log it.
+1. The owner writes the fork's `CLAUDE.md` § Git and starts its CTO-1 in `~/code/claude-office` (exact steps in the fork's `docs/harness/DECISIONS.md` O-1). That CTO commits the prepared files as the bootstrap commit.
+2. A CTO started here again resumes theming with #8 (D-043), unless the owner says otherwise.
 
 ## Notes for the successor
 
@@ -73,4 +69,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
 CTO-2 active since 2026-11-11 19:30 · handed over 2026-11-11 22:56 at ~207k · landed #2, #3, #5, #6
 CTO-3 active since 2026-11-11 22:57 · finished v1 01:08 · handed over 10:13 at ~212k · landed #7, fix-memory; planned #8–#11; researched the Claude-Office fork
-CTO-4 active since 2026-11-12 10:25
+CTO-4 active since 2026-11-12 10:25 · stopped for the owner 10:50 at ~100k · landed none; prepared the Claude-Office fork bootstrap (D-044)
