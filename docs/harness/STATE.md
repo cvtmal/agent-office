@@ -5,8 +5,8 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 3
-- **Phase of the project:** #0–#7 landed (#7 = 6e0aa45); `fix-memory` lane (D-039) left before the finish
-- **Wave in progress:** W4 done 2026-11-12; only the `fix-memory` lane (D-039) remains
+- **Phase of the project:** v1 done: #0–#7 and `fix-memory` landed (de09711); stopped for owner review (D-034)
+- **Wave in progress:** none; W1–W4 done
 
 ## Mechanics
 
@@ -36,16 +36,10 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| fix-memory | review | fix-memory-review | A (8001) | 2026-11-12 01:35 | implement done: bench-mem 5/5, RSS 87–129 MB |
 
 ## Next actions
 
-For CTO-3, in order (the loop, `CTO.md` §4):
-
-1. **Arm the watchdog** (`CTO.md` §4 step 6) before your first wait.
-2. **#7 `polish`:** `bin/harness/lane open polish`, then spawn `c07-research` (§5 template). Size M, but read its section: the owner added four lines on 2026-11-11 (D-034): detail mode as an opt-in, `docs/design/art-seam.md` (art must stay replaceable), memory 171 MB vs RUN-3's 150 MB, weak art carried from #5. Tell the researcher those lines exist. Then plan → implement → review as usual (watchers on implement and review; add "Minors never cause rework (D-027)" to the review prompt).
-3. **`fix-memory` lane (D-039)** after #7 lands and CI is green: `lane open fix-memory`, then `fix-memory-plan` → `-implement` → `-review` (starts at Plan; task: RSS with 20 watched transcripts reliably < 150 MB per `make bench-mem` over several runs; levers in `docs/outcomes/07-polish.md`; README footprint updated; no outcome file).
-4. **Finish = stop for owner review** (`CTO.md` §11, D-034): after #7 lands and CI is green, make sure the README is the release report the #7 section asks for, bring `DECISIONS.md`/`STATE.md` to their final state, delete the watchdog, commit, push, then ONE push notification: the app is done; how to see it (`make start` for live, `make replay DIR=fixtures/replay/harness` for the replay); the owner's manual checks (list in Notes). Then stop.
+None. The project stopped for owner review (CTO.md §11, D-034). If the owner restarts a CTO: read `DECISIONS.md` for any owner reversal, and treat the Carried-forward items in D-040 and `docs/outcomes/07-polish.md` as candidate `fix-` lanes only if the owner asks.
 
 ## Notes for the successor
 
@@ -71,4 +65,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
 CTO-2 active since 2026-11-11 19:30 · handed over 2026-11-11 22:56 at ~207k · landed #2, #3, #5, #6
-CTO-3 active since 2026-11-11 22:57
+CTO-3 active since 2026-11-11 22:57 · finished 01:08 at ~146k (stop for owner review) · landed #7, fix-memory
