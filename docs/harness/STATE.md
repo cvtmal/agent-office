@@ -36,7 +36,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 | Cycle | Phase | Teammate | Lane | Since | Note |
 |---|---|---|---|---|---|
-| fix-memory | plan | fix-memory-plan | A (8001) | 2026-11-12 00:50 | D-039; #7 CI green (6e0aa45) |
+| fix-memory | review | fix-memory-review | A (8001) | 2026-11-12 01:35 | implement done: bench-mem 5/5, RSS 87–129 MB |
 
 ## Next actions
 
