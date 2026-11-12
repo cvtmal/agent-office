@@ -1,7 +1,7 @@
 // Footprint bench (RUN-3, #7 plan step 1.2). Not part of `make test`: it runs only with BENCH=1
 // (`make bench-mem`, which builds first). It writes the same 20 x 10 MB synthetic set as
-// live-cpu.bench.ts under var/bench-mem/, starts the *built* server (dist/node/server/cli.js) on
-// it with HOME pointed into var/bench-mem/ (nothing real is read), times spawn -> URL line
+// live-cpu.bench.ts under var/bench-mem/, starts the *built* server through bin/agent-office (the
+// real launch path, with its V8 flags) on it with HOME pointed into var/bench-mem/ (nothing real is read), times spawn -> URL line
 // (start-up), lets it settle, samples `ps -o rss=` and asserts start-up < 2 s and RSS < 150 MB.
 // var/bench-mem/ is removed afterwards.
 import { rmSync } from 'node:fs';

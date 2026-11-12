@@ -26,4 +26,6 @@ if [ "$dev" = 1 ] || [ ! -f "$ROOT/dist/node/server/cli.js" ]; then
   fi
   exec "$ROOT/node_modules/.bin/tsx" "$ROOT/src/server/cli.ts" "$@"
 fi
-exec node "$ROOT/dist/node/server/cli.js" "$@"
+# Cap V8's young generation: while start-up parses every transcript it otherwise grows to ~55 MB and
+# stays resident (RUN-3). It must be a node argument; V8 ignores it when set at runtime.
+exec node --max-semi-space-size=2 "$ROOT/dist/node/server/cli.js" "$@"

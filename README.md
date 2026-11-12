@@ -88,18 +88,18 @@ The replay is copied to `var/replay/` first; the set itself is never changed.
 
 ## Footprint
 
-Measured on the built server with detail mode off.
+Measured on the built server started through `bin/agent-office`, with detail mode off.
 
 | What | Limit | Measured |
 |---|---|---|
-| Start-up with 20 watched transcripts of 10 MB | < 2 s | 1.30–1.40 s |
-| Memory (RSS) with 20 watched transcripts | < 150 MB | 119–181 MB (not met in most runs) |
+| Start-up with 20 watched transcripts of 10 MB | < 2 s | 1.32–1.45 s |
+| Memory (RSS) with 20 watched transcripts | < 150 MB | 87–129 MB |
 | Frame time with 12 characters, 1280×800 | < 16 ms | 0.3 ms (p95) |
 | Frame time with 12 characters, 2× | < 16 ms | 0.3 ms (p95) |
 
-RSS changes a lot from run to run with the same code: 119 MB on 2026-11-11, and 151, 156, 171 and 181 MB on 2026-11-12 on a busy machine. The likely reason, not yet proven, is that V8 keeps the heap that grows while start-up reads every transcript, so RSS depends on when garbage collection happens to run. Before #7 it was 362 MB; the main cause, the last read of each file being kept in memory, is fixed.
+While start-up reads every transcript, V8 grew its young generation to about 55 MB and kept it resident while the server idled (old space stayed under 10 MB), so RSS ranged from 119 to 181 MB after #7 and was 362 MB before it (#7 stopped keeping the last read of each file). `bin/agent-office` therefore starts the built server with the V8 flag `--max-semi-space-size=2`, which must be on the node command line. `make start`, `bin/agent-office` and `npx agent-office` all run the built server through `bin/agent-office` and get the flag. Two paths do not: running `node dist/node/server/cli.js` yourself, and the TypeScript source through `tsx` (`make dev`, `--dev`, or `bin/agent-office` before `make build`); the figures above do not apply to them.
 
-Machine: Apple arm64 (Mac16,7), Node 26.11, 2026-11-11 and 2026-11-12. Re-measure with `make bench-mem` (start-up and RSS) and `make e2e` (the test "frame time with 12 characters" in `e2e/life.spec.ts`).
+Machine: Apple arm64 (Mac16,7), Node 26.11; frame time 2026-11-11, start-up and RSS 2026-11-12 (5 runs). Re-measure with `make bench-mem` (start-up and RSS) and `make e2e` (the test "frame time with 12 characters" in `e2e/life.spec.ts`).
 
 ## Make targets
 

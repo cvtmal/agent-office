@@ -1,5 +1,6 @@
 // Helpers for test/live-mem.bench.ts (and scratch heap checks): the bench dir under var/bench-mem/,
-// the synthetic set and config file in it, and the built server started on it with HOME redirected.
+// the synthetic set and config file in it, and the built server started on it through bin/agent-office
+// (the launch path users run, which sets the V8 flags) with HOME redirected.
 import { spawn, execFileSync, type ChildProcess } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -11,7 +12,7 @@ export const BENCH_DIR = join(ROOT, 'var', 'bench-mem');
 const CFG_DIR = join(BENCH_DIR, 'config');
 const HOME = join(BENCH_DIR, 'home');
 const CONFIG_FILE = join(BENCH_DIR, 'config.json');
-const CLI = join(ROOT, 'dist', 'node', 'server', 'cli.js');
+const LAUNCHER = join(ROOT, 'bin', 'agent-office');
 export const PORT = process.env['HARNESS_PORT'] ?? '8001';
 export const FILES = 20;
 
@@ -22,12 +23,17 @@ export function rssMb(pid: number): number {
   return Number(execFileSync('ps', ['-o', 'rss=', '-p', String(pid)], { encoding: 'utf8' }).trim()) / 1024;
 }
 
-/** Spawns the built server and resolves with the child and the ms until its URL line. */
+/**
+ * Spawns the built server through bin/agent-office (it `exec`s node, so `child.pid` is the server's)
+ * and resolves with the child and the ms until its URL line. `nodeArgs` go in through NODE_OPTIONS.
+ */
 export function startServer(extraArgs: string[] = [], nodeArgs: string[] = []): Promise<{ child: ChildProcess; ms: number }> {
   const t0 = performance.now();
-  const child = spawn(process.execPath, [...nodeArgs, CLI, '--port', PORT, '--config', CONFIG_FILE, ...extraArgs], {
+  const env: NodeJS.ProcessEnv = { PATH: process.env['PATH'] ?? '', HOME, XDG_CONFIG_HOME: join(HOME, '.config') };
+  if (nodeArgs.length > 0) env['NODE_OPTIONS'] = nodeArgs.join(' ');
+  const child = spawn(LAUNCHER, ['--port', PORT, '--config', CONFIG_FILE, ...extraArgs], {
     cwd: BENCH_DIR,
-    env: { PATH: process.env['PATH'] ?? '', HOME, XDG_CONFIG_HOME: join(HOME, '.config') },
+    env,
     stdio: ['ignore', 'pipe', 'pipe'],
   });
   return new Promise((resolve, reject) => {
