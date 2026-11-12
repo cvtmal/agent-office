@@ -4,7 +4,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 
 ## Now
 
-- **CTO generation:** 3
+- **CTO generation:** 4
 - **Phase of the project:** v1 done (#0–#7, `fix-memory`); theming #8–#11 planned but parked (D-043); the owner's current project is the hardened Claude-Office fork, bootstrapped from here by CTO-4
 - **Wave in progress:** none; W1–W4 done
 
@@ -73,3 +73,4 @@ One line per CTO, in exactly this form, because a predecessor waits for the firs
 CTO-1 active since 2026-11-11 16:35 · handed over 2026-11-11 19:37 at ~222k · landed #0, #1, #4
 CTO-2 active since 2026-11-11 19:30 · handed over 2026-11-11 22:56 at ~207k · landed #2, #3, #5, #6
 CTO-3 active since 2026-11-11 22:57 · finished v1 01:08 · handed over 10:13 at ~212k · landed #7, fix-memory; planned #8–#11; researched the Claude-Office fork
+CTO-4 active since 2026-11-12 10:25
