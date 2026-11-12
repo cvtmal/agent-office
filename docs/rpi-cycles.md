@@ -1,6 +1,6 @@
 # Agent Office: RPI cycles
 
-_Last updated: 2026-11-11 (CTO-2: #5 done, W3 done) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
+_Last updated: 2026-11-12 (CTO-3: v1 done; theming cycles #8–#11 added, D-041, D-042) · Source of scope: `docs/scope.md` · Art: `docs/design/art-direction.md` · Who runs it: `docs/harness/CTO.md`_
 
 We are building Agent Office, a local web app that shows the owner's Claude Code sessions and agents as pixel-art characters in an office, with the look of a point-and-click adventure: who is busy, idle or gone, what each one is doing, and how full its context is. It reads Claude Code transcripts read-only and adds harness detail when a repo has it. The scope document is the scope. This file turns it into `/rpi` cycles and sets the order.
 
@@ -59,7 +59,10 @@ Artifacts land in `.rpi-tracking/{research,plans,changes,reviews}/<date>/<slug>-
    | `src/client/office/layout.ts` (room template and named spots) | #2 | add named spots for their own props |
    | `fixtures/snapshots/sample.json` | #0 | add characters or fields for their own case, never change existing ones |
    | `CLAUDE.md` § The application, `.claude/rules/*` | #0 | append to their own module's rule file |
-   | `docs/rpi-cycles.md`, `docs/harness/*`, `docs/scope.md`, `docs/design/*` | CTO | nothing |
+   | `src/shared/theme.ts` (theme manifest types and validation contract) | #8 | add optional fields, never rename or remove; list them in the outcome file |
+| `src/client/office/layout.ts` from #10 on | #10 (takes over from #2: the room comes from the pack) | add named spots through the pack's room map, not in code |
+| `themes/office/` (the default pack) | #11 | nothing until #11 lands; afterwards fixes go through a `fix-` lane |
+| `docs/rpi-cycles.md`, `docs/harness/*`, `docs/scope.md`, `docs/design/*` | CTO | nothing (exceptions: `docs/design/theme-packs.md` is written by #11, `docs/design/art-seam.md` updated by #9–#11) |
 
 6. **Concurrency.** Four lanes at most. The rebase step and the CTO's attention are the bottleneck beyond that. This plan never needs more than two at once.
 
@@ -77,6 +80,10 @@ Size is a guess for budgeting sessions: S, M, or L (L may need a mid-phase hando
 | 5 | `office-life` | W3 | OFFICE-4, OFFICE-5, OFFICE-6, OFFICE-7 | 3, 4 | — | — | Research | L |✅ Done |
 | 6 | `inspector-ui` | W3 | UI-1, UI-2, UI-3, UI-5 | 3 | — | — | Research | M |✅ Done |
 | 7 | `polish` | W4 | RUN-3, OFFICE-1 (frame time), §7 Sound | 5, 6 | — | — | Research | M |✅ Done |
+| 8 | `theme-pack` | W5 | THEME-1, THEME-2 | 7 | creates `src/shared/theme.ts` | — | Research | M | Open |
+| 9 | `theme-sprites` | W5 | THEME-3 | 8 | — | — | Research | L | Open |
+| 10 | `theme-room` | W6 | THEME-4 | 9 | — | — | Research | L | Open |
+| 11 | `theme-office` | W7 | THEME-5 | 10 | — | — | Research | M | Open |
 
 ### Waves at a glance
 
@@ -86,11 +93,14 @@ W1  #1 transcript-reader  ‖  #2 office-scene
 W2  #3 live-api           ‖  #4 harness-extras
 W3  #5 office-life        ‖  #6 inspector-ui
 W4  #7 polish
+W5  #8 theme-pack  →  #9 theme-sprites (research and plan while #8 implements)
+W6  #10 theme-room
+W7  #11 theme-office
 ```
 
 **Critical path:** #0 → #1 → #3 → #5 → #7. Start #1 before #2 in W1.
 
-**Milestones.** After #2: a screenshot of the office with the 14 characters of the sample snapshot (art check, G2). After #3: the office shows the owner's real sessions live, and replay works. After #5: the office is alive (animations, meters, bubbles, done wall). After #7: v1.
+**Milestones.** After #2: a screenshot of the office with the 14 characters of the sample snapshot (art check, G2). After #3: the office shows the owner's real sessions live, and replay works. After #5: the office is alive (animations, meters, bubbles, done wall). After #7: v1. After #11: Agent Office boots any theme pack with `--theme`, and today's look is the pack `themes/office`, loaded the same way as any other.
 
 **What can move.** #4 can start as soon as #1 lands, without waiting for #2. #6 can research and plan while #5 runs, and can start before #4 lands. #2 does not depend on #1 and can slip without moving the critical path until #3 starts.
 
@@ -104,6 +114,7 @@ Every gate has a default, so no cycle is blocked as a whole. The CTO records ans
 |---|---|---|---|
 | G1 | Where does the repository live? | **Answered by the owner (2026-11-11): a public GitHub repository.** At bootstrap the CTO runs `gh repo create agent-office --public --source . --remote origin` with the logged-in `gh` account, then pushes. If that fails, a local bare repository `../agent-office.git` as `origin`, and the failure goes to the Owner inbox. Because the repository is public, the rule "no secrets and no personal data" is checked by every review before landing. | #0 |
 | G2 | Art check (scope §8): does the office look right? | **Answered by the owner (2026-11-11): looks okay, G2 closed; the owner wants to see the finished app running before the final verdict, and the art must stay easy to replace (D-034).** Before: the CTO puts the screenshots of #2 in the Owner inbox, sends one push notification, and continues; no answer within 24 h means go ahead. Feedback that arrives later becomes a `fix-` lane or part of #5. | #5 |
+| G4 | First theme after #11, in the look of Claude-Office (MIT, github.com/W17ant/Claude-Office): isometric, how it is drawn, facings, extras | **Default:** isometric-capable engine is built in #9/#10 anyway; the theme itself is a later cycle, not scheduled until the owner starts it. Recommended answers: faithful isometric, redrawn at our resolution in its style (its pictures as reference only), 2 drawn facings mirrored to 4, one room without seasons or day/night. | after #11 |
 | G3 | Privacy check (scope §8): what may the API show per tool? | **Answered by the owner (2026-11-11): per-tool table approved, `ai-title` and `description` name fallbacks allowed, detail mode allowed as an opt-in (#7, D-034).** Before: #1's outcome file lists the target rule per tool; the CTO puts that list in the Owner inbox. Until answered, the rules of scope P-3 apply and `detailMode` stays off. | #3 |
 
 ## Settled decisions
@@ -153,6 +164,16 @@ bin/agent-office
 - **Fixtures are synthetic.** `fixtures/gen/` writes them from code, shaped after the field list in scope §4. A cycle may look at real transcripts on this machine to match their shape, but nothing from them is committed.
 - **Robustness.** The reader never throws on a bad line: it counts it (DATA-8) and moves on. Unknown record types are ignored.
 
+### S5. Theming (D-041, D-042)
+
+- **A theme pack is a folder:** `theme.json` (manifest: name, credits and licence of every asset, palette, cast, sound kinds, font), sprite sheets as PNG + Aseprite JSON-array data (`frameTags` = the art-id poses of `art-ids.ts`, `slices` = anchors such as hand, mug, meter), the room as a Tiled map (`.tmj`), sounds as OGG/WAV, optionally a font (glyph strip PNG or woff2). Packs live in `themes/<name>/` in the repo (only assets with a known open licence, because the repo is public) or in any folder given by path (for private packs).
+- **Selection:** `--theme <name|dir>` and the config key `theme`; default `office`. The server validates the pack at start-up (same pattern as `src/server/replay/manifest.ts`), reports every problem and refuses to start with a broken pack. It serves `/api/theme` (the manifest) and `/theme/*` (the files, with image, audio, JSON and font types).
+- **Client:** a loader in `src/client/app/` fetches and decodes the whole pack before `mountOffice` runs. Rendering stays Canvas 2D (S1). **PixiJS was evaluated and is not used** (D-042): 255 KB gzip against our 46 KB client, no Aseprite tag or Tiled spot support, WebGL required; revisit only above 960×540, for shader lighting, or above 4 ms frame time.
+- **Characters:** layered parts stay the default format (per-id variety by FNV-1a hash); a pack may instead ship a fixed whole-body cast. Facings (with mirroring) are declared in the manifest. Art is free RGBA; palette-indexed is not required.
+- **Room:** every theme keeps the office places of `layout.ts` (CTO office, desk groups, open desks, kitchen, couch, whiteboard, done wall, door), named the same in the map's object layer. Room art is a backdrop plus a foreground layer, not tied to 16 px tiles; the walk area is a polygon or mask in the map, turned into the 8 px grid at load. Depth sorting by foot y; desks split into back and front parts. The scene stays 480×270; a room of another aspect (e.g. 4:3) is letterboxed inside it. Isometric rooms and diagonal facings must be possible.
+- **Tools the format targets:** Aseprite (CLI `--sheet --data --list-tags --list-slices`, and the MIT `aseprite-mcp`), Tiled (CLI `--export-map json`), jsfxr and rFXGen for sounds. No paid AI service. No asset from the Dunder Mifflin skin of Claude-Office, or any other trademarked set, ever enters the repo.
+- **Research to read:** `../../../.rpi-tracking/research/2026-11-12/theme-packs-research.md` and `look-research.md` (paths from a lane worktree to the main checkout; git-ignored, read-only). They hold file:line evidence of what is hard-wired today.
+
 ### S4. Done for every cycle
 
 - `make lint` and `make test` green in the lane after the rebase; `make dev` still starts the app.
@@ -190,6 +211,12 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 | RUN-1 | scope §5.4 | One command starts the server and prints the URL |
 | RUN-2 | scope §5.4 | Optional config file with defaults and clear errors |
 | RUN-3 | scope §5.4 | Memory and start-up footprint, measured |
+
+| THEME-1 | S5, D-041 | A theme pack format (`theme.json` + assets) with a validator and a documented schema |
+| THEME-2 | S5, D-041 | `--theme` / config `theme` selects a pack; the server validates and serves it |
+| THEME-3 | S5, D-041 | Characters, props and overlays drawn from the pack's sprite sheets and anchors, not from code |
+| THEME-4 | S5, D-041 | The room (art layers, named spots, walk area, depth order) comes from the pack's Tiled map |
+| THEME-5 | S5, D-041 | Sounds, font and palette from the pack; today's art exported as the default pack `themes/office`; authoring guide |
 
 ## Reference material
 
@@ -290,7 +317,38 @@ IDs point into the scope document, which holds the wording. Every cycle also rea
 - Weak art carried from #5: faint meter track, neighbouring bubbles over name tags, standing intern head-down pose, typing hands not skin-toned.
 - **Done when:** the measurements are in the README and within the limits; a fresh clone runs with the documented commands and only Node installed (RUN-1); the visual pass screenshots are named in the outcome file.
 
+## W5–W7 Theming (D-041)
+
+### 8. `theme-pack`
+
+- `src/shared/theme.ts`: the manifest types and one pure `validateTheme()` (asset list, licences present, poses cover `art-ids.ts`, spots cover the office places). Append-only after #8 lands.
+- Server: `--theme <name|dir>` in `cli.ts`, config key `theme`, pack resolution (`themes/<name>` in the repo, else a path), validation at start-up with all problems listed, `/api/theme` and `/theme/*` (one line each in `routes.ts`; image, audio, JSON and font content types in the static handler; no path escape out of the pack folder).
+- A tiny synthetic test pack under `fixtures/themes/` made by a generator in `fixtures/gen/` (no hand-copied art), and `make theme-check DIR=<pack>` that runs the validator.
+- Until #11, the client ignores the pack: the app looks exactly as today. **Done when:** a valid pack is served, every kind of broken pack is refused with a clear message (tests), and the gates are green.
+
+### 9. `theme-sprites`
+
+- A loader in `src/client/app/` that fetches the manifest, decodes PNG sheets and Aseprite JSON (frames, durations, `frameTags` → poses, `slices` → anchors) into the existing atlas (`render/atlas.ts` takes any RGBA raster) before `mountOffice`.
+- Both character formats: layered parts (today's model, per-id variety) and a fixed whole-body cast; facings with mirroring; animation timing from the sheet's durations.
+- Overlay and prop anchors (hand, mug, meter, bubble) come from slices, replacing the code offsets in `office/life/overlays.ts`; the art-ids contract test now runs against the pack.
+- Test with the synthetic pack from #8 plus a second, visibly different one (different cast size and facings). Today's code-drawn art stays the runtime default until #11. Update `docs/design/art-seam.md`. **Done when:** a pack's sheets replace every character, prop and overlay sprite, screenshots of both test packs are named in the outcome file.
+
+### 10. `theme-room`
+
+- The room from the pack's Tiled map: an object layer with the named spots, props and lamps (same names as `layout.ts` today, with facing), the walk area as a polygon or mask turned into the 8 px grid, a backdrop and a foreground image layer, and desks split into back and front parts.
+- Depth sorting by foot y across characters and props; pathfinding unchanged on the derived grid; diagonal facings chosen from the walk direction; a room of another aspect letterboxed inside 480×270.
+- `layout.ts` becomes the loader's output instead of constants (#10 owns it from here). An isometric test map in the synthetic packs proves that layout. **Done when:** both test packs (one top-down ¾, one isometric) show characters walking, sitting and working correctly, frame time with 12 characters is still under 16 ms, screenshots named.
+
+### 11. `theme-office`
+
+- Sounds from OGG/WAV per kind, with today's Web Audio synthesis as the fallback for kinds the pack leaves out; the canvas font from the pack (glyph strip) and the HTML font (woff2); bundle the Pixelify Sans font that `shell.css` names but the repo lacks; palette from the manifest.
+- Export today's art into `themes/office` with the existing PNG encoder (a generator, so it can be redone), and make it the default pack: one loader path, no code-drawn art at runtime. The look must stay pixel-identical (screenshot comparison against `main`).
+- `docs/design/theme-packs.md` (≤120 lines): how to make a pack with Aseprite (CLI and `aseprite-mcp`), Tiled and jsfxr/rFXGen, the manifest schema, naming rules, licences, and `make theme-check`. README: `--theme`, the config key, where packs live.
+- **Done when:** `bin/agent-office --theme office` looks as v1 did, a pack made only with the documented tools is accepted, RUN-3 still holds (`make bench-mem`), screenshots named.
+
 ## Out of scope / proposals (not scheduled)
+
+- **Next after #11 (owner, G4):** a theme in the look of Claude-Office (MIT; redrawn in its style at our resolution; never its Dunder Mifflin skin). Scheduled when the owner starts it.
 
 - Everything in scope §6: hooks posting events, controlling agents, remote use, costs, a level editor, mobile.
 - Proposals for v2: a hook endpoint for instant `waiting` and tool timing; a "reviewing" pose derived from the RPI phase a session is in (`/rpi-review` in its transcript); day and night following the real clock; a verb-bar style command strip once controlling agents is in scope.

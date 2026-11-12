@@ -5,7 +5,7 @@ The CTO's memory. Edited only by the active CTO, with small edits. A successor r
 ## Now
 
 - **CTO generation:** 3
-- **Phase of the project:** v1 done: #0–#7 and `fix-memory` landed (de09711); stopped for owner review (D-034)
+- **Phase of the project:** v1 done (#0–#7, `fix-memory`); theming cycles #8–#11 planned (D-041, D-042), not started
 - **Wave in progress:** none; W1–W4 done
 
 ## Mechanics
@@ -39,7 +39,12 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 ## Next actions
 
-None. The project stopped for owner review (CTO.md §11, D-034). If the owner restarts a CTO: read `DECISIONS.md` for any owner reversal, and treat the Carried-forward items in D-040 and `docs/outcomes/07-polish.md` as candidate `fix-` lanes only if the owner asks.
+Waiting for the owner to start the theming run (`/cto`). Then, the loop (`CTO.md` §4):
+
+1. Arm the watchdog. Read `docs/rpi-cycles.md` S5 and the #8 section.
+2. `lane open theme-pack`, spawn `c08-research`. While #8 implements, `c09-research`/`c09-plan` may run in their own lane (`theme-sprites`), reading #8's lane; #9 implements only after #8 lands and `lane sync`.
+3. Then #10 `theme-room` (L; owns `layout.ts` from here), then #11 `theme-office`. Watchers on implement and review; "Minors never cause rework (D-027)" in review prompts.
+4. After #11 lands and CI is green: stop for owner review (`CTO.md` §11), one push notification. The Claude-Office-look theme (G4) is not started without the owner.
 
 ## Notes for the successor
 
