@@ -41,7 +41,7 @@ Status of every cycle is the last column of the overview in `docs/rpi-cycles.md`
 
 Nothing runs here (no lanes, no watchdog). The fork is blocked on the owner (Owner inbox O-4):
 
-1. The owner writes the fork's `CLAUDE.md` § Git and starts its CTO-1 in `~/code/claude-office` (exact steps in the fork's `docs/harness/DECISIONS.md` O-1). That CTO commits the prepared files as the bootstrap commit.
+1. Done: the owner approved, CTO-4 wrote the fork's `CLAUDE.md` § Git; the owner restores its settings allows and starts its CTO-1 in `~/code/claude-office` (exact steps in the fork's `docs/harness/DECISIONS.md` O-1). That CTO commits the prepared files as the bootstrap commit.
 2. A CTO started here again resumes theming with #8 (D-043), unless the owner says otherwise.
 
 ## Notes for the successor
